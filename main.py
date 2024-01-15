@@ -1,5 +1,8 @@
+import debug
+
+
 def main():
-    pass
+    debug.log("This is a log")
 
 
 if __name__ == "__main__":
