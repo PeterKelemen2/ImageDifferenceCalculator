@@ -137,3 +137,35 @@ class Interface:
         # Update the label with the selected file path
         self.selected_file_path.set(file_path)
         debug.log(f"Selected file: {file_path}")
+        self.show_file_content()
+
+    def show_file_content(self):
+        # Wrapper for input file content
+        debug.log("[5/1] Creating File content wrapper...")
+        file_content_wrapper = LabelFrame(self.win,
+                                          text="File content",
+                                          bg=BGCOLOR,
+                                          height=300,
+                                          width=700)
+        file_content_wrapper.pack(pady=150)
+        debug.log("[5/2]File content wrapper created!")
+
+        # File content
+        debug.log("[5/3] Creating File content Label...")
+        file_content_label = Label(file_content_wrapper,
+                                   bg=BGCOLOR)
+        file_content_label.pack()
+        debug.log("[5/4]File content Label created!")
+
+        # Reading file content
+        debug.log("[5/5] Opening file...")
+        output = ""
+        with open("C:/Users/Administrator/PycharmProjects/ImageDifferenceCalculator/teszt.txt", "r") as file:
+            for line in file:
+                output += line
+        debug.log("[5/6] File read, closed!")
+
+        # Updating Label with the content
+        debug.log("[5/7] Updating file content Label...")
+        file_content_label.config(text=output)
+        debug.log("[5/8] File content Label updated!")
