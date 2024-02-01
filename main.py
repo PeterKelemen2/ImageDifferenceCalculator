@@ -3,7 +3,7 @@ import interface
 
 
 def main():
-    debug.log("This is a log")
+    debug.log("Session started!")
     my_interface = interface.Interface()
 
 
