@@ -149,20 +149,22 @@ class Interface:
 
     def show_image_details(self, path):
         image_content_wrapper = LabelFrame(self.win,
-                                           text="Data",
+                                           text="Image Data",
                                            bg=BGCOLOR,
                                            width=780,
-                                           height=300)
+                                           height=300,
+                                           font=("Helvetica", 10, "bold"))
         image_content_wrapper.place(x=10, y=100)
 
         image_label = Label(image_content_wrapper)
         image_label.place(x=5, y=5)
 
         image = Image.open(path)
+        im_det = f"Width: {image.width}px\nHeight: {image.height}px"
 
         width, height = image.size
         aspect_ratio = width / height
-        new_width = 390  # Set your desired width
+        new_width = 390
         new_height = int(new_width / aspect_ratio)
 
         image = image.resize((new_width, new_height), Image.BILINEAR)
@@ -170,6 +172,19 @@ class Interface:
 
         image_label.config(image=image_file)
         image_label.image = image_file
+
+        image_details_label = Label(image_content_wrapper,
+                                    text="Image details:",
+                                    bg=BGCOLOR,
+                                    font=("Helvetica", 10, "bold"),
+                                    anchor="w")
+        image_details_label.place(x=420, y=10)
+        image_details = Label(image_content_wrapper,
+                              text=im_det,
+                              bg=BGCOLOR,
+                              font=("Helvetica", 10),
+                              anchor="w")
+        image_details.place(x=420, y=image_details_label.winfo_reqheight() * 1.5)
 
     def show_file_content(self, path):
         # Wrapper for input file content
