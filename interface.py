@@ -22,8 +22,6 @@ class Interface:
         self.time_label = None
         self.time_wrapper = None
 
-
-
         debug.log("[1/1] Creating interface...")
 
         self.set_properties()
@@ -44,7 +42,7 @@ class Interface:
         self.win.resizable(False, False)
         self.win.protocol("WM_DELETE_WINDOW")
         self.selected_file_path = StringVar()
-        
+
         debug.log("[2/2] Properties set!")
 
     def update_label(self):
@@ -87,24 +85,38 @@ class Interface:
 
         # Pack Label in Frame
         debug.log("[3/7] Packing Time Label in Frame...")
-        # self.time_label.pack(padx=10, pady=5, anchor="center")
-        # self.time_label.pack(padx=10, pady=5, anchor="center")
+        self.time_label.pack(padx=10,
+                             pady=5,
+                             anchor="center")
         debug.log("[3/8] Time Label packed!")
         # Schedule the update_label method to be called
         self.win.after(1000, self.update_label)
 
     def create_buttons(self):
-        button_wrapper = LabelFrame(self.win, text="Browse", bg=BGCOLOR, width=400, height=100,
+        button_wrapper = LabelFrame(self.win,
+                                    text="Input file",
+                                    bg=BGCOLOR,
+                                    width=620,
+                                    height=80,
                                     font=("Helvetica", TIME_FONT_SIZE, "bold"))
         # Place to the right
         x_coordinate = WIN_WIDTH - button_wrapper.winfo_reqwidth() - 10
         button_wrapper.place(x=x_coordinate, y=5)
 
-        opened_file_label = Label(button_wrapper, textvariable=self.selected_file_path)
-        opened_file_label.place(x=80)
+        browse_button = (Button(button_wrapper,
+                                text="Browse",
+                                command=self.browse_files))
+        browse_button.place(x=10,
+                            y=10,
+                            height=30,
+                            width=70)
 
-        browse_button = Button(button_wrapper, text="Browse", command=self.browse_files)
-        browse_button.place(x=10, y=10, height=30, width=70)
+        opened_file_label = Label(button_wrapper,
+                                  textvariable=self.selected_file_path,
+                                  bg=BGCOLOR,
+                                  font=("Helvetica", TIME_FONT_SIZE))
+        opened_file_label.place(x=browse_button.winfo_reqwidth() * 2 - 12,
+                                y=browse_button.winfo_reqheight() / 2)
 
     def browse_files(self):
         # Open a file dialog and get the selected file path
@@ -112,4 +124,4 @@ class Interface:
 
         # Update the label with the selected file path
         self.selected_file_path.set(file_path)
-        print(f"Selected file: {file_path}")
+        debug.log(f"Selected file: {file_path}")
