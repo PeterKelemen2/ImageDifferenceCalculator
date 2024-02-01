@@ -1,4 +1,5 @@
-import tkinter
+# import tkinter
+from tkinter import Tk, Label, LabelFrame, Button
 from datetime import datetime
 
 import debug
@@ -10,7 +11,7 @@ BLACK = "#000000"
 TIME_FONT_SIZE = 10
 TIME_WRAPPER_WIDTH = 150
 TIME_WRAPPER_HEIGHT = 100
-WIN_WIDTH = 500
+WIN_WIDTH = 800
 WIN_HEIGHT = 500
 
 
@@ -24,6 +25,7 @@ class Interface:
 
         self.set_properties()
         self.create_time_frame()
+        self.create_buttons()
 
         debug.log("[1/2] Interface created")
         self.win.mainloop()
@@ -32,7 +34,7 @@ class Interface:
         # Set windows properties
         debug.log("[2/1] Setting properties...")
 
-        self.win = tkinter.Tk()
+        self.win = Tk()
         self.win["bg"] = BGCOLOR
         self.win.title("Image Difference Calculator")
         self.win.geometry(str(WIN_WIDTH) + "x" + str(WIN_HEIGHT))
@@ -51,10 +53,10 @@ class Interface:
         # Wrapper for time Label
         debug.log("[3/1] Creating Time Frame wrapper...")
 
-        self.time_wrapper = tkinter.LabelFrame(self.win,
-                                               text="Time",
-                                               width=TIME_WRAPPER_WIDTH,
-                                               height=TIME_WRAPPER_HEIGHT)
+        self.time_wrapper = LabelFrame(self.win,
+                                       text="Time",
+                                       width=TIME_WRAPPER_WIDTH,
+                                       height=TIME_WRAPPER_HEIGHT)
         self.time_wrapper["bg"] = BGCOLOR
         self.time_wrapper.place(x=10, y=5)
 
@@ -63,7 +65,7 @@ class Interface:
         # Label that shows the current time and date
         debug.log("[3/3] Creating Time Label...")
 
-        self.time_label = tkinter.Label(self.time_wrapper, text=datetime.now().strftime("%Y.%m.%d - %H:%M:%S"))
+        self.time_label = Label(self.time_wrapper, text=datetime.now().strftime("%Y.%m.%d - %H:%M:%S"))
         self.time_label.config(font=("Helvetica", TIME_FONT_SIZE),  # Font size
                                fg=BLACK,  # Font color
                                bg=BGCOLOR)  # Background color
@@ -81,7 +83,19 @@ class Interface:
 
         # Pack Label in Frame
         debug.log("[3/7] Packing Time Label in Frame...")
-        self.time_label.pack(padx=10, pady=5, anchor="center")
+        # self.time_label.pack(padx=10, pady=5, anchor="center")
+        # self.time_label.pack(padx=10, pady=5, anchor="center")
         debug.log("[3/8] Time Label packed!")
         # Schedule the update_label method to be called
         self.win.after(1000, self.update_label)
+
+    def create_buttons(self):
+        button_wrapper = LabelFrame(self.win, text="Browse", bg=BGCOLOR, width=400, height=100,
+                                    font=("Helvetica", TIME_FONT_SIZE, "bold"))
+        # Place to the right
+        x_coordinate = WIN_WIDTH - button_wrapper.winfo_reqwidth() - 10
+        button_wrapper.place(x=x_coordinate, y=5)
+        # button_wrapper.pack(pady=5)
+
+        browse_button = Button(button_wrapper, text="Browse")
+        browse_button.place(x=10, y=10, height=30, width=70)
