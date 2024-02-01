@@ -132,12 +132,19 @@ class Interface:
     def browse_files(self):
         # Open a file dialog and get the selected file path
         debug.log("Opening file browser dialog...")
-        file_path = filedialog.askopenfilename(title="Select a file", filetypes=[("All Files", "*.*")])
+        file_path = filedialog.askopenfilename(title="Select a file",
+                                               filetypes=[("Text Files", "*.txt"),
+                                                          ("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv"),
+                                                          ("All Files", "*.*")])
 
+        # ("All Files", "*.*")
         # Update the label with the selected file path
         self.selected_file_path.set(file_path)
         debug.log(f"Selected file: {file_path}")
-        self.show_file_content(file_path)
+        if file_path:
+            self.show_file_content(file_path)
+        else:
+            debug.log("No file selected")
 
     def show_file_content(self, path):
         # Wrapper for input file content
