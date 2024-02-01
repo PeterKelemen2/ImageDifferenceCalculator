@@ -26,7 +26,7 @@ class Interface:
 
         self.set_properties()
         self.create_time_frame()
-        self.create_buttons()
+        self.create_browser()
 
         debug.log("[1/2] Interface created")
         self.win.mainloop()
@@ -92,7 +92,8 @@ class Interface:
         # Schedule the update_label method to be called
         self.win.after(1000, self.update_label)
 
-    def create_buttons(self):
+    def create_browser(self):
+        # Wrapper for file browsing
         debug.log("[4/1] Creating Browsing wrapper...")
         button_wrapper = LabelFrame(self.win,
                                     text="Input file",
@@ -105,21 +106,25 @@ class Interface:
         button_wrapper.place(x=x_coordinate, y=5)
         debug.log("[4/2] Browsing wrapper created!")
 
+        # Button to initiate browsing
         debug.log("[4/3] Creating browse Button...")
         browse_button = (Button(button_wrapper,
                                 text="Browse",
                                 command=self.browse_files))
+        # TODO: Figure out a way to make this not hardcoded
         browse_button.place(x=10,
                             y=10,
                             height=30,
                             width=70)
         debug.log("[4/4] Browse Button created!")
 
+        # Label for showing opened file path
         debug.log("[4/5] Creating file path Label...")
         opened_file_label = Label(button_wrapper,
                                   textvariable=self.selected_file_path,
                                   bg=BGCOLOR,
                                   font=("Helvetica", TIME_FONT_SIZE))
+        # Place right to the button, vertically centered
         opened_file_label.place(x=browse_button.winfo_reqwidth() * 2 - 12,
                                 y=browse_button.winfo_reqheight() / 2)
         debug.log("[4/6] File path Label created!")
