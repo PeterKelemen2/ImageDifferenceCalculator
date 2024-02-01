@@ -43,7 +43,7 @@ def init_logger():
 
 def log(message):
     """
-    Logs a message with a timestamp to both a text file and the standard error stream.
+    Logs a message with a timestamp to both a text file and the standard output stream.
 
     Args:
         message (str): The message to be logged.
@@ -56,7 +56,7 @@ def log(message):
         with open(log_file_path, 'a') as log_file:
             log_file.write(date + str(message) + '\n')
 
-        print("[Debug]" + date + str(message), file=sys.stderr)
+        print("[Debug]" + date + str(message), file=sys.stdout)
     else:
         init_logger()
         log(message)
