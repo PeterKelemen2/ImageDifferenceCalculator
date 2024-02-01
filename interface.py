@@ -93,6 +93,7 @@ class Interface:
         self.win.after(1000, self.update_label)
 
     def create_buttons(self):
+        debug.log("[4/1] Creating Browsing wrapper...")
         button_wrapper = LabelFrame(self.win,
                                     text="Input file",
                                     bg=BGCOLOR,
@@ -102,7 +103,9 @@ class Interface:
         # Place to the right
         x_coordinate = WIN_WIDTH - button_wrapper.winfo_reqwidth() - 10
         button_wrapper.place(x=x_coordinate, y=5)
+        debug.log("[4/2] Browsing wrapper created!")
 
+        debug.log("[4/3] Creating browse Button...")
         browse_button = (Button(button_wrapper,
                                 text="Browse",
                                 command=self.browse_files))
@@ -110,16 +113,20 @@ class Interface:
                             y=10,
                             height=30,
                             width=70)
+        debug.log("[4/4] Browse Button created!")
 
+        debug.log("[4/5] Creating file path Label...")
         opened_file_label = Label(button_wrapper,
                                   textvariable=self.selected_file_path,
                                   bg=BGCOLOR,
                                   font=("Helvetica", TIME_FONT_SIZE))
         opened_file_label.place(x=browse_button.winfo_reqwidth() * 2 - 12,
                                 y=browse_button.winfo_reqheight() / 2)
+        debug.log("[4/6] File path Label created!")
 
     def browse_files(self):
         # Open a file dialog and get the selected file path
+        debug.log("Opening file browser dialog...")
         file_path = filedialog.askopenfilename(title="Select a file", filetypes=[("All Files", "*.*")])
 
         # Update the label with the selected file path
