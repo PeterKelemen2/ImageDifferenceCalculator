@@ -151,15 +151,21 @@ class Interface:
         image_content_wrapper = LabelFrame(self.win,
                                            text="Data",
                                            bg=BGCOLOR,
-                                           width=700,
+                                           width=780,
                                            height=300)
-        image_content_wrapper.place(x=5, y=100)
+        image_content_wrapper.place(x=10, y=100)
 
         image_label = Label(image_content_wrapper)
-        image_label.pack()
+        image_label.place(x=5, y=5)
 
         image = Image.open(path)
-        image = image.resize((100, 100), Image.BILINEAR)
+
+        width, height = image.size
+        aspect_ratio = width / height
+        new_width = 390  # Set your desired width
+        new_height = int(new_width / aspect_ratio)
+
+        image = image.resize((new_width, new_height), Image.BILINEAR)
         image_file = ImageTk.PhotoImage(image)
 
         image_label.config(image=image_file)
