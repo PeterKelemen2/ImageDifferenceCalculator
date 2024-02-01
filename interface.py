@@ -134,10 +134,10 @@ class Interface:
         debug.log("Opening file browser dialog...")
         file_path = filedialog.askopenfilename(title="Select a file",
                                                filetypes=[("Text Files", "*.txt"),
+                                                          ("Image Files", "*.jpg;*.png; *.jpeg;*.bmp"),
                                                           ("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv"),
                                                           ("All Files", "*.*")])
 
-        # ("All Files", "*.*")
         # Update the label with the selected file path
         self.selected_file_path.set(file_path)
         debug.log(f"Selected file: {file_path}")
