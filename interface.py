@@ -1,5 +1,6 @@
 # import tkinter
-from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog
+from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage
+from PIL import Image, ImageTk
 from datetime import datetime
 
 import debug
@@ -133,8 +134,8 @@ class Interface:
         # Open a file dialog and get the selected file path
         debug.log("Opening file browser dialog...")
         file_path = filedialog.askopenfilename(title="Select a file",
-                                               filetypes=[("Text Files", "*.txt"),
-                                                          ("Image Files", "*.jpg;*.png; *.jpeg;*.bmp"),
+                                               filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif"),
+                                                          ("Text Files", "*.txt"),
                                                           ("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv"),
                                                           ("All Files", "*.*")])
 
@@ -142,9 +143,27 @@ class Interface:
         self.selected_file_path.set(file_path)
         debug.log(f"Selected file: {file_path}")
         if file_path:
-            self.show_file_content(file_path)
+            self.show_image_details(file_path)
         else:
             debug.log("No file selected")
+
+    def show_image_details(self, path):
+        image_content_wrapper = LabelFrame(self.win,
+                                           text="Data",
+                                           bg=BGCOLOR,
+                                           width=700,
+                                           height=300)
+        image_content_wrapper.place(x=5, y=100)
+
+        image_label = Label(image_content_wrapper)
+        image_label.pack()
+
+        image = Image.open(path)
+        image = image.resize((100, 100), Image.BILINEAR)
+        image_file = ImageTk.PhotoImage(image)
+
+        image_label.config(image=image_file)
+        image_label.image = image_file
 
     def show_file_content(self, path):
         # Wrapper for input file content
