@@ -6,6 +6,7 @@ import debug
 # Global properties
 BGCOLOR = "#00b685"
 WHITE = "#ffffff"
+BLACK = "#000000"
 TIME_FONT_SIZE = 10
 WIN_WIDTH = 500
 WIN_HEIGHT = 500
@@ -22,13 +23,26 @@ class Interface:
         self.win.resizable(False, False)
         self.win.protocol("WM_DELETE_WINDOW")
 
+        # Wrapper for time Label
+        self.time_frame = tkinter.LabelFrame(self.win, text="Time", width=150, height=100)
+        self.time_frame["bg"] = BGCOLOR
+        self.time_frame.place(x=10, y=5)
+
         # Label that shows the current time and date
-        self.time_label = tkinter.Label(self.win, text=datetime.now().strftime("%Y.%m.%d - %H:%M:%S"))
+        self.time_label = tkinter.Label(self.time_frame, text=datetime.now().strftime("%Y.%m.%d - %H:%M:%S"))
         self.time_label.config(font=("Helvetica", TIME_FONT_SIZE),  # Font size
-                               fg=WHITE,  # Font color
+                               fg=BLACK,  # Font color
                                bg=BGCOLOR)  # Background color
-        # Absolute position
-        self.time_label.place(x=10, y=10)
+
+        # Set Frame label to width and height of Label
+        label_width = self.time_label.winfo_reqwidth() + 20
+        label_height = self.time_label.winfo_reqheight() * 2
+        self.time_frame.config(font=("Helvetica", TIME_FONT_SIZE, "bold"),
+                               width=label_width,
+                               height=label_height)
+
+        # Pack Label in Frame
+        self.time_label.pack(padx=10, pady=5, anchor="center")
         # Schedule the update_label method to be called
         self.win.after(1000, self.update_label)
 
