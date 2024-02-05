@@ -1,9 +1,13 @@
 # import tkinter
-from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage
+from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Canvas
+
+import cv2
 from PIL import Image, ImageTk
 from datetime import datetime
 
 import debug
+
+import custom_button
 
 # Global properties
 BGCOLOR = "#00b685"
@@ -109,14 +113,22 @@ class Interface:
 
         # Button to initiate browsing
         debug.log("[4/3] Creating browse Button...")
-        browse_button = (Button(button_wrapper,
-                                text="Browse",
-                                command=self.browse_files))
         # TODO: Figure out a way to make this not hardcoded
-        browse_button.place(x=10,
-                            y=10,
-                            height=30,
-                            width=70)
+
+        # browse_button = (Button(button_wrapper,
+        #                         text="Browse",
+        #                         command=self.browse_files))
+        # browse_button.place(x=10,
+        #                     y=10,
+        #                     height=30,
+        #                     width=70)
+
+        browse_button = custom_button.RoundedRectangleButton(button_wrapper, text="Browse", command=self.browse_files,
+                                                             width=70,
+                                                             height=30,
+                                                             radius=10)
+        browse_button.canvas.place(x=10, y=10)
+
         debug.log("[4/4] Browse Button created!")
 
         # Label for showing opened file path
@@ -124,28 +136,82 @@ class Interface:
         opened_file_label = Label(button_wrapper,
                                   textvariable=self.selected_file_path,
                                   bg=BGCOLOR,
-                                  font=("Helvetica", TIME_FONT_SIZE))
+                                  font=("Helvetica", TIME_FONT_SIZE),
+                                  wraplength=520,
+                                  justify="left")
         # Place right to the button, vertically centered
-        opened_file_label.place(x=browse_button.winfo_reqwidth() * 2 - 12,
-                                y=browse_button.winfo_reqheight() / 2)
+        opened_file_label.place(x=browse_button.winfo_reqwidth() * 2 - 55,
+                                y=browse_button.winfo_reqheight() / 2 - 5)
         debug.log("[4/6] File path Label created!")
 
     def browse_files(self):
         # Open a file dialog and get the selected file path
         debug.log("Opening file browser dialog...")
         file_path = filedialog.askopenfilename(title="Select a file",
-                                               filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.gif"),
+                                               filetypes=[("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv"),
+                                                          ("Image Files", "*.png;*.jpg;*.jpeg;*.gif"),
                                                           ("Text Files", "*.txt"),
-                                                          ("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv"),
                                                           ("All Files", "*.*")])
 
         # Update the label with the selected file path
         self.selected_file_path.set(file_path)
         debug.log(f"Selected file: {file_path}")
         if file_path:
-            self.show_image_details(file_path)
+            self.show_first_frame_details(file_path)
         else:
             debug.log("No file selected")
+
+    def show_first_frame_details(self, path):
+        frame_wrapper = LabelFrame(self.win,
+                                   text="Video Data",
+                                   bg=BGCOLOR,
+                                   width=780,
+                                   height=300,
+                                   font=("Helvetica", 10, "bold"))
+        frame_wrapper.place(x=10, y=100)
+
+        frame_label = Label(frame_wrapper)
+        frame_label.place(x=5, y=5)
+
+        cap = cv2.VideoCapture(path)
+        fps = "{:.2f}".format(cap.get(cv2.CAP_PROP_FPS))
+        bitrate = "{:.0f}".format(cap.get(cv2.CAP_PROP_BITRATE))
+        ret, frame = cap.read()
+        cap.release()
+
+        if ret:
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(frame_rgb)
+
+            width, height = image.size
+            aspect_ratio = width / height
+            im_det = (f"Width: {image.width}px\n"
+                      f"Height: {image.height}px\n"
+                      f"Framerate: {fps} fps\n"
+                      f"Bitrate: {bitrate} kbps")
+
+            new_width = 390
+            new_height = int(new_width / aspect_ratio)
+            image = image.resize((new_width, new_height), Image.BILINEAR)
+            image_file = ImageTk.PhotoImage(image)
+
+            frame_label.config(image=image_file)
+            frame_label.image = image_file
+        frame_details_header = Label(frame_wrapper,
+                                     text="Video details:",
+                                     bg=BGCOLOR,
+                                     font=("Helvetica", 10, "bold")
+                                     )
+        frame_details_header.place(x=420, y=10)
+        image_details = Label(frame_wrapper,
+                              text=im_det,
+                              bg=BGCOLOR,
+                              font=("Helvetica", 10),
+                              # Left alignment
+                              justify="left",
+                              anchor="w"
+                              )
+        image_details.place(x=420, y=frame_details_header.winfo_reqheight() * 1.5)
 
     def show_image_details(self, path):
         image_content_wrapper = LabelFrame(self.win,
@@ -207,7 +273,6 @@ class Interface:
         # Reading file content
         debug.log("[5/5] Opening file...")
         output = ""
-        # C:/Users/Administrator/PycharmProjects/ImageDifferenceCalculator/teszt.txt
         with open(path, "r") as file:
             for line in file:
                 output += line
