@@ -8,6 +8,7 @@ from datetime import datetime
 import debug
 
 import custom_button
+from media_player import MediaPlayer
 
 # Global properties
 BGCOLOR = "#00b685"
@@ -171,7 +172,7 @@ class Interface:
                                    text="Video Data",
                                    bg=BGCOLOR,
                                    width=780,
-                                   height=300,
+                                   height=320,
                                    font=("Helvetica", 10, "bold"))
         frame_wrapper.place(x=10, y=100)
         debug.log("[5/2] Video details wrapper created!")
@@ -217,6 +218,13 @@ class Interface:
             frame_label.image = image_file
             debug.log("[5/10] Image configured!")
 
+        # media_player_button = Button(frame_wrapper, text="Open Media Player")
+        media_player_button = custom_button.RoundedRectangleButton(frame_wrapper,
+                                                                   text="Open Media Player",
+                                                                   width=140)
+        media_player_button.canvas.place(x=10,
+                                         y=new_height + 15)
+
         # Creating labels to display video details
         debug.log("[5/11] Creating labels to display video details...")
         frame_details_header = Label(frame_wrapper,
@@ -235,3 +243,8 @@ class Interface:
                               )
         image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
         debug.log("[5/12] Labels to display video details created!")
+
+    def open_media_player(self, file_path):
+        video_window = Tk()
+        app = MediaPlayer(video_window, file_path)
+        video_window.mainloop()
