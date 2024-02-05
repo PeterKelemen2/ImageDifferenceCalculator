@@ -1,5 +1,5 @@
 # import tkinter
-from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Canvas
+from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Canvas, Frame
 
 import cv2
 from PIL import Image, ImageTk
@@ -63,8 +63,9 @@ class Interface:
         self.time_wrapper = LabelFrame(self.win,
                                        text="Time",
                                        width=TIME_WRAPPER_WIDTH,
-                                       height=TIME_WRAPPER_HEIGHT)
-        self.time_wrapper["bg"] = BGCOLOR
+                                       height=TIME_WRAPPER_HEIGHT,
+                                       bg=BGCOLOR)
+
         self.time_wrapper.place(x=10, y=5)
 
         debug.log("[3/2] Time wrapper created!")
@@ -113,20 +114,12 @@ class Interface:
 
         # Button to initiate browsing
         debug.log("[4/3] Creating browse Button...")
-        # TODO: Figure out a way to make this not hardcoded
 
-        # browse_button = (Button(button_wrapper,
-        #                         text="Browse",
-        #                         command=self.browse_files))
-        # browse_button.place(x=10,
-        #                     y=10,
-        #                     height=30,
-        #                     width=70)
-
-        browse_button = custom_button.RoundedRectangleButton(button_wrapper, text="Browse", command=self.browse_files,
+        browse_button = custom_button.RoundedRectangleButton(button_wrapper,
+                                                             text="Browse",
+                                                             command=self.browse_files,
                                                              width=70,
-                                                             height=30,
-                                                             radius=10)
+                                                             height=30)
         browse_button.canvas.place(x=10, y=10)
 
         debug.log("[4/4] Browse Button created!")
@@ -190,7 +183,7 @@ class Interface:
                       f"Framerate: {fps} fps\n"
                       f"Bitrate: {bitrate} kbps")
 
-            new_width = 390
+            new_width = frame_wrapper.winfo_reqwidth() // 2
             new_height = int(new_width / aspect_ratio)
             image = image.resize((new_width, new_height), Image.BILINEAR)
             image_file = ImageTk.PhotoImage(image)
@@ -202,7 +195,7 @@ class Interface:
                                      bg=BGCOLOR,
                                      font=("Helvetica", 10, "bold")
                                      )
-        frame_details_header.place(x=420, y=10)
+        frame_details_header.place(x=new_width + 30, y=10)
         image_details = Label(frame_wrapper,
                               text=im_det,
                               bg=BGCOLOR,
@@ -211,7 +204,7 @@ class Interface:
                               justify="left",
                               anchor="w"
                               )
-        image_details.place(x=420, y=frame_details_header.winfo_reqheight() * 1.5)
+        image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
 
     def show_image_details(self, path):
         image_content_wrapper = LabelFrame(self.win,

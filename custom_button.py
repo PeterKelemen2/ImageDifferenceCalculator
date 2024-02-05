@@ -1,8 +1,9 @@
+from tkinter import Tk, Canvas, PhotoImage
+from PIL import Image, ImageDraw
+
 BGCOLOR = "#00b685"
 WHITE = "#ffffff"
 BLACK = "#000000"
-
-from tkinter import Canvas, Tk, BOTH
 
 
 class RoundedRectangleButton:
@@ -14,25 +15,25 @@ class RoundedRectangleButton:
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
         self.canvas.pack()
 
-        self.create_rounded_rectangle(width, height, radius, bg)
+        rounded_button_image = self.create_rounded_button_image(width, height, radius, bg)
+        self.photo_image = PhotoImage(width=width, height=height)
+        self.canvas.create_image(0, 0, anchor="nw", image=self.photo_image, state="normal")
         self.canvas.create_text(width // 2, height // 2, text=text, fill=fg, font=font)
 
         self.canvas.bind("<Button-1>", self.on_button_click)
 
-    def create_rounded_rectangle(self, width, height, radius, color):
-        x0, y0 = 0, 0
-        x1, y1 = width, height
-        self.canvas.create_arc(x0, y0, x0 + 2 * radius, y0 + 2 * radius, start=90, extent=90, outline=color,
-                               fill=color, width=0)
-        self.canvas.create_arc(x1 - 2 * radius, y0, x1, y0 + 2 * radius, start=0, extent=90, outline=color, fill=color,
-                               width=0)
-        self.canvas.create_arc(x0, y1 - 2 * radius, x0 + 2 * radius, y1, start=180, extent=90, outline=color,
-                               fill=color, width=0)
-        self.canvas.create_arc(x1 - 2 * radius, y1 - 2 * radius, x1, y1, start=270, extent=90, outline=color,
-                               fill=color,
-                               width=0)
-        self.canvas.create_rectangle(x0 + radius, y0, x1 - radius, y1, outline=color, fill=color, width=0)
-        self.canvas.create_rectangle(x0, y0 + radius, x1, y1 - radius, outline=color, fill=color, width=0)
+    def create_rounded_button_image(self, width, height, radius, color):
+        image = Image.new("RGBA", (width, height), color=(0, 0, 0, 0))
+        draw = ImageDraw.Draw(image)
+
+        draw.rectangle([radius, 0, width - radius, height], fill=color)
+        draw.rectangle([0, radius, width, height - radius], fill=color)
+        draw.pieslice([0, 0, radius * 2, radius * 2], 90, 180, fill=color)
+        draw.pieslice([width - radius * 2, 0, width, radius * 2], 0, 90, fill=color)
+        draw.pieslice([0, height - radius * 2, radius * 2, height], 180, 270, fill=color)
+        draw.pieslice([width - radius * 2, height - radius * 2, width, height], 270, 360, fill=color)
+
+        return image.tobytes("raw", "RGBA")
 
     def on_button_click(self, event):
         if self.command:
