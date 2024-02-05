@@ -221,7 +221,8 @@ class Interface:
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
         media_player_button = custom_button.RoundedRectangleButton(frame_wrapper,
                                                                    text="Open Media Player",
-                                                                   width=140)
+                                                                   width=140,
+                                                                   command=lambda: self.open_media_player(path))
         media_player_button.canvas.place(x=10,
                                          y=new_height + 15)
 

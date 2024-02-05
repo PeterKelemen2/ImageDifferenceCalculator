@@ -1,74 +1,72 @@
-from tkinter import Canvas, Button
-from PIL import Image, ImageTk
+import tkinter as tk
+from tkinter import filedialog
+
 import cv2
+from PIL import Image, ImageTk
 
 
-class MediaPlayer:
-    def __init__(self, master, file_path):
-        self.master = master
-        self.file_path = file_path
-        self.master.title("Video Player")
+class MediaPlayer(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Video Player")
+        self.geometry("800x600")
+        self.configure(bg="#f0f0f0")
 
-        self.canvas = Canvas(master)
-        self.canvas.pack()
+        self.canvas = tk.Canvas(self, bg="black")
+        self.canvas.pack(expand=tk.YES, fill=tk.BOTH)
 
-        self.video_path = None
-        self.cap = None
-
+        self.frames = []
+        self.current_frame = 0
         self.playing = False
-        self.paused = False
-        self.framerate = None
 
-        self.photo = None  # Store PhotoImage object
+        # Buttons
+        self.open_button = tk.Button(self, text="Open Video", command=self.open_video)
+        self.open_button.pack(pady=10)
 
-        self.play_button = Button(master, text="Play", command=self.toggle_play)
-        self.play_button.pack(side="left", padx=10)
+        self.play_button = tk.Button(self, text="Play", command=self.play_video)
+        self.play_button.pack(side=tk.LEFT, padx=10)
 
-        self.stop_button = Button(master, text="Stop", command=self.stop_video)
-        self.stop_button.pack(side="left", padx=10)
-
-        self.open_button = Button(master, text="Open Video", command=self.open_video)
-        self.open_button.pack(side="left", padx=10)
-
-        self.master.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.pause_button = tk.Button(self, text="Pause", command=self.pause_video)
+        self.pause_button.pack(side=tk.LEFT, padx=10)
 
     def open_video(self):
-        if self.file_path:
-            self.video_path = self.file_path
-            self.cap = cv2.VideoCapture(self.video_path)
-            self.framerate = int(1000 / self.cap.get(cv2.CAP_PROP_FPS))  # Delay in milliseconds
-            self.play_video()
+        file_path = filedialog.askopenfilename(title="Select a video file",
+                                               filetypes=[("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv")])
+        if file_path:
+            self.frames = self.extract_frames(file_path)
+            self.current_frame = 0
+            self.display_frame()
+
+    def extract_frames(self, file_path):
+        cap = cv2.VideoCapture(file_path)
+        frames = []
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(frame_rgb)
+            frames.append(ImageTk.PhotoImage(image=image))
+        cap.release()
+        return frames
+
+    def display_frame(self):
+        if self.frames and 0 <= self.current_frame < len(self.frames):
+            self.canvas.delete("all")
+            self.canvas.create_image(0, 0, anchor="nw", image=self.frames[self.current_frame])
 
     def play_video(self):
-        if self.cap is not None:
+        if self.frames:
             self.playing = True
-            while self.playing:
-                ret, frame = self.cap.read()
-                if ret:
-                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    image = Image.fromarray(frame_rgb)
-                    self.photo = ImageTk.PhotoImage(image=image)
-                    self.canvas.config(width=image.width // 2, height=image.height // 2)
-                    self.canvas.create_image(0, 0, anchor="nw", image=self.photo)
-                    self.master.update()
-                    if not self.paused:
-                        self.master.after(self.framerate)
-                else:
-                    self.stop_video()
-                    break
+            self.play_frames()
 
-    def toggle_play(self):
-        if self.cap is not None:
-            if self.playing:
-                self.paused = not self.paused
+    def play_frames(self):
+        if self.playing and 0 <= self.current_frame < len(self.frames):
+            self.display_frame()
+            self.current_frame += 1
+            self.after(100, self.play_frames)
+        else:
+            self.playing = False
 
-    def stop_video(self):
+    def pause_video(self):
         self.playing = False
-        self.paused = False
-        if self.cap is not None:
-            self.cap.release()
-            self.canvas.delete("all")
-
-    def close_window(self):
-        self.stop_video()
-        self.master.destroy()
