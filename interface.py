@@ -154,7 +154,18 @@ class Interface:
         else:
             debug.log("No file selected")
 
-    def show_first_frame_details(self, path):
+    def show_first_frame_details(self, path: str):
+        """
+        Display video details, including the first frame, in a labeled frame.
+
+        Parameters:
+        - path (str): The path to the video file.
+
+        This method creates a labeled frame containing the first frame of the video and details about the video.
+        The video details include the width, height, framerate, and bitrate.
+        """
+
+        # Creating a labeled frame to contain video details
         frame_wrapper = LabelFrame(self.win,
                                    text="Video Data",
                                    bg=BGCOLOR,
@@ -163,9 +174,11 @@ class Interface:
                                    font=("Helvetica", 10, "bold"))
         frame_wrapper.place(x=10, y=100)
 
+        # Creating a label to display the first frame of the video
         frame_label = Label(frame_wrapper)
         frame_label.place(x=5, y=5)
 
+        # Opening the video and extracting details from the first frame
         cap = cv2.VideoCapture(path)
         fps = "{:.2f}".format(cap.get(cv2.CAP_PROP_FPS))
         bitrate = "{:.0f}".format(cap.get(cv2.CAP_PROP_BITRATE))
@@ -176,6 +189,7 @@ class Interface:
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(frame_rgb)
 
+            # Extracting video details from the first frame
             width, height = image.size
             aspect_ratio = width / height
             im_det = (f"Width: {image.width}px\n"
@@ -183,13 +197,17 @@ class Interface:
                       f"Framerate: {fps} fps\n"
                       f"Bitrate: {bitrate} kbps")
 
+            # Resizing the first frame to fit within the frame wrapper
             new_width = frame_wrapper.winfo_reqwidth() // 2
             new_height = int(new_width / aspect_ratio)
             image = image.resize((new_width, new_height), Image.BILINEAR)
             image_file = ImageTk.PhotoImage(image)
 
+            # Configuring the frame label with the resized first frame
             frame_label.config(image=image_file)
             frame_label.image = image_file
+
+        # Creating labels to display video details
         frame_details_header = Label(frame_wrapper,
                                      text="Video details:",
                                      bg=BGCOLOR,
@@ -205,73 +223,3 @@ class Interface:
                               anchor="w"
                               )
         image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
-
-    def show_image_details(self, path):
-        image_content_wrapper = LabelFrame(self.win,
-                                           text="Image Data",
-                                           bg=BGCOLOR,
-                                           width=780,
-                                           height=300,
-                                           font=("Helvetica", 10, "bold"))
-        image_content_wrapper.place(x=10, y=100)
-
-        image_label = Label(image_content_wrapper)
-        image_label.place(x=5, y=5)
-
-        image = Image.open(path)
-        im_det = f"Width: {image.width}px\nHeight: {image.height}px"
-
-        width, height = image.size
-        aspect_ratio = width / height
-        new_width = 390
-        new_height = int(new_width / aspect_ratio)
-
-        image = image.resize((new_width, new_height), Image.BILINEAR)
-        image_file = ImageTk.PhotoImage(image)
-
-        image_label.config(image=image_file)
-        image_label.image = image_file
-
-        image_details_label = Label(image_content_wrapper,
-                                    text="Image details:",
-                                    bg=BGCOLOR,
-                                    font=("Helvetica", 10, "bold"),
-                                    anchor="w")
-        image_details_label.place(x=420, y=10)
-        image_details = Label(image_content_wrapper,
-                              text=im_det,
-                              bg=BGCOLOR,
-                              font=("Helvetica", 10),
-                              anchor="w")
-        image_details.place(x=420, y=image_details_label.winfo_reqheight() * 1.5)
-
-    def show_file_content(self, path):
-        # Wrapper for input file content
-        debug.log("[5/1] Creating File content wrapper...")
-        file_content_wrapper = LabelFrame(self.win,
-                                          text="File content",
-                                          bg=BGCOLOR,
-                                          height=300,
-                                          width=700)
-        file_content_wrapper.pack(pady=150)
-        debug.log("[5/2]File content wrapper created!")
-
-        # File content
-        debug.log("[5/3] Creating File content Label...")
-        file_content_label = Label(file_content_wrapper,
-                                   bg=BGCOLOR)
-        file_content_label.pack()
-        debug.log("[5/4]File content Label created!")
-
-        # Reading file content
-        debug.log("[5/5] Opening file...")
-        output = ""
-        with open(path, "r") as file:
-            for line in file:
-                output += line
-        debug.log("[5/6] File read, closed!")
-
-        # Updating Label with the content
-        debug.log("[5/7] Updating file content Label...")
-        file_content_label.config(text=output)
-        debug.log("[5/8] File content Label updated!")
