@@ -166,6 +166,7 @@ class Interface:
         """
 
         # Creating a labeled frame to contain video details
+        debug.log("[5/1] Creating video details wrapper...")
         frame_wrapper = LabelFrame(self.win,
                                    text="Video Data",
                                    bg=BGCOLOR,
@@ -173,17 +174,22 @@ class Interface:
                                    height=300,
                                    font=("Helvetica", 10, "bold"))
         frame_wrapper.place(x=10, y=100)
+        debug.log("[5/2] Video details wrapper created!")
 
         # Creating a label to display the first frame of the video
+        debug.log("[5/3] Creating placeholder label for first frame...")
         frame_label = Label(frame_wrapper)
         frame_label.place(x=5, y=5)
+        debug.log("[5/4] First frame placeholder created!")
 
         # Opening the video and extracting details from the first frame
+        debug.log("[5/5] Opening video file and getting first frame data")
         cap = cv2.VideoCapture(path)
         fps = "{:.2f}".format(cap.get(cv2.CAP_PROP_FPS))
         bitrate = "{:.0f}".format(cap.get(cv2.CAP_PROP_BITRATE))
         ret, frame = cap.read()
         cap.release()
+        debug.log("[5/6] First frame data gathered!")
 
         if ret:
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -198,16 +204,21 @@ class Interface:
                       f"Bitrate: {bitrate} kbps")
 
             # Resizing the first frame to fit within the frame wrapper
+            debug.log("[5/7] Calculating first frame information...")
             new_width = frame_wrapper.winfo_reqwidth() // 2
             new_height = int(new_width / aspect_ratio)
             image = image.resize((new_width, new_height), Image.BILINEAR)
             image_file = ImageTk.PhotoImage(image)
+            debug.log("[5/8] First image information set!")
 
             # Configuring the frame label with the resized first frame
+            debug.log("[5/9] Configuring image...")
             frame_label.config(image=image_file)
             frame_label.image = image_file
+            debug.log("[5/10] Image configured!")
 
         # Creating labels to display video details
+        debug.log("[5/11] Creating labels to display video details...")
         frame_details_header = Label(frame_wrapper,
                                      text="Video details:",
                                      bg=BGCOLOR,
@@ -223,3 +234,4 @@ class Interface:
                               anchor="w"
                               )
         image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
+        debug.log("[5/12] Labels to display video details created!")
