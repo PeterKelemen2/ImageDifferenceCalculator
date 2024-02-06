@@ -1,4 +1,3 @@
-# import tkinter
 from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Canvas, Frame
 
 import cv2
