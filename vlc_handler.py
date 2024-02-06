@@ -38,9 +38,10 @@ def vlc_installer():
 
 
 def open_video(file_path: str):
+    debug.log("Opening video...")
     if current_os == "Windows":
         file_path = file_path.replace("/", "\\")
-        subprocess.Popen([windows_vlc_path, file_path])
+        subprocess.Popen([windows_vlc_path, "--loop", file_path])
 
     elif current_os == "Linux":
-        subprocess.run([linux_vlc_path, file_path])
+        subprocess.run([linux_vlc_path, "--loop", file_path])
