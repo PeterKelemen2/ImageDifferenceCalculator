@@ -8,7 +8,7 @@ from datetime import datetime
 import debug
 
 import custom_button
-from media_player import MediaPlayer
+from video_player import VideoPlayer
 
 # Global properties
 BGCOLOR = "#00b685"
@@ -246,6 +246,7 @@ class Interface:
         debug.log("[5/12] Labels to display video details created!")
 
     def open_media_player(self, file_path):
-        video_window = Tk()
-        app = MediaPlayer(video_window, file_path)
-        video_window.mainloop()
+        # video_window = Tk()
+        app = VideoPlayer(file_path)
+        app.mainloop()
+        # video_window.mainloop()
