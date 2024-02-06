@@ -1,6 +1,6 @@
 import module_handler
 
-module_handler.module_handler()
+# module_handler.module_handler()
 
 import debug
 import interface

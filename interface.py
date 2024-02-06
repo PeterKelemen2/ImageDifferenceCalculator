@@ -1,4 +1,5 @@
-from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Canvas, Frame
+from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage
+from tkinter.ttk import Progressbar
 
 import cv2
 
@@ -245,5 +246,11 @@ class Interface:
         image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
         debug.log("[5/12] Labels to display video details created!")
 
+        self.create_progress_bar(frame_wrapper)
+
     def open_media_player(self, file_path):
         vlc_handler.open_video(file_path)
+
+    def create_progress_bar(self, win):
+        progress_bar = Progressbar(win, orient="horizontal", length=300, mode="indeterminate")
+        progress_bar.place(x=100, y=100)  # Adjust this
