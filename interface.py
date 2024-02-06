@@ -2,12 +2,14 @@
 from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Canvas, Frame
 
 import cv2
+
 from PIL import Image, ImageTk
 from datetime import datetime
 
 import debug
 
 import custom_button
+import vlc_handler
 
 # Global properties
 BGCOLOR = "#00b685"
@@ -219,8 +221,8 @@ class Interface:
 
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
         media_player_button = custom_button.RoundedRectangleButton(frame_wrapper,
-                                                                   text="Open Media Player",
-                                                                   width=140,
+                                                                   text="Open in VLC",
+                                                                   width=100,
                                                                    command=lambda: self.open_media_player(path))
         media_player_button.canvas.place(x=10,
                                          y=new_height + 15)
@@ -245,4 +247,4 @@ class Interface:
         debug.log("[5/12] Labels to display video details created!")
 
     def open_media_player(self, file_path):
-        pass
+        vlc_handler.open_video(file_path)
