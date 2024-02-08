@@ -36,7 +36,7 @@ def vlc_installer():
                 if tries < 3:
                     vlc_installer()
                 else:
-                    sys.exit("Could not install VLC, exiting...")
+                    sys.exit("Could not install VLC, install manually to default location, exiting...")
     elif current_os == "Linux":
         debug.log(f"Linux version: {platform.platform()}")
 
