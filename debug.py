@@ -88,7 +88,7 @@ def get_current_timestamp():
     return last_timestamp.strftime("[%Y.%m.%d - %H:%M:%S] ")  # Format when returning
 
 
-def log(message, text_color=color_dict["default"], timestamp_color=color_dict["default"]):
+def log(message: str, text_color=color_dict["default"], timestamp_color=color_dict["default"]):
     """
     Logs a message with a timestamp to both a text file and the standard output stream.
     Args:
@@ -96,6 +96,19 @@ def log(message, text_color=color_dict["default"], timestamp_color=color_dict["d
 
     Note:
         If a session is not already started, it initializes the logger before logging the message.
+
+    Color Options:
+        - "default": Default color.
+        - "reset": Reset to default color.
+        - "red": Red color.
+        - "green": Green color.
+        - "yellow": Yellow color.
+        - "blue": Blue color.
+        - "magenta": Magenta color.
+        - "cyan": Cyan color.
+        :param message: The message to be logged.
+        :param timestamp_color: The color for the message text. Default is "default".
+        :param text_color: The color for the timestamp. Default is "default".
     """
     global log_file
     if not session_started:
@@ -105,9 +118,9 @@ def log(message, text_color=color_dict["default"], timestamp_color=color_dict["d
     date = datetime.now().strftime("[%Y.%m.%d - %H:%M:%S] ")
 
     file_log_message = "[Debug] " + timestamp + str(message)
-    log_message = (color_dict.get("red", color_dict["default"]) + "[Debug] " +
-                   color_dict.get(timestamp_color, color_dict["default"]) + timestamp +
-                   color_dict.get(text_color, color_dict["default"]) + str(message) +
+    log_message = (color_dict.get("red") + "[Debug] " +
+                   color_dict.get(timestamp_color, timestamp_color) + timestamp +
+                   color_dict.get(text_color, text_color) + str(message) +
                    color_dict["default"])
     log_file.write(file_log_message + '\n')  # Write message to log file
     log_file.flush()  # Flush buffer to ensure message is written immediately
