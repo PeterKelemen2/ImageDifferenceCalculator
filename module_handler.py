@@ -4,10 +4,6 @@ import subprocess
 modules = ["numpy", "opencv-python", "pillow"]
 
 
-def install_module(module: str):
-    subprocess.run(["py", "-m", "pip", "install", module], shell=True)
-
-
 def module_handler():
     subprocess.run(["py", "-m", "pip", "install", "--upgrade", "pip", "--quiet"], shell=True)
 
