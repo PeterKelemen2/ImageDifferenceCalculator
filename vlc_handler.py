@@ -14,40 +14,50 @@ current_os = platform.system()
 tries: int = 0
 
 
-def vlc_installer():
+def vlc_windows_installer():
     global tries
     tries += 1
-    if current_os == "Windows":
-        debug.log(f"Windows version: {platform.version()}")
-        # Checking if VLC path exists
-        if os.path.exists(windows_vlc_path):
-            debug.log("VLC installed!")
-        else:
-            debug.log("VLC not installed, installing...")
-            # Download VLC installer
-            subprocess.run(["curl", "-LO", "https://get.videolan.org/vlc/3.0.16/win64/vlc-3.0.16-win64.exe"])
-            # Run the installer
-            subprocess.run(["vlc-3.0.16-win64.exe", "/S", "/NORESTART"])
-            # Checking if install was successful
-            if os.path.exists(windows_vlc_path):
-                debug.log("VLC installed successfully!")
-            else:
-                # If unsuccessful, try again (only 3 times)
-                if tries < 3:
-                    vlc_installer()
-                else:
-                    sys.exit("Could not install VLC, install manually to default location, exiting...")
-    elif current_os == "Linux":
-        debug.log(f"Linux version: {platform.platform()}")
-
-        if subprocess.run(["vlc", "--version"]):
-            debug.log(f"VLC installed! - {subprocess.run(["vlc", "--version"])}")
-        else:
-            # Run installer command
-            debug.log("VLC not installed, installing...")
-            subprocess.run(["sudo", "apt", "install", "vlc"])
+    debug.log(f"Windows version: {platform.version()}")
+    # Checking if VLC path exists
+    if os.path.exists(windows_vlc_path):
+        debug.log("VLC installed!")
     else:
-        debug.log("Unsupported OS")
+        debug.log("VLC not installed, installing...")
+        # Download VLC installer
+        subprocess.run(["curl", "-LO", "https://get.videolan.org/vlc/3.0.16/win64/vlc-3.0.16-win64.exe"])
+        # Run the installer
+        subprocess.run(["vlc-3.0.16-win64.exe", "/S", "/NORESTART"])
+
+        # Checking if install was successful
+        if os.path.exists(windows_vlc_path):
+            debug.log("VLC installed successfully!")
+        else:
+            # If unsuccessful, try again (only 3 times)
+            if tries < 3:
+                vlc_installer()
+            else:
+                sys.exit("Could not install VLC, install manually to default location, exiting...")
+
+
+def vlc_linux_installer():
+    debug.log(f"Linux version: {platform.platform()}")
+
+    if subprocess.run(["vlc", "--version"]):
+        debug.log(f"VLC installed! - {subprocess.run(["vlc", "--version"])}")
+    else:
+        # Run installer command
+        debug.log("VLC not installed, installing...")
+        subprocess.run(["sudo", "apt", "install", "vlc"])
+
+
+def vlc_installer():
+    if current_os == "Windows":
+        vlc_windows_installer()
+    elif current_os == "Linux":
+        vlc_linux_installer()
+    else:
+        debug.log("OS not supported!")
+        sys.exit("OS not supported")
 
 
 def open_video(file_path: str):
