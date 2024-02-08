@@ -25,6 +25,7 @@ log_file = None
 log_file_path = ""
 log_folder_path = "logs"
 session_started = False
+last_timestamp = None
 
 
 def init_logger():
@@ -44,6 +45,21 @@ def init_logger():
     session_started = True
 
 
+def get_current_timestamp():
+    """
+    Returns the current timestamp formatted as "[%Y.%m.%d - %H:%M:%S]".
+
+    Note:
+        This function caches the formatted timestamp and returns the cached value if
+        it was generated within the same second.
+    """
+    global last_timestamp
+    current_time = datetime.now()
+    if last_timestamp is None or current_time.second != last_timestamp.second:
+        last_timestamp = current_time  # Store datetime object
+    return last_timestamp.strftime("[%Y.%m.%d - %H:%M:%S] ")  # Format when returning
+
+
 def log(message):
     """
     Logs a message with a timestamp to both a text file and the standard output stream.
@@ -57,8 +73,10 @@ def log(message):
     global log_file
     if not session_started:
         init_logger()
+
+    timestamp = get_current_timestamp()
     date = datetime.now().strftime("[%Y.%m.%d - %H:%M:%S] ")
-    log_message = "[Debug]" + date + str(message)
+    log_message = "[Debug]" + timestamp + str(message)
     log_file.write(log_message + '\n')  # Write message to log file
     log_file.flush()  # Flush buffer to ensure message is written immediately
     print(log_message, file=sys.stdout)  # Print message to stdout
