@@ -1,6 +1,6 @@
 import module_handler
 
-# module_handler.module_handler()
+module_handler.module_handler()
 
 import debug
 import interface
@@ -14,5 +14,5 @@ def main():
 
 
 if __name__ == "__main__":
-    module_handler.module_handler()
+    # module_handler.module_handler()
     main()
