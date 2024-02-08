@@ -26,6 +26,7 @@ def module_handler():
     # Check for modules that need to be installed
     debug.log("Checking for missing modules...")
     modules_to_install = [module for module in modules if importlib.util.find_spec(module) is None]
+
     debug.log("Modules to install: " + str(modules_to_install))
 
     # Install missing modules, if any
