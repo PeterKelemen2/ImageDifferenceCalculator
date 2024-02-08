@@ -1,19 +1,37 @@
 """
-logger.py - Simple Logger Module
+debug.py - Simple Logger Module
 
 This module provides a basic logging functionality to log messages with timestamps to a text file
-and also print them to the standard error stream. The log file is stored in a 'logs' directory,
+and also print them to the standard output stream. The log file is stored in a 'logs' directory,
 and each session is saved in a separate log file with a timestamp in the filename.
 
 Usage:
-    1. Import the module using: `from logger import log`
+    1. Import the module using: `from debug import log`
     2. Use the `log` function to log messages.
 
 Example:
-    from logger import log
+    from debug import log
 
     log("This is a log message.")
 
+Functions:
+    init_logger():
+        Initializes the logger by creating the 'logs' directory and setting up a new log file
+        with a timestamp in the filename. This function needs to be called before using the `log` function.
+
+    get_current_timestamp():
+        Returns the current timestamp formatted as "[%Y.%m.%d - %H:%M:%S]". This function caches
+        the formatted timestamp and returns the cached value if it was generated within the same second.
+
+    log(message, text_color="default", timestamp_color="default"):
+        Logs a message with a timestamp to both a text file and the standard output stream.
+        Args:
+            message (str): The message to be logged.
+            text_color (str, optional): The color for the message text. Default is "default".
+            timestamp_color (str, optional): The color for the timestamp. Default is "default".
+
+        Note:
+            If a session is not already started, it initializes the logger before logging the message.
 """
 
 from datetime import datetime
@@ -29,7 +47,6 @@ last_timestamp = None
 
 color_dict = {
     "default": "\033[0m",
-    "reset": "\033[0m",
     "red": "\033[91m",
     "green": "\033[92m",
     "yellow": "\033[93m",
@@ -74,7 +91,6 @@ def get_current_timestamp():
 def log(message, text_color=color_dict["default"], timestamp_color=color_dict["default"]):
     """
     Logs a message with a timestamp to both a text file and the standard output stream.
-
     Args:
         message (str): The message to be logged.
 
@@ -92,7 +108,7 @@ def log(message, text_color=color_dict["default"], timestamp_color=color_dict["d
     log_message = (color_dict.get("red", color_dict["default"]) + "[Debug]" +
                    color_dict.get(timestamp_color, color_dict["default"]) + timestamp +
                    color_dict.get(text_color, color_dict["default"]) + str(message) +
-                   color_dict["reset"])
+                   color_dict["default"])
     log_file.write(file_log_message + '\n')  # Write message to log file
     log_file.flush()  # Flush buffer to ensure message is written immediately
 

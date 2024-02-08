@@ -12,7 +12,9 @@ def check_if_modules_installed(installed_modules):
                        for module in modules
                        if module not in installed_modules]
     if missing_modules:
-        debug.log(f"Module(s) {missing_modules} could not be installed, please install manually")
+        debug.log(f"Module(s) {missing_modules} could not be installed, please install manually",
+                  text_color="red",
+                  timestamp_color="red")
         sys.exit(f"Module(s) {missing_modules} could not be installed, please install manually")
 
 
@@ -55,6 +57,6 @@ def module_handler():
                        shell=True)
 
     check_if_modules_installed(installed_modules)
-    debug.log("All modules installed!")
+    debug.log("All modules installed!", text_color="cyan")
 
-    debug.log("Executed in {:.2f}s".format(time.time() - start_time))
+    debug.log("Executed in {:.2f}s".format(time.time() - start_time), text_color="cyan")

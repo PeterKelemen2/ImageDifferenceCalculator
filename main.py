@@ -10,7 +10,7 @@ import interface
 
 
 def main():
-    debug.log("Session started!")
+    debug.log("Session started!", text_color="cyan")
     my_interface = interface.Interface()
 
 

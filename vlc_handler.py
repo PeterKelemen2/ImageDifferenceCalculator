@@ -20,7 +20,7 @@ def vlc_windows_installer():
     debug.log(f"Windows version: {platform.version()}")
     # Checking if VLC path exists
     if os.path.exists(windows_vlc_path):
-        debug.log("VLC installed!")
+        debug.log("VLC installed!", text_color="cyan")
     else:
         debug.log("VLC not installed, installing...")
         # Download VLC installer
