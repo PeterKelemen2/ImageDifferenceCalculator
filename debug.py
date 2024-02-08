@@ -21,6 +21,7 @@ import sys
 import os
 
 # Global variables for logging
+log_file = None
 log_file_path = ""
 log_folder_path = "logs"
 session_started = False
@@ -33,9 +34,11 @@ def init_logger():
     """
     os.makedirs(log_folder_path, exist_ok=True)
 
+    global log_file
     global log_file_path
     date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     log_file_path = f"{log_folder_path}/log_{date}.txt"
+    log_file = open(log_file_path, "a")
 
     global session_started
     session_started = True
@@ -51,12 +54,11 @@ def log(message):
     Note:
         If a session is not already started, it initializes the logger before logging the message.
     """
-    if session_started:
-        date = datetime.now().strftime("[%Y.%m.%d - %H:%M:%S] ")
-        with open(log_file_path, 'a') as log_file:
-            log_file.write(date + str(message) + '\n')
-
-        print("[Debug]" + date + str(message), file=sys.stdout)
-    else:
+    global log_file
+    if not session_started:
         init_logger()
-        log(message)
+    date = datetime.now().strftime("[%Y.%m.%d - %H:%M:%S] ")
+    log_message = "[Debug]" + date + str(message)
+    log_file.write(log_message + '\n')  # Write message to log file
+    log_file.flush()  # Flush buffer to ensure message is written immediately
+    print(log_message, file=sys.stdout)  # Print message to stdout

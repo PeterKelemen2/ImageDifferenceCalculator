@@ -33,3 +33,4 @@ def module_handler():
     debug.log("All modules installed!")
 
     debug.log("Executed in {:.2f}s".format(time.time() - start_time))
+    print("Executed in {:.2f}s".format(time.time() - start_time))
