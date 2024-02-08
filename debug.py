@@ -104,8 +104,8 @@ def log(message, text_color=color_dict["default"], timestamp_color=color_dict["d
     timestamp = get_current_timestamp()
     date = datetime.now().strftime("[%Y.%m.%d - %H:%M:%S] ")
 
-    file_log_message = "[Debug]" + timestamp + str(message)
-    log_message = (color_dict.get("red", color_dict["default"]) + "[Debug]" +
+    file_log_message = "[Debug] " + timestamp + str(message)
+    log_message = (color_dict.get("red", color_dict["default"]) + "[Debug] " +
                    color_dict.get(timestamp_color, color_dict["default"]) + timestamp +
                    color_dict.get(text_color, color_dict["default"]) + str(message) +
                    color_dict["default"])
