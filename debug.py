@@ -27,6 +27,17 @@ log_folder_path = "logs"
 session_started = False
 last_timestamp = None
 
+color_dict = {
+    "default": "\033[0m",
+    "reset": "\033[0m",
+    "red": "\033[91m",
+    "green": "\033[92m",
+    "yellow": "\033[93m",
+    "blue": "\033[94m",
+    "magenta": "\033[95m",
+    "cyan": "\033[96m"
+}
+
 
 def init_logger():
     """
@@ -60,7 +71,7 @@ def get_current_timestamp():
     return last_timestamp.strftime("[%Y.%m.%d - %H:%M:%S] ")  # Format when returning
 
 
-def log(message):
+def log(message, text_color=color_dict["default"], timestamp_color=color_dict["default"]):
     """
     Logs a message with a timestamp to both a text file and the standard output stream.
 
@@ -76,7 +87,13 @@ def log(message):
 
     timestamp = get_current_timestamp()
     date = datetime.now().strftime("[%Y.%m.%d - %H:%M:%S] ")
-    log_message = "[Debug]" + timestamp + str(message)
-    log_file.write(log_message + '\n')  # Write message to log file
+
+    file_log_message = "[Debug]" + timestamp + str(message)
+    log_message = (color_dict.get("red", color_dict["default"]) + "[Debug]" +
+                   color_dict.get(timestamp_color, color_dict["default"]) + timestamp +
+                   color_dict.get(text_color, color_dict["default"]) + str(message) +
+                   color_dict["reset"])
+    log_file.write(file_log_message + '\n')  # Write message to log file
     log_file.flush()  # Flush buffer to ensure message is written immediately
+
     print(log_message, file=sys.stdout)  # Print message to stdout
