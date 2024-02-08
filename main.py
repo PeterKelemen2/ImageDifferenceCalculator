@@ -1,5 +1,6 @@
 import module_handler
 
+# Call module_handler at the beginning of program
 module_handler.module_handler()
 
 import debug
