@@ -10,6 +10,7 @@ modules = ["opencv-python", "pillow"]
 def check_if_modules_installed(installed_modules):
     missing_modules = [module for module in modules if module not in installed_modules]
     if missing_modules:
+        debug.log(f"Module(s) {missing_modules} could not be installed, please install manually")
         sys.exit(f"Module(s) {missing_modules} could not be installed, please install manually")
 
 
