@@ -1,3 +1,4 @@
+import time
 from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage
 from tkinter.ttk import Progressbar
 
@@ -21,7 +22,7 @@ TIME_WRAPPER_WIDTH = 150
 TIME_WRAPPER_HEIGHT = 100
 WIN_WIDTH = 800
 WIN_HEIGHT = 500
-
+call_nr = 0
 video_file_path = None
 
 
@@ -285,12 +286,16 @@ class Interface:
         self.progress_bar = Progressbar(progress_wrapper,
                                         orient="horizontal",
                                         length=progress_wrapper.winfo_reqwidth() - 75,
-                                        mode="determinate")
+                                        mode="determinate",
+                                        maximum=100)
         self.progress_bar.place(x=5, y=5)
 
         self.progress_label = Label(progress_wrapper, text="100.00%", bg=BGCOLOR, font=("Helvetica", 10))
         self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 10, y=5)
 
     def update_progress(self, value):
+        global call_nr
+        call_nr += 1
         self.progress_bar['value'] = value
         self.progress_label['text'] = str(value + "%")
+        # debug.log(f"Nr of calls: {call_nr}")

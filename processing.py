@@ -1,4 +1,5 @@
 import threading
+import time
 
 import cv2
 
@@ -6,6 +7,7 @@ import debug
 import interface
 
 progress_callback = None
+progress_percentage = None
 
 
 def set_progress_callback(callback):
@@ -14,7 +16,10 @@ def set_progress_callback(callback):
 
 
 def process_video(path, progress_callback):
+    start_time = time.time()
     current_frame_index = 0
+    frames_since_last_callback = 0
+    global progress_percentage
     debug.log(f"Started processing of: {path}", text_color="blue")
     cap = cv2.VideoCapture(path)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -30,12 +35,13 @@ def process_video(path, progress_callback):
             while True:
                 ret, frame = cap.read()
                 current_frame_index += 1
-                progress_percentage = "{:.2f}".format((current_frame_index * 100) / total_frames)
-                # progress_percentage = int("{:.2f}".format((current_frame_index * 100) / total_frames))
+                frames_since_last_callback += 1
 
-                debug.log(f"Progress: {progress_percentage}%")
-
-                progress_callback(progress_percentage)
+                if frames_since_last_callback == 5:
+                    progress_percentage = "{:.2f}".format((current_frame_index * 100) / total_frames)
+                    progress_callback(progress_percentage)
+                    frames_since_last_callback = 0
+                # debug.log(f"Progress: {progress_percentage}%")
 
                 if not ret:
                     break
@@ -47,9 +53,10 @@ def process_video(path, progress_callback):
                 #     break
 
                 prev_frame = frame
-
+    progress_callback("100.00")
     cap.release()
     cv2.destroyAllWindows()
+    debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
 
 
 def process_video_thread(path):
