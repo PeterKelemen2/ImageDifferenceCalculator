@@ -1,5 +1,5 @@
 import time
-from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage
+from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Toplevel
 from tkinter.ttk import Progressbar
 
 import cv2
@@ -125,11 +125,12 @@ class Interface:
         # Button to initiate browsing
         debug.log("[4/3] Creating browse Button...", text_color="magenta")
 
-        browse_button = custom_button.RoundedRectangleButton(button_wrapper,
-                                                             text="Browse",
-                                                             command=self.browse_files,
-                                                             width=70,
-                                                             height=30)
+        browse_button = custom_button.CustomButton(button_wrapper,
+                                                   text="Browse",
+                                                   command=self.browse_files,
+                                                   width=70,
+                                                   height=30,
+                                                   type=custom_button.button)
         browse_button.canvas.place(x=10, y=10)
 
         debug.log("[4/4] Browse Button created!", text_color="magenta")
@@ -235,20 +236,20 @@ class Interface:
             debug.log("[5/10] Image configured!", text_color="yellow")
 
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
-        media_player_button = custom_button.RoundedRectangleButton(frame_wrapper,
-                                                                   text="Open in VLC",
-                                                                   width=110,
-                                                                   height=30,
-                                                                   # command=lambda: self.open_media_player(path))
-                                                                   command=lambda: vlc_handler.open_video(path))
+        media_player_button = custom_button.CustomButton(frame_wrapper,
+                                                         text="Open in VLC",
+                                                         width=110,
+                                                         height=30,
+                                                         # command=lambda: self.open_media_player(path))
+                                                         command=lambda: vlc_handler.open_video(path))
         media_player_button.canvas.place(x=10,
                                          y=new_height + 21)
 
-        process_video_button = custom_button.RoundedRectangleButton(frame_wrapper,
-                                                                    text="Process Video",
-                                                                    width=110,
-                                                                    height=30,
-                                                                    command=lambda: self.process_video())
+        process_video_button = custom_button.CustomButton(frame_wrapper,
+                                                          text="Process Video",
+                                                          width=110,
+                                                          height=30,
+                                                          command=lambda: self.process_video())
         process_video_button.canvas.place(x=media_player_button.winfo_reqwidth() + 20, y=new_height + 21)
 
         # Creating labels to display video details
@@ -306,7 +307,7 @@ class Interface:
             self.create_finished_window()
 
     def create_finished_window(self):
-        finished_window = Tk()
+        finished_window = Toplevel(self.win)
         finished_window.title("Processing result")
         finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
         finished_window.configure(background=BGCOLOR)
@@ -331,11 +332,8 @@ class Interface:
                              font=("Helvetica", 10))
         result_label.pack(pady=0)
 
-        ok_button = custom_button.RoundedRectangleButton(finished_window,
-                                                         text="OK",
-                                                         height=30,
-                                                         width=50,
-                                                         command=lambda: finished_window.destroy())
+        ok_button = custom_button.CustomButton(finished_window,
+                                               text="OK",
+                                               command=finished_window.destroy,
+                                               type=custom_button.button)
         ok_button.canvas.pack(pady=20)
-
-        finished_window.mainloop()
