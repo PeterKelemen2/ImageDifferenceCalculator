@@ -226,11 +226,19 @@ class Interface:
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
         media_player_button = custom_button.RoundedRectangleButton(frame_wrapper,
                                                                    text="Open in VLC",
-                                                                   width=100,
+                                                                   width=110,
+                                                                   height=30,
                                                                    # command=lambda: self.open_media_player(path))
                                                                    command=lambda: vlc_handler.open_video(path))
         media_player_button.canvas.place(x=10,
-                                         y=new_height + 15)
+                                         y=new_height + 21)
+
+        process_video_button = custom_button.RoundedRectangleButton(frame_wrapper,
+                                                                    text="Process Video",
+                                                                    width=110,
+                                                                    height=30,
+                                                                    command=lambda: self.create_progress_bar())
+        process_video_button.canvas.place(x=media_player_button.winfo_reqwidth() + 20, y=new_height + 21)
 
         # Creating labels to display video details
         debug.log("[5/11] Creating labels to display video details...", text_color="yellow")
@@ -251,13 +259,15 @@ class Interface:
         image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
-        self.create_progress_bar()
+        # self.create_progress_bar()
 
     def create_progress_bar(self):
-        progress_wrapper = LabelFrame(self.win, text="Progress",
+        progress_wrapper = LabelFrame(self.win,
+                                      text="Progress",
                                       width=780,
                                       height=70,
-                                      bg=BGCOLOR)
+                                      bg=BGCOLOR,
+                                      font=("Helvetica", 10, "bold"))
         progress_wrapper.place(x=10, y=420)
 
         progress_bar = Progressbar(progress_wrapper,
