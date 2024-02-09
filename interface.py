@@ -250,11 +250,20 @@ class Interface:
         image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
-        # self.create_progress_bar(frame_wrapper)
+        self.create_progress_bar()
 
     def open_media_player(self, file_path):
         vlc_handler.open_video(file_path)
 
-    def create_progress_bar(self, win):
-        progress_bar = Progressbar(win, orient="horizontal", length=300, mode="indeterminate")
-        progress_bar.place(x=100, y=100)  # Adjust this
+    def create_progress_bar(self):
+        progress_wrapper = LabelFrame(self.win, text="Progress",
+                                      width=780,
+                                      height=70,
+                                      bg=BGCOLOR)
+        progress_wrapper.place(x=10, y=420)
+
+        progress_bar = Progressbar(progress_wrapper,
+                                   orient="horizontal",
+                                   length=progress_wrapper.winfo_reqwidth() - 20,
+                                   mode="determinate")
+        progress_bar.place(x=5, y=5)
