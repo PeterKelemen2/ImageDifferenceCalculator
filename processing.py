@@ -71,12 +71,11 @@ def process_video(path, progress_callback):
                 prev_frame = frame
 
             finished = True
+            debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
             progress_callback("100.00")
 
     cap.release()
     cv2.destroyAllWindows()
-
-    debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
 
 
 def process_video_thread(path):

@@ -22,6 +22,8 @@ TIME_WRAPPER_WIDTH = 150
 TIME_WRAPPER_HEIGHT = 100
 WIN_WIDTH = 800
 WIN_HEIGHT = 500
+FIN_WIN_WIDTH = 300
+FIN_WIN_HEIGHT = 180
 call_nr = 0
 video_file_path = None
 
@@ -306,16 +308,34 @@ class Interface:
     def create_finished_window(self):
         finished_window = Tk()
         finished_window.title("Processing result")
-        finished_window.geometry("400x200")
+        finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
         finished_window.configure(background=BGCOLOR)
         finished_window.resizable(False, False)
 
+        # Centering finished window on screen
         screen_width = finished_window.winfo_screenwidth()
         screen_height = finished_window.winfo_screenheight()
-
-        x = (screen_width - 400) // 2
-        y = (screen_height - 200) // 2
-
+        x = (screen_width - FIN_WIN_WIDTH) // 2
+        y = (screen_height - FIN_WIN_HEIGHT) // 2
         finished_window.geometry(f"+{x}+{y}")
+
+        title_label = Label(finished_window,
+                            text="Processing finished!",
+                            bg=BGCOLOR,
+                            font=("Helvetica", 10, "bold"))
+        title_label.pack(pady=20)
+
+        result_label = Label(finished_window,
+                             text=processing.total_difference,
+                             bg=BGCOLOR,
+                             font=("Helvetica", 10))
+        result_label.pack(pady=0)
+
+        ok_button = custom_button.RoundedRectangleButton(finished_window,
+                                                         text="OK",
+                                                         height=30,
+                                                         width=50,
+                                                         command=lambda: finished_window.destroy())
+        ok_button.canvas.pack(pady=20)
 
         finished_window.mainloop()

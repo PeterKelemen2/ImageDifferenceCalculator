@@ -15,9 +15,9 @@ class RoundedRectangleButton:
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
         self.canvas.pack()
 
-        rounded_button_image = self.create_rounded_button_image(width, height, radius, bg)
-        self.photo_image = PhotoImage(width=width, height=height)
-        self.canvas.create_image(0, 0, anchor="nw", image=self.photo_image, state="normal")
+        # rounded_button_image = self.create_rounded_button_image(width, height, radius, bg)
+        # self.photo_image = PhotoImage(width=width, height=height)
+        # self.canvas.create_image(0, 0, anchor="nw", image=self.photo_image, state="normal")
         self.canvas.create_text(width // 2, height // 2, text=text, fill=fg, font=font)
 
         self.canvas.bind("<Button-1>", self.on_button_click)
