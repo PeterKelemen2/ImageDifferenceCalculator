@@ -49,7 +49,7 @@ class CustomButton:
         if self.button_image_clicked:
             self.canvas.itemconfig(self.image_item, image=self.button_image_clicked)
             self.canvas.update()
-            self.master.after(500, self.switch_back_to_regular)
+            self.master.after(50, self.switch_back_to_regular)
 
     def switch_back_to_regular(self):
         if self.button_image:
