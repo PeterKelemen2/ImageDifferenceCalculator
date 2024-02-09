@@ -187,8 +187,10 @@ class Interface:
         # Opening the video and extracting details from the first frame
         debug.log("[5/5] Opening video file and getting first frame data...", text_color="yellow")
         cap = cv2.VideoCapture(path)
-        fps = "{:.2f}".format(cap.get(cv2.CAP_PROP_FPS))
+        fps = "{:.0f}".format(cap.get(cv2.CAP_PROP_FPS))
         bitrate = "{:.0f}".format(cap.get(cv2.CAP_PROP_BITRATE))
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        duration = "{:.0f}s".format(frame_count / int(fps))
         ret, frame = cap.read()
         cap.release()
         debug.log("[5/6] First frame data gathered!", text_color="yellow")
@@ -202,6 +204,8 @@ class Interface:
             aspect_ratio = width / height
             im_det = (f"Width: {image.width}px\n"
                       f"Height: {image.height}px\n"
+                      f"Frames: {frame_count}\n"
+                      f"Duration: {duration}\n"
                       f"Framerate: {fps} fps\n"
                       f"Bitrate: {bitrate} kbps")
 
