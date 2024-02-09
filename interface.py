@@ -227,7 +227,8 @@ class Interface:
         media_player_button = custom_button.RoundedRectangleButton(frame_wrapper,
                                                                    text="Open in VLC",
                                                                    width=100,
-                                                                   command=lambda: self.open_media_player(path))
+                                                                   # command=lambda: self.open_media_player(path))
+                                                                   command=lambda: vlc_handler.open_video(path))
         media_player_button.canvas.place(x=10,
                                          y=new_height + 15)
 
@@ -251,9 +252,6 @@ class Interface:
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
         self.create_progress_bar()
-
-    def open_media_player(self, file_path):
-        vlc_handler.open_video(file_path)
 
     def create_progress_bar(self):
         progress_wrapper = LabelFrame(self.win, text="Progress",
