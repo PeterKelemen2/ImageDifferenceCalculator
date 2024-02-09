@@ -1,3 +1,5 @@
+import threading
+
 import cv2
 
 import debug
@@ -11,7 +13,7 @@ def set_progress_callback(callback):
     progress_callback = callback
 
 
-def process_video(path):
+def process_video(path, progress_callback):
     current_frame_index = 0
     debug.log(f"Started processing of: {path}", text_color="blue")
     cap = cv2.VideoCapture(path)
@@ -32,18 +34,27 @@ def process_video(path):
 
                 debug.log(f"Progress: {progress_percentage}%")
 
-                # interface.Interface.update_progress_bar(progress_percentage)
+                progress_callback(progress_percentage)
 
                 if not ret:
                     break
 
                 abs_diff = cv2.absdiff(prev_frame, frame)
-                cv2.imshow("Absolute difference", abs_diff)
-                cv2.resizeWindow("Absolute difference", 800, 600)
-                if cv2.waitKey(25) & 0xFF == ord('q'):
-                    break
+                # cv2.imshow("Absolute difference", abs_diff)
+                # cv2.resizeWindow("Absolute difference", 800, 600)
+                # if cv2.waitKey(25) & 0xFF == ord('q'):
+                #     break
 
                 prev_frame = frame
 
     cap.release()
     cv2.destroyAllWindows()
+
+
+def process_video_thread(path):
+    global progress_callback
+    if progress_callback is None:
+        debug.log("Progress callback not set. Aborting video processing.", text_color="red")
+        return
+    thread = threading.Thread(target=process_video, args=(path, progress_callback))
+    thread.start()

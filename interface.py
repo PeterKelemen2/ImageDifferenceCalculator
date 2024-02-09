@@ -268,8 +268,9 @@ class Interface:
 
     def process_video(self):
         self.create_progress_bar()
-        # print("Selected video:", video_file_path)
-        processing.process_video(video_file_path)
+        # processing.process_video(video_file_path, self.update_progress_bar)
+        processing.set_progress_callback(self.update_progress_bar)
+        processing.process_video_thread(video_file_path)
 
     def create_progress_bar(self):
         progress_wrapper = LabelFrame(self.win,
