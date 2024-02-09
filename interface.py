@@ -9,6 +9,7 @@ from datetime import datetime
 import debug
 
 import custom_button
+import processing
 import vlc_handler
 
 # Global properties
@@ -21,6 +22,8 @@ TIME_WRAPPER_HEIGHT = 100
 WIN_WIDTH = 800
 WIN_HEIGHT = 500
 
+video_file_path = None
+
 
 class Interface:
     def __init__(self):
@@ -28,6 +31,7 @@ class Interface:
         self.win = None
         self.time_label = None
         self.time_wrapper = None
+        self.progress_bar = None
 
         debug.log("[1/1] Creating interface...", text_color="blue")
 
@@ -148,6 +152,9 @@ class Interface:
                                                           ("Text Files", "*.txt"),
                                                           ("All Files", "*.*")])
 
+        global video_file_path
+        video_file_path = file_path
+
         # Update the label with the selected file path
         self.selected_file_path.set(file_path)
         debug.log(f"Selected file: {file_path}", text_color="blue")
@@ -237,7 +244,7 @@ class Interface:
                                                                     text="Process Video",
                                                                     width=110,
                                                                     height=30,
-                                                                    command=lambda: self.create_progress_bar())
+                                                                    command=lambda: self.process_video())
         process_video_button.canvas.place(x=media_player_button.winfo_reqwidth() + 20, y=new_height + 21)
 
         # Creating labels to display video details
@@ -259,7 +266,10 @@ class Interface:
         image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
-        # self.create_progress_bar()
+    def process_video(self):
+        self.create_progress_bar()
+        # print("Selected video:", video_file_path)
+        processing.process_video(video_file_path)
 
     def create_progress_bar(self):
         progress_wrapper = LabelFrame(self.win,
@@ -270,8 +280,11 @@ class Interface:
                                       font=("Helvetica", 10, "bold"))
         progress_wrapper.place(x=10, y=420)
 
-        progress_bar = Progressbar(progress_wrapper,
-                                   orient="horizontal",
-                                   length=progress_wrapper.winfo_reqwidth() - 20,
-                                   mode="determinate")
-        progress_bar.place(x=5, y=5)
+        self.progress_bar = Progressbar(progress_wrapper,
+                                        orient="horizontal",
+                                        length=progress_wrapper.winfo_reqwidth() - 20,
+                                        mode="determinate")
+        self.progress_bar.place(x=5, y=5)
+
+    def update_progress_bar(self, value):
+        self.progress_bar['value'] = value
