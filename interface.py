@@ -299,3 +299,23 @@ class Interface:
         self.progress_bar['value'] = value
         self.progress_label['text'] = str(value + "%")
         # debug.log(f"Nr of calls: {call_nr}")
+        if processing.finished:
+            debug.log(processing.total_difference)
+            self.create_finished_window()
+
+    def create_finished_window(self):
+        finished_window = Tk()
+        finished_window.title("Processing result")
+        finished_window.geometry("400x200")
+        finished_window.configure(background=BGCOLOR)
+        finished_window.resizable(False, False)
+
+        screen_width = finished_window.winfo_screenwidth()
+        screen_height = finished_window.winfo_screenheight()
+
+        x = (screen_width - 400) // 2
+        y = (screen_height - 200) // 2
+
+        finished_window.geometry(f"+{x}+{y}")
+
+        finished_window.mainloop()
