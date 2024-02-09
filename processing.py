@@ -30,7 +30,8 @@ def process_video(path, progress_callback):
             while True:
                 ret, frame = cap.read()
                 current_frame_index += 1
-                progress_percentage = int("{:.0f}".format((current_frame_index * 100) / total_frames))
+                progress_percentage = "{:.2f}".format((current_frame_index * 100) / total_frames)
+                # progress_percentage = int("{:.2f}".format((current_frame_index * 100) / total_frames))
 
                 debug.log(f"Progress: {progress_percentage}%")
 

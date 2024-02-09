@@ -32,6 +32,7 @@ class Interface:
         self.time_label = None
         self.time_wrapper = None
         self.progress_bar = None
+        self.progress_label = None
 
         debug.log("[1/1] Creating interface...", text_color="blue")
 
@@ -269,7 +270,7 @@ class Interface:
     def process_video(self):
         self.create_progress_bar()
         # processing.process_video(video_file_path, self.update_progress_bar)
-        processing.set_progress_callback(self.update_progress_bar)
+        processing.set_progress_callback(self.update_progress)
         processing.process_video_thread(video_file_path)
 
     def create_progress_bar(self):
@@ -283,9 +284,13 @@ class Interface:
 
         self.progress_bar = Progressbar(progress_wrapper,
                                         orient="horizontal",
-                                        length=progress_wrapper.winfo_reqwidth() - 20,
+                                        length=progress_wrapper.winfo_reqwidth() - 75,
                                         mode="determinate")
         self.progress_bar.place(x=5, y=5)
 
-    def update_progress_bar(self, value):
+        self.progress_label = Label(progress_wrapper, text="100.00%", bg=BGCOLOR, font=("Helvetica", 10))
+        self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 10, y=5)
+
+    def update_progress(self, value):
         self.progress_bar['value'] = value
+        self.progress_label['text'] = str(value + "%")
