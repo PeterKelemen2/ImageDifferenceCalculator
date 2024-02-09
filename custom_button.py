@@ -33,7 +33,8 @@ class CustomButton:
         self.canvas.pack()
 
         if self.button_image:
-            self.canvas.create_image(width // 2, height // 2, anchor="center", image=self.button_image)
+            self.image_item = self.canvas.create_image(width // 2, height // 2, anchor="center",
+                                                       image=self.button_image)
 
         # Create text on top of the background
         self.text_item = self.canvas.create_text(width // 2, height // 2, text=text, fill=fg, font=font)
@@ -44,6 +45,15 @@ class CustomButton:
     def on_button_click(self, event):
         if self.command:
             self.command()
+
+        if self.button_image_clicked:
+            self.canvas.itemconfig(self.image_item, image=self.button_image_clicked)
+            self.canvas.update()
+            self.master.after(500, self.switch_back_to_regular)
+
+    def switch_back_to_regular(self):
+        if self.button_image:
+            self.canvas.itemconfig(self.image_item, image=self.button_image)
 
     def winfo_reqwidth(self):
         return self.canvas.winfo_reqwidth()

@@ -1,4 +1,4 @@
-import time
+import threading
 from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Toplevel
 from tkinter.ttk import Progressbar
 
@@ -44,6 +44,7 @@ class Interface:
         self.create_browser()
 
         debug.log("[1/2] Interface created", text_color="blue")
+
         self.win.mainloop()
 
     def set_properties(self):
@@ -107,6 +108,11 @@ class Interface:
         debug.log("[3/8] Time Label packed!", text_color="yellow")
         # Schedule the update_label method to be called
         self.win.after(1000, self.update_label)
+
+    def run_browser_on_thread(self):
+        # Run the file browser on a separate thread
+        file_browser_thread = threading.Thread(target=self.create_browser)
+        file_browser_thread.start()
 
     def create_browser(self):
         # Wrapper for file browsing
