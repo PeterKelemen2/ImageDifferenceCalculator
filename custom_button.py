@@ -1,5 +1,4 @@
-from tkinter import Tk, Canvas, PhotoImage
-from PIL import Image, ImageDraw
+from tkinter import Canvas, PhotoImage
 
 BGCOLOR = "#00b685"
 WHITE = "#ffffff"
@@ -13,18 +12,20 @@ button_clicked = "assets/button_clicked.png"
 
 class CustomButton:
     def __init__(self, master, text, command=None, width=110, height=30, fg="black",
-                 font=("Helvetica", 10, "bold"), type=wide_button):
+                 font=("Helvetica", 10, "bold"), button_type=wide_button):
         self.master = master
         self.command = command
+        self.button_state = "enabled"
 
         # Store the PhotoImage objects as attributes to prevent garbage collection
         self.button_image = None
         self.button_image_clicked = None
+        self.image_item = None
 
-        if type == wide_button:
+        if button_type == wide_button:
             self.button_image = PhotoImage(file=wide_button)
             self.button_image_clicked = PhotoImage(file=wide_button_clicked)
-        elif type == button:
+        elif button_type == button:
             self.button_image = PhotoImage(file=button)
             self.button_image_clicked = PhotoImage(file=button_clicked)
             width = 70
@@ -43,13 +44,24 @@ class CustomButton:
         self.canvas.tag_bind(self.text_item, "<Button-1>", self.on_button_click)
 
     def on_button_click(self, event):
-        if self.command:
+        if self.command and self.button_state == "enabled":
             self.command()
 
         if self.button_image_clicked:
             self.canvas.itemconfig(self.image_item, image=self.button_image_clicked)
             self.canvas.update()
             self.master.after(50, self.switch_back_to_regular)
+
+    def enable(self):
+        self.button_state = "enabled"
+
+    def disable(self):
+        self.button_state = "disabled"
+
+    def is_enabled(self):
+        if self.button_state == "enabled":
+            return True
+        return False
 
     def switch_back_to_regular(self):
         if self.button_image:

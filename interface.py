@@ -26,6 +26,7 @@ FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 call_nr = 0
 video_file_path = None
+prev_video_path = None
 
 
 class Interface:
@@ -36,6 +37,10 @@ class Interface:
         self.time_wrapper = None
         self.progress_bar = None
         self.progress_label = None
+        self.process_video_button = None
+        self.browse_button = None
+        self.is_file_selected = False
+        self.opened_file_label = None
 
         debug.log("[1/1] Creating interface...", text_color="blue")
 
@@ -131,48 +136,51 @@ class Interface:
         # Button to initiate browsing
         debug.log("[4/3] Creating browse Button...", text_color="magenta")
 
-        browse_button = custom_button.CustomButton(button_wrapper,
-                                                   text="Browse",
-                                                   command=self.browse_files,
-                                                   width=70,
-                                                   height=30,
-                                                   type=custom_button.button)
-        browse_button.canvas.place(x=10, y=10)
+        self.browse_button = custom_button.CustomButton(button_wrapper,
+                                                        text="Browse",
+                                                        command=self.browse_files,
+                                                        width=70,
+                                                        height=30,
+                                                        button_type=custom_button.button)
+        self.browse_button.canvas.place(x=10, y=10)
 
         debug.log("[4/4] Browse Button created!", text_color="magenta")
 
         # Label for showing opened file path
         debug.log("[4/5] Creating file path Label...", text_color="magenta")
-        opened_file_label = Label(button_wrapper,
-                                  textvariable=self.selected_file_path,
-                                  bg=BGCOLOR,
-                                  font=("Helvetica", TIME_FONT_SIZE),
-                                  wraplength=520,
-                                  justify="left")
+        self.opened_file_label = Label(button_wrapper,
+                                       textvariable=self.selected_file_path,
+                                       bg=BGCOLOR,
+                                       font=("Helvetica", TIME_FONT_SIZE),
+                                       wraplength=520,
+                                       justify="left")
         # Place right to the button, vertically centered
-        opened_file_label.place(x=browse_button.winfo_reqwidth() * 2 - 55,
-                                y=browse_button.winfo_reqheight() / 2 - 5)
+        self.opened_file_label.place(x=self.browse_button.winfo_reqwidth() * 2 - 55,
+                                     y=self.browse_button.winfo_reqheight() / 2 - 5)
         debug.log("[4/6] File path Label created!", text_color="magenta")
 
     def browse_files(self):
         # Open a file dialog and get the selected file path
+        global video_file_path
+        global prev_video_path
+        video_file_path = prev_video_path
         debug.log("Opening file browser dialog...", text_color="magenta")
         file_path = filedialog.askopenfilename(title="Select a file",
-                                               filetypes=[("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv"),
-                                                          ("Image Files", "*.png;*.jpg;*.jpeg;*.gif"),
-                                                          ("Text Files", "*.txt"),
-                                                          ("All Files", "*.*")])
-
-        global video_file_path
-        video_file_path = file_path
+                                               filetypes=[("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv")])
 
         # Update the label with the selected file path
-        self.selected_file_path.set(file_path)
-        debug.log(f"Selected file: {file_path}", text_color="blue")
         if file_path:
+            self.selected_file_path.set(file_path)
+            debug.log(f"Selected file: {file_path}", text_color="blue")
             self.show_first_frame_details(file_path)
+            video_file_path = file_path
+            prev_video_path = video_file_path
         else:
             debug.log("No file selected", text_color="red")
+            if prev_video_path:
+                debug.log("Selecting previous video", text_color="blue")
+                self.opened_file_label.config(text=prev_video_path)
+                self.show_first_frame_details(prev_video_path)
 
     def show_first_frame_details(self, path: str):
         """
@@ -251,12 +259,12 @@ class Interface:
         media_player_button.canvas.place(x=10,
                                          y=new_height + 21)
 
-        process_video_button = custom_button.CustomButton(frame_wrapper,
-                                                          text="Process Video",
-                                                          width=110,
-                                                          height=30,
-                                                          command=lambda: self.process_video())
-        process_video_button.canvas.place(x=media_player_button.winfo_reqwidth() + 20, y=new_height + 21)
+        self.process_video_button = custom_button.CustomButton(frame_wrapper,
+                                                               text="Process Video",
+                                                               width=110,
+                                                               height=30,
+                                                               command=lambda: self.process_video())
+        self.process_video_button.canvas.place(x=media_player_button.winfo_reqwidth() + 20, y=new_height + 21)
 
         # Creating labels to display video details
         debug.log("[5/11] Creating labels to display video details...", text_color="yellow")
@@ -278,10 +286,13 @@ class Interface:
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
     def process_video(self):
-        self.create_progress_bar()
-        # processing.process_video(video_file_path, self.update_progress_bar)
-        processing.set_progress_callback(self.update_progress)
-        processing.process_video_thread(video_file_path)
+        if video_file_path:
+            self.process_video_button.disable()
+            self.browse_button.disable()
+            self.create_progress_bar()
+            # processing.process_video(video_file_path, self.update_progress_bar)
+            processing.set_progress_callback(self.update_progress)
+            processing.process_video_thread(video_file_path)
 
     def create_progress_bar(self):
         progress_wrapper = LabelFrame(self.win,
@@ -338,8 +349,11 @@ class Interface:
                              font=("Helvetica", 10))
         result_label.pack(pady=0)
 
+        # This gives error when clicked
         ok_button = custom_button.CustomButton(finished_window,
                                                text="OK",
                                                command=finished_window.destroy,
-                                               type=custom_button.button)
+                                               button_type=custom_button.button)
         ok_button.canvas.pack(pady=20)
+        self.process_video_button.enable()
+        self.browse_button.enable()
