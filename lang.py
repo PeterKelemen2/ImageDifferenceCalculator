@@ -7,11 +7,17 @@ lang_hu = "assets/lang_hu"
 lang_dict = dict()
 
 
-def load_lang(lang="English"):
-    if lang == "English":
+def set_up_dict(lang_file):
+    with open(lang_file, 'r', encoding="utf-8") as lang:
+        for line in lang:
+            entry = line.rstrip().split("=")
+            lang_dict[entry[0]] = entry[1]
+        return lang_dict
+
+
+def load_lang(lang="Hungarian"):
+    if lang == "Hungarian":
         debug.log(f"Program language: {lang}", text_color="cyan")
-        with open(lang_en, 'r') as lang_file:
-            for line in lang_file:
-                print(line)
+        return set_up_dict(lang_hu)
     else:
         debug.log("Not supported language")

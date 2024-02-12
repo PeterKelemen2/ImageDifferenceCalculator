@@ -10,6 +10,7 @@ from datetime import datetime
 import debug
 
 import custom_button
+import lang
 import processing
 import vlc_handler
 
@@ -49,6 +50,8 @@ class Interface:
 
         debug.log("[1/1] Creating interface...", text_color="blue")
 
+        self.lang = lang.load_lang("Hungarian")
+
         self.set_properties()
         self.create_settings_button()
         self.create_time_frame()
@@ -64,7 +67,7 @@ class Interface:
 
         self.win = Tk()
         self.win["bg"] = BGCOLOR
-        self.win.title("Image Difference Calculator")
+        self.win.title(self.lang["title"])
         self.win.geometry(str(WIN_WIDTH) + "x" + str(WIN_HEIGHT))
         self.win.resizable(False, False)
         self.win.protocol("WM_DELETE_WINDOW")
@@ -101,7 +104,7 @@ class Interface:
         debug.log("[3/1] Creating Time Frame wrapper...", text_color="yellow")
 
         self.time_wrapper = LabelFrame(self.win,
-                                       text="Time",
+                                       text=self.lang["time"],
                                        width=TIME_WRAPPER_WIDTH,
                                        height=TIME_WRAPPER_HEIGHT,
                                        bg=BGCOLOR,
@@ -163,7 +166,7 @@ class Interface:
         debug.log("[4/3] Creating browse Button...", text_color="magenta")
 
         self.browse_button = custom_button.CustomButton(button_wrapper,
-                                                        text="Browse",
+                                                        text=self.lang["browse"],
                                                         command=self.browse_files,
                                                         width=70,
                                                         height=30,
@@ -224,7 +227,7 @@ class Interface:
         # Creating a labeled frame to contain video details
         debug.log("[5/1] Creating video details wrapper...", text_color="yellow")
         frame_wrapper = LabelFrame(self.win,
-                                   text="Video Data",
+                                   text=self.lang["video_data"],
                                    fg=FONT_COLOR,
                                    bg=BGCOLOR,
                                    width=780,
@@ -257,12 +260,12 @@ class Interface:
             # Extracting video details from the first frame
             width, height = image.size
             aspect_ratio = width / height
-            im_det = (f"Width: {image.width}px\n"
-                      f"Height: {image.height}px\n"
-                      f"Frames: {frame_count}\n"
-                      f"Duration: {duration}\n"
-                      f"Framerate: {fps} fps\n"
-                      f"Bitrate: {bitrate} kbps")
+            im_det = (f"{self.lang["width"]}: {image.width}px\n"
+                      f"{self.lang["height"]}: {image.height}px\n"
+                      f"{self.lang["frames"]}: {frame_count}\n"
+                      f"{self.lang["duration"]}: {duration}\n"
+                      f"{self.lang["framerate"]}: {fps} fps\n"
+                      f"{self.lang["bitrate"]}: {bitrate} kbps")
 
             # Resizing the first frame to fit within the frame wrapper
             debug.log("[5/7] Calculating first frame information...", text_color="yellow")
@@ -280,7 +283,7 @@ class Interface:
 
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
         media_player_button = custom_button.CustomButton(frame_wrapper,
-                                                         text="Open in VLC",
+                                                         text=self.lang["open_vlc"],
                                                          bg=BGCOLOR,
                                                          width=110,
                                                          height=30,
@@ -290,7 +293,7 @@ class Interface:
                                          y=new_height + 21)
 
         self.process_video_button = custom_button.CustomButton(frame_wrapper,
-                                                               text="Process Video",
+                                                               text=self.lang["process"],
                                                                bg=BGCOLOR,
                                                                width=110,
                                                                height=30,
@@ -300,7 +303,7 @@ class Interface:
         # Creating labels to display video details
         debug.log("[5/11] Creating labels to display video details...", text_color="yellow")
         frame_details_header = Label(frame_wrapper,
-                                     text="Video details:",
+                                     text=self.lang["video_det"],
                                      fg=FONT_COLOR,
                                      bg=BGCOLOR,
                                      font=("Helvetica", 10, "bold")
@@ -329,7 +332,7 @@ class Interface:
 
     def create_progress_bar(self):
         progress_wrapper = LabelFrame(self.win,
-                                      text="Progress",
+                                      text=self.lang["progress"],
                                       width=780,
                                       height=70,
                                       fg=FONT_COLOR,
@@ -359,7 +362,7 @@ class Interface:
 
     def create_finished_window(self):
         finished_window = Toplevel(self.win)
-        finished_window.title("Processing result")
+        finished_window.title(self.lang["result_win_title"])
         finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
         finished_window.configure(background=BGCOLOR)
         finished_window.resizable(False, False)
@@ -372,7 +375,7 @@ class Interface:
         finished_window.geometry(f"+{x}+{y}")
 
         title_label = Label(finished_window,
-                            text="Processing finished!",
+                            text=self.lang["proc_finished"],
                             fg=FONT_COLOR,
                             bg=BGCOLOR,
                             font=("Helvetica", 10, "bold"))
@@ -387,7 +390,7 @@ class Interface:
 
         # This gives error when clicked
         ok_button = custom_button.CustomButton(finished_window,
-                                               text="OK",
+                                               text=self.lang["ok"],
                                                bg=BGCOLOR,
                                                command=finished_window.destroy,
                                                button_type=custom_button.button)
