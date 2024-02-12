@@ -14,6 +14,8 @@ def main():
     my_interface = interface.Interface()
 
 
+# pyinstaller --onefile --add-data "assets;assets" main.py
+
 if __name__ == "__main__":
     # Starting program
     main()

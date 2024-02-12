@@ -18,7 +18,7 @@ BGCOLOR = "#00b685"
 WHITE = "#ffffff"
 BLACK = "#000000"
 TIME_FONT_SIZE = 10
-TIME_WRAPPER_WIDTH = 150
+TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 100
 WIN_WIDTH = 800
 WIN_HEIGHT = 500
@@ -31,6 +31,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.settings_wrapper = None
         self.selected_file_path = None
         self.win = None
         self.time_label = None
@@ -41,10 +42,12 @@ class Interface:
         self.browse_button = None
         self.is_file_selected = False
         self.opened_file_label = None
+        self.settings_button = None
 
         debug.log("[1/1] Creating interface...", text_color="blue")
 
         self.set_properties()
+        self.create_settings_button()
         self.create_time_frame()
         self.create_browser()
 
@@ -66,9 +69,43 @@ class Interface:
 
         debug.log("[2/2] Properties set!", text_color="magenta")
 
+    def create_settings_button(self):
+        self.settings_wrapper = LabelFrame(self.win,
+                                           text="Settings",
+                                           width=50,
+                                           height=70,
+                                           bg=BGCOLOR,
+                                           font=("Helvetica", TIME_FONT_SIZE, "bold"))
+        self.settings_wrapper.place(x=10, y=5)
+
+        self.settings_button = custom_button.CustomButton(self.settings_wrapper,
+                                                          text="a",
+                                                          command=self.print_test,
+                                                          width=70,
+                                                          height=30,
+                                                          button_type=custom_button.settings_button)
+
+        # self.settings_button = custom_button.CustomButton(self.settings_wrapper,
+        #                                                   command=self.print_test,
+        #                                                   width=30,
+        #                                                   height=30,
+        #                                                   button_type=custom_button.button)
+
+        self.settings_button.canvas.place(x=5, y=5)
+        # self.settings_button.enable()
+        # self.browse_button = custom_button.CustomButton(button_wrapper,
+        #                                                 text="Browse",
+        #                                                 command=self.browse_files,
+        #                                                 width=70,
+        #                                                 height=30,
+        #                                                 button_type=custom_button.button)
+
+    def print_test(self):
+        print("Clicked!")
+
     def update_label(self):
         # Update the label text with the current time
-        self.time_label.config(text=datetime.now().strftime("%Y.%m.%d - %H:%M:%S"))
+        self.time_label.config(text=datetime.now().strftime("%H:%M:%S"))
         # Schedule the update_label method to be called again after 1000 milliseconds
         self.win.after(1000, self.update_label)
 
@@ -82,14 +119,14 @@ class Interface:
                                        height=TIME_WRAPPER_HEIGHT,
                                        bg=BGCOLOR)
 
-        self.time_wrapper.place(x=10, y=5)
+        self.time_wrapper.place(x=70, y=5)
 
         debug.log("[3/2] Time wrapper created!", text_color="yellow")
 
         # Label that shows the current time and date
         debug.log("[3/3] Creating Time Label...", text_color="yellow")
 
-        self.time_label = Label(self.time_wrapper, text=datetime.now().strftime("%Y.%m.%d - %H:%M:%S"))
+        self.time_label = Label(self.time_wrapper, text=datetime.now().strftime("%H:%M:%S"))
         self.time_label.config(font=("Helvetica", TIME_FONT_SIZE),  # Font size
                                fg=BLACK,  # Font color
                                bg=BGCOLOR)  # Background color

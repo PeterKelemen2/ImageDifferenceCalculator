@@ -71,6 +71,7 @@ def process_video(path, progress_callback):
                 prev_frame = frame
 
             finished = True
+            total_difference = total_difference // total_frames
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
             progress_callback("100.00")
 
