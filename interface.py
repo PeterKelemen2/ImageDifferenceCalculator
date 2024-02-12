@@ -428,8 +428,6 @@ class Interface:
         # Create a list of options
         lang_options = [self.lang["english"], self.lang["hungarian"]]
         theme_options = [self.lang["dark"], self.lang["light"]]
-        print(lang_options)
-        print(theme_options)
         # Create a StringVar to store the selected option
         lang_selected_option = StringVar(settings_window)
         theme_selected_option = StringVar(settings_window)
@@ -491,12 +489,11 @@ class Interface:
                 restart_label.place(x=settings_window.winfo_reqwidth() // 2, y=200)
 
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
-            # config.save_settings([self.lang[chosen_lang_option], self.lang[chosen_theme_option]])
             config.save_settings([chosen_lang_option, chosen_theme_option])
 
         # Create a button to save the selected option
         save_button = custom_button.CustomButton(settings_window,
-                                                 text="Save",
+                                                 text=self.lang["save"],
                                                  command=save_option,
                                                  button_type=custom_button.button,
                                                  bg=BGCOLOR)
