@@ -1,18 +1,20 @@
 from tkinter import Canvas, PhotoImage
 
-BGCOLOR = "#00b685"
+# BGCOLOR = "#00b685"
 WHITE = "#ffffff"
 BLACK = "#000000"
+TRANSPARENT = "#00000000"
 
-wide_button = "assets/wide_button.png"
-wide_button_clicked = "assets/wide_button_clicked.png"
-button = "assets/button.png"
-button_clicked = "assets/button_clicked.png"
+wide_button = "assets/wide_button2.png"
+wide_button_clicked = "assets/wide_button2_clicked.png"
+button = "assets/button2.png"
+button_clicked = "assets/button2_clicked.png"
 settings_button = "assets/cog_button.png"
+settings_button_clicked = "assets/cog_button_clicked.png"
 
 
 class CustomButton:
-    def __init__(self, master, text="", command=None, width=110, height=30, fg="black", bg=BGCOLOR,
+    def __init__(self, master, text="", command=None, width=110, height=30, fg="black", bg=WHITE,
                  font=("Helvetica", 10, "bold"), button_type=wide_button):
         self.master = master
         self.command = command
@@ -34,11 +36,12 @@ class CustomButton:
             width = 60
             height = 60
             self.button_image = PhotoImage(file=settings_button)
-            self.button_image_clicked = PhotoImage(file=settings_button)
-            self.button_image_clicked = self.button_image_clicked.subsample(2)
+            self.button_image_clicked = PhotoImage(file=settings_button_clicked)
+            # self.button_image_clicked = self.button_image_clicked.subsample(2)
 
         self.canvas = Canvas(master, width=width, height=height, highlightthickness=0, bg=bg)
         self.canvas.pack()
+        # self.canvas.place(x=0, y=0, relwidth=1, relheight=1)
 
         if self.button_image:
             self.image_item = self.canvas.create_image(width // 2, height // 2, anchor="center",

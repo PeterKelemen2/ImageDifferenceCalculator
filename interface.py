@@ -14,9 +14,12 @@ import processing
 import vlc_handler
 
 # Global properties
-BGCOLOR = "#00b685"
+# BGCOLOR = "#00b685"
+BGCOLOR = "#3a3a3a"
 WHITE = "#ffffff"
 BLACK = "#000000"
+FONT_COLOR = "#ffffff"
+
 TIME_FONT_SIZE = 10
 TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 80
@@ -70,17 +73,18 @@ class Interface:
         debug.log("[2/2] Properties set!", text_color="magenta")
 
     def create_settings_button(self):
-        self.settings_wrapper = LabelFrame(self.win,
-                                           text="Settings",
-                                           width=66,
-                                           height=80,
-                                           bg=BGCOLOR,
-                                           font=("Helvetica", TIME_FONT_SIZE, "bold"))
-        # self.settings_wrapper.place(x=10, y=5)
+        # self.settings_wrapper = LabelFrame(self.win,
+        #                                    text="Settings",
+        #                                    width=66,
+        #                                    height=80,
+        #                                    bg=BGCOLOR,
+        #                                    font=("Helvetica", TIME_FONT_SIZE, "bold"))
+        # # self.settings_wrapper.place(x=10, y=5)
 
         self.settings_button = custom_button.CustomButton(self.win,
                                                           command=self.print_test,
-                                                          button_type=custom_button.settings_button)
+                                                          button_type=custom_button.settings_button,
+                                                          bg=BGCOLOR)
         self.settings_button.canvas.place(x=10, y=20)
 
     def print_test(self):
@@ -100,7 +104,8 @@ class Interface:
                                        text="Time",
                                        width=TIME_WRAPPER_WIDTH,
                                        height=TIME_WRAPPER_HEIGHT,
-                                       bg=BGCOLOR)
+                                       bg=BGCOLOR,
+                                       fg=FONT_COLOR)
 
         self.time_wrapper.place(x=83, y=5)
 
@@ -111,7 +116,7 @@ class Interface:
 
         self.time_label = Label(self.time_wrapper, text=datetime.now().strftime("%H:%M:%S"))
         self.time_label.config(font=("Helvetica", TIME_FONT_SIZE),  # Font size
-                               fg=BLACK,  # Font color
+                               fg=FONT_COLOR,  # Font color
                                bg=BGCOLOR)  # Background color
 
         debug.log("[3/4] Time Label created!", text_color="yellow")
@@ -144,6 +149,7 @@ class Interface:
         debug.log("[4/1] Creating Browsing wrapper...", text_color="magenta")
         button_wrapper = LabelFrame(self.win,
                                     text="Input file",
+                                    fg=FONT_COLOR,
                                     bg=BGCOLOR,
                                     width=620,
                                     height=80,
@@ -161,7 +167,8 @@ class Interface:
                                                         command=self.browse_files,
                                                         width=70,
                                                         height=30,
-                                                        button_type=custom_button.button)
+                                                        button_type=custom_button.button,
+                                                        bg=BGCOLOR)
         self.browse_button.canvas.place(x=10, y=10)
 
         debug.log("[4/4] Browse Button created!", text_color="magenta")
@@ -170,6 +177,7 @@ class Interface:
         debug.log("[4/5] Creating file path Label...", text_color="magenta")
         self.opened_file_label = Label(button_wrapper,
                                        textvariable=self.selected_file_path,
+                                       fg=FONT_COLOR,
                                        bg=BGCOLOR,
                                        font=("Helvetica", TIME_FONT_SIZE),
                                        wraplength=520,
@@ -217,6 +225,7 @@ class Interface:
         debug.log("[5/1] Creating video details wrapper...", text_color="yellow")
         frame_wrapper = LabelFrame(self.win,
                                    text="Video Data",
+                                   fg=FONT_COLOR,
                                    bg=BGCOLOR,
                                    width=780,
                                    height=320,
@@ -272,6 +281,7 @@ class Interface:
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
         media_player_button = custom_button.CustomButton(frame_wrapper,
                                                          text="Open in VLC",
+                                                         bg=BGCOLOR,
                                                          width=110,
                                                          height=30,
                                                          # command=lambda: self.open_media_player(path))
@@ -281,6 +291,7 @@ class Interface:
 
         self.process_video_button = custom_button.CustomButton(frame_wrapper,
                                                                text="Process Video",
+                                                               bg=BGCOLOR,
                                                                width=110,
                                                                height=30,
                                                                command=lambda: self.process_video())
@@ -290,12 +301,14 @@ class Interface:
         debug.log("[5/11] Creating labels to display video details...", text_color="yellow")
         frame_details_header = Label(frame_wrapper,
                                      text="Video details:",
+                                     fg=FONT_COLOR,
                                      bg=BGCOLOR,
                                      font=("Helvetica", 10, "bold")
                                      )
         frame_details_header.place(x=new_width + 30, y=10)
         image_details = Label(frame_wrapper,
                               text=im_det,
+                              fg=FONT_COLOR,
                               bg=BGCOLOR,
                               font=("Helvetica", 10),
                               # Left alignment
@@ -319,6 +332,7 @@ class Interface:
                                       text="Progress",
                                       width=780,
                                       height=70,
+                                      fg=FONT_COLOR,
                                       bg=BGCOLOR,
                                       font=("Helvetica", 10, "bold"))
         progress_wrapper.place(x=10, y=420)
@@ -330,7 +344,7 @@ class Interface:
                                         maximum=100)
         self.progress_bar.place(x=5, y=5)
 
-        self.progress_label = Label(progress_wrapper, text="100.00%", bg=BGCOLOR, font=("Helvetica", 10))
+        self.progress_label = Label(progress_wrapper, text="100.00%", fg=FONT_COLOR, bg=BGCOLOR, font=("Helvetica", 10))
         self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 10, y=5)
 
     def update_progress(self, value):
@@ -359,12 +373,14 @@ class Interface:
 
         title_label = Label(finished_window,
                             text="Processing finished!",
+                            fg=FONT_COLOR,
                             bg=BGCOLOR,
                             font=("Helvetica", 10, "bold"))
         title_label.pack(pady=20)
 
         result_label = Label(finished_window,
                              text=processing.total_difference,
+                             fg=FONT_COLOR,
                              bg=BGCOLOR,
                              font=("Helvetica", 10))
         result_label.pack(pady=0)
@@ -372,6 +388,7 @@ class Interface:
         # This gives error when clicked
         ok_button = custom_button.CustomButton(finished_window,
                                                text="OK",
+                                               bg=BGCOLOR,
                                                command=finished_window.destroy,
                                                button_type=custom_button.button)
         ok_button.canvas.pack(pady=20)
