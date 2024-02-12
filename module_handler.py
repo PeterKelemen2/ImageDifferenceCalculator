@@ -5,17 +5,23 @@ import time
 import debug
 
 modules = ["opencv-python", "pillow"]
+tries = 0
 
 
 def check_if_modules_installed(installed_modules):
+    global tries
     missing_modules = [module
                        for module in modules
                        if module not in installed_modules]
     if missing_modules:
-        debug.log(f"Module(s) {missing_modules} could not be installed, please install manually",
-                  text_color="red",
-                  timestamp_color="red")
-        sys.exit(f"Module(s) {missing_modules} could not be installed, please install manually")
+        if tries < 3:
+            check_if_modules_installed(installed_modules)
+            tries += 1
+        else:
+            debug.log(f"Module(s) {missing_modules} could not be installed, please install manually",
+                      text_color="red",
+                      timestamp_color="red")
+            sys.exit(f"Module(s) {missing_modules} could not be installed, please install manually")
 
 
 def upgrade_pip():
