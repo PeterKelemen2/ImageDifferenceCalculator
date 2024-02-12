@@ -1,6 +1,6 @@
 import debug
 
-config_path = "/settings.config"
+config_path = "settings.config"
 
 
 def save_settings(settings):
@@ -10,5 +10,8 @@ def save_settings(settings):
 
 
 def load_settings():
+    lines = list()
     with open(config_path, 'r', encoding="utf-8") as file:
-        pass
+        for line in file:
+            lines.append(line.rstrip().split("=")[1])
+    return lines

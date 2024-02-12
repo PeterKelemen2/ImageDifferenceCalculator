@@ -36,10 +36,6 @@ call_nr = 0
 video_file_path = None
 prev_video_path = None
 
-# settings = config.load_settings()
-curr_lang = config.load_settings()[0]
-curr_theme = config.load_settings()[1]
-
 
 class Interface:
     def __init__(self):
@@ -55,16 +51,22 @@ class Interface:
         self.is_file_selected = False
         self.opened_file_label = None
         self.settings_button = None
+        self.settings = config.load_settings()
+        self.curr_lang = self.settings[0]
+        self.curr_theme = self.settings[1]
 
-        global BGCOLOR
-        if curr_theme == "dark":
+        global BGCOLOR, FONT_COLOR
+        if self.curr_theme == "dark":
             BGCOLOR = "#3a3a3a"
-        elif curr_theme == "light":
+            FONT_COLOR = "#ffffff"
+        elif self.curr_theme == "light":
             BGCOLOR = WHITE
+            FONT_COLOR = "#000000"
 
         debug.log("[1/1] Creating interface...", text_color="blue")
 
-        self.lang = lang.load_lang(curr_lang)
+        # self.lang = lang.load_lang("hungarian")
+        self.lang = lang.load_lang(self.curr_lang)
 
         self.set_properties()
         self.create_settings_button()
@@ -103,9 +105,6 @@ class Interface:
                                                           button_type=custom_button.settings_button,
                                                           bg=BGCOLOR)
         self.settings_button.canvas.place(x=10, y=20)
-
-    def print_test(self):
-        print("Clicked!")
 
     def update_label(self):
         # Update the label text with the current time
@@ -414,7 +413,7 @@ class Interface:
 
     def create_settings_window(self):
         settings_window = Toplevel(self.win)
-        settings_window.title(self.lang["result_win_title"])
+        settings_window.title(self.lang["settings"])
         settings_window.geometry(str(SET_WIN_WIDTH) + "x" + str(SET_WIN_HEIGHT))
         settings_window.configure(background=BGCOLOR)
         settings_window.resizable(False, False)
@@ -436,9 +435,24 @@ class Interface:
 
         # Create a list of options
         lang_options = [self.lang["english"], self.lang["hungarian"]]
+        theme_options = [self.lang["dark"], self.lang["light"]]
+        print(lang_options)
+        print(theme_options)
         # Create a StringVar to store the selected option
         lang_selected_option = StringVar(settings_window)
-        lang_selected_option.set(lang_options[0])  # Set the default selected option
+        theme_selected_option = StringVar(settings_window)
+
+        if self.curr_lang == "hungarian":
+            lang_selected_option.set(lang_options[1])
+        else:
+            lang_selected_option.set(lang_options[0])
+
+        if self.curr_theme == "dark":
+            theme_selected_option.set(theme_options[0])
+        else:
+            theme_selected_option.set(theme_options[1])
+
+        # lang_selected_option.set(lang_options[0])  # Set the default selected option
         # Create the OptionMenu widget
         lang_option_menu = OptionMenu(settings_window, lang_selected_option, *lang_options)
         lang_option_menu.config(anchor="center")
@@ -455,8 +469,7 @@ class Interface:
         # Create a list of options
         theme_options = [self.lang["dark"], self.lang["light"]]
         # Create a StringVar to store the selected option
-        theme_selected_option = StringVar(settings_window)
-        theme_selected_option.set(theme_options[0])  # Set the default selected option
+
         # Create the OptionMenu widget
         theme_option_menu = OptionMenu(settings_window, theme_selected_option, *theme_options)
         theme_option_menu.config(anchor="center")
@@ -467,8 +480,18 @@ class Interface:
         def save_option():
             chosen_lang_option = lang_selected_option.get()
             chosen_theme_option = theme_selected_option.get()
-            # Add your code to save the selected option here
+            if chosen_lang_option in ("Magyar", "Hungarian"):
+                chosen_lang_option = "hungarian"
+            elif chosen_lang_option in ("Angol", "English"):
+                chosen_lang_option = "english"
+
+            if chosen_theme_option in ("Sötét", "Dark"):
+                chosen_theme_option = "dark"
+            elif chosen_theme_option in ("Világos", "Light"):
+                chosen_theme_option = "light"
+
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
+            # config.save_settings([self.lang[chosen_lang_option], self.lang[chosen_theme_option]])
             config.save_settings([chosen_lang_option, chosen_theme_option])
 
         # Create a button to save the selected option

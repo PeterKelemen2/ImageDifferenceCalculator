@@ -16,10 +16,10 @@ def set_up_dict(lang_file):
 
 
 def load_lang(lang):
-    if lang == "Hungarian":
+    if lang == "hungarian":
         debug.log(f"Program language: {lang}", text_color="cyan")
         return set_up_dict(lang_hu)
-    elif lang == "English":
+    elif lang == "english":
         debug.log(f"Program language: {lang}", text_color="cyan")
         return set_up_dict(lang_en)
     else:
