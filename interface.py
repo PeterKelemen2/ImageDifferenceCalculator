@@ -7,6 +7,7 @@ import cv2
 from PIL import Image, ImageTk
 from datetime import datetime
 
+import config
 import debug
 
 import custom_button
@@ -35,7 +36,9 @@ call_nr = 0
 video_file_path = None
 prev_video_path = None
 
-curr_lang = ""
+# settings = config.load_settings()
+curr_lang = config.load_settings()[0]
+curr_theme = config.load_settings()[1]
 
 
 class Interface:
@@ -53,9 +56,15 @@ class Interface:
         self.opened_file_label = None
         self.settings_button = None
 
+        global BGCOLOR
+        if curr_theme == "dark":
+            BGCOLOR = "#3a3a3a"
+        elif curr_theme == "light":
+            BGCOLOR = WHITE
+
         debug.log("[1/1] Creating interface...", text_color="blue")
 
-        self.lang = lang.load_lang("English")
+        self.lang = lang.load_lang(curr_lang)
 
         self.set_properties()
         self.create_settings_button()
@@ -460,6 +469,7 @@ class Interface:
             chosen_theme_option = theme_selected_option.get()
             # Add your code to save the selected option here
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
+            config.save_settings([chosen_lang_option, chosen_theme_option])
 
         # Create a button to save the selected option
         save_button = custom_button.CustomButton(settings_window,
