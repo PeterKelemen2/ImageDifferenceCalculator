@@ -1,6 +1,6 @@
 import debug
 
-lang = "English"
+# lang = "English"
 lang_en = "assets/lang_en"
 lang_hu = "assets/lang_hu"
 
@@ -15,9 +15,12 @@ def set_up_dict(lang_file):
         return lang_dict
 
 
-def load_lang(lang="Hungarian"):
+def load_lang(lang):
     if lang == "Hungarian":
         debug.log(f"Program language: {lang}", text_color="cyan")
         return set_up_dict(lang_hu)
+    elif lang == "English":
+        debug.log(f"Program language: {lang}", text_color="cyan")
+        return set_up_dict(lang_en)
     else:
         debug.log("Not supported language")

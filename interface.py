@@ -1,5 +1,5 @@
 import threading
-from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Toplevel
+from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Toplevel, OptionMenu
 from tkinter.ttk import Progressbar
 
 import cv2
@@ -28,9 +28,14 @@ WIN_WIDTH = 800
 WIN_HEIGHT = 500
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
+SET_WIN_WIDTH = 200
+SET_WIN_HEIGHT = 300
+
 call_nr = 0
 video_file_path = None
 prev_video_path = None
+
+curr_lang = ""
 
 
 class Interface:
@@ -50,7 +55,7 @@ class Interface:
 
         debug.log("[1/1] Creating interface...", text_color="blue")
 
-        self.lang = lang.load_lang("Hungarian")
+        self.lang = lang.load_lang("English")
 
         self.set_properties()
         self.create_settings_button()
@@ -85,7 +90,7 @@ class Interface:
         # # self.settings_wrapper.place(x=10, y=5)
 
         self.settings_button = custom_button.CustomButton(self.win,
-                                                          command=self.print_test,
+                                                          command=self.create_settings_window,
                                                           button_type=custom_button.settings_button,
                                                           bg=BGCOLOR)
         self.settings_button.canvas.place(x=10, y=20)
@@ -397,3 +402,69 @@ class Interface:
         ok_button.canvas.pack(pady=20)
         self.process_video_button.enable()
         self.browse_button.enable()
+
+    def create_settings_window(self):
+        settings_window = Toplevel(self.win)
+        settings_window.title(self.lang["result_win_title"])
+        settings_window.geometry(str(SET_WIN_WIDTH) + "x" + str(SET_WIN_HEIGHT))
+        settings_window.configure(background=BGCOLOR)
+        settings_window.resizable(False, False)
+
+        label = Label(settings_window,
+                      text=self.lang["settings"],
+                      fg=FONT_COLOR,
+                      bg=BGCOLOR,
+                      font=("Helvetica", 10, "bold"))
+        label.pack(pady=10)
+
+        lang_label = Label(settings_window,
+                           text=self.lang["lang"],
+                           fg=FONT_COLOR,
+                           bg=BGCOLOR,
+                           anchor="center")
+        # lang_label.pack(pady=10, padx=10, side="left")
+        lang_label.place(x=10, y=label.winfo_reqheight() + 25)
+
+        # Create a list of options
+        lang_options = [self.lang["english"], self.lang["hungarian"]]
+        # Create a StringVar to store the selected option
+        lang_selected_option = StringVar(settings_window)
+        lang_selected_option.set(lang_options[0])  # Set the default selected option
+        # Create the OptionMenu widget
+        lang_option_menu = OptionMenu(settings_window, lang_selected_option, *lang_options)
+        lang_option_menu.config(anchor="center")
+        # option_menu.pack(padx=10, side="right")
+        lang_option_menu.place(x=lang_label.winfo_reqwidth() + 20, y=lang_label.winfo_reqheight() * 2)
+
+        theme_label = Label(settings_window,
+                            text=self.lang["theme"],
+                            fg=FONT_COLOR,
+                            bg=BGCOLOR,
+                            anchor="center")
+        theme_label.place(x=10, y=lang_label.winfo_reqheight() * 4)
+
+        # Create a list of options
+        theme_options = [self.lang["dark"], self.lang["light"]]
+        # Create a StringVar to store the selected option
+        theme_selected_option = StringVar(settings_window)
+        theme_selected_option.set(theme_options[0])  # Set the default selected option
+        # Create the OptionMenu widget
+        theme_option_menu = OptionMenu(settings_window, theme_selected_option, *theme_options)
+        theme_option_menu.config(anchor="center")
+        # option_menu.pack(padx=10, side="right")
+        theme_option_menu.place(x=lang_label.winfo_reqwidth() + 20, y=lang_label.winfo_reqheight() * 4)
+
+        # Function to save the selected option
+        def save_option():
+            chosen_lang_option = lang_selected_option.get()
+            chosen_theme_option = theme_selected_option.get()
+            # Add your code to save the selected option here
+            debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
+
+        # Create a button to save the selected option
+        save_button = custom_button.CustomButton(settings_window,
+                                                 text="Save",
+                                                 command=save_option,
+                                                 button_type=custom_button.button,
+                                                 bg=BGCOLOR)
+        save_button.canvas.pack(pady=100)

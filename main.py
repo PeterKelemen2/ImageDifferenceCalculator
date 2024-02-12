@@ -5,7 +5,6 @@ import lang
 # Handling dependencies before program starts
 module_handler.module_handler()
 vlc_handler.vlc_installer()
-lang.load_lang()
 import debug
 import interface
 
