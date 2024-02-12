@@ -19,7 +19,7 @@ WHITE = "#ffffff"
 BLACK = "#000000"
 TIME_FONT_SIZE = 10
 TIME_WRAPPER_WIDTH = 100
-TIME_WRAPPER_HEIGHT = 100
+TIME_WRAPPER_HEIGHT = 80
 WIN_WIDTH = 800
 WIN_HEIGHT = 500
 FIN_WIN_WIDTH = 300
@@ -72,33 +72,16 @@ class Interface:
     def create_settings_button(self):
         self.settings_wrapper = LabelFrame(self.win,
                                            text="Settings",
-                                           width=50,
-                                           height=70,
+                                           width=66,
+                                           height=80,
                                            bg=BGCOLOR,
                                            font=("Helvetica", TIME_FONT_SIZE, "bold"))
-        self.settings_wrapper.place(x=10, y=5)
+        # self.settings_wrapper.place(x=10, y=5)
 
-        self.settings_button = custom_button.CustomButton(self.settings_wrapper,
-                                                          text="a",
+        self.settings_button = custom_button.CustomButton(self.win,
                                                           command=self.print_test,
-                                                          width=70,
-                                                          height=30,
                                                           button_type=custom_button.settings_button)
-
-        # self.settings_button = custom_button.CustomButton(self.settings_wrapper,
-        #                                                   command=self.print_test,
-        #                                                   width=30,
-        #                                                   height=30,
-        #                                                   button_type=custom_button.button)
-
-        self.settings_button.canvas.place(x=5, y=5)
-        # self.settings_button.enable()
-        # self.browse_button = custom_button.CustomButton(button_wrapper,
-        #                                                 text="Browse",
-        #                                                 command=self.browse_files,
-        #                                                 width=70,
-        #                                                 height=30,
-        #                                                 button_type=custom_button.button)
+        self.settings_button.canvas.place(x=10, y=20)
 
     def print_test(self):
         print("Clicked!")
@@ -119,7 +102,7 @@ class Interface:
                                        height=TIME_WRAPPER_HEIGHT,
                                        bg=BGCOLOR)
 
-        self.time_wrapper.place(x=70, y=5)
+        self.time_wrapper.place(x=83, y=5)
 
         debug.log("[3/2] Time wrapper created!", text_color="yellow")
 
@@ -138,15 +121,15 @@ class Interface:
         label_width = self.time_label.winfo_reqwidth() + 20
         label_height = self.time_label.winfo_reqheight() * 2
         self.time_wrapper.config(font=("Helvetica", TIME_FONT_SIZE, "bold"),
-                                 width=label_width,
-                                 height=label_height)
+                                 width=label_width)
         debug.log("[3/6] Time Label config updated!", text_color="yellow")
 
         # Pack Label in Frame
         debug.log("[3/7] Packing Time Label in Frame...", text_color="yellow")
-        self.time_label.pack(padx=10,
-                             pady=5,
-                             anchor="center")
+        # self.time_label.pack(padx=10,
+        #                      pady=5,
+        #                      anchor="center")
+        self.time_label.place(x=10, y=5)
         debug.log("[3/8] Time Label packed!", text_color="yellow")
         # Schedule the update_label method to be called
         self.win.after(1000, self.update_label)

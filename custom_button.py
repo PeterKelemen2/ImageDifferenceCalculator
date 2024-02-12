@@ -8,11 +8,11 @@ wide_button = "assets/wide_button.png"
 wide_button_clicked = "assets/wide_button_clicked.png"
 button = "assets/button.png"
 button_clicked = "assets/button_clicked.png"
-settings_button = "assets/cogwheel.png"
+settings_button = "assets/cog_button.png"
 
 
 class CustomButton:
-    def __init__(self, master, text="", command=None, width=110, height=30, fg="black",
+    def __init__(self, master, text="", command=None, width=110, height=30, fg="black", bg=BGCOLOR,
                  font=("Helvetica", 10, "bold"), button_type=wide_button):
         self.master = master
         self.command = command
@@ -27,16 +27,17 @@ class CustomButton:
             self.button_image = PhotoImage(file=wide_button)
             self.button_image_clicked = PhotoImage(file=wide_button_clicked)
         elif button_type == button:
+            width = 70
             self.button_image = PhotoImage(file=button)
             self.button_image_clicked = PhotoImage(file=button_clicked)
-            width = 70
         elif button_type == settings_button:
+            width = 60
+            height = 60
             self.button_image = PhotoImage(file=settings_button)
             self.button_image_clicked = PhotoImage(file=settings_button)
-            width = 30
-            height = 30
+            self.button_image_clicked = self.button_image_clicked.subsample(2)
 
-        self.canvas = Canvas(master, width=width, height=height, highlightthickness=0)
+        self.canvas = Canvas(master, width=width, height=height, highlightthickness=0, bg=bg)
         self.canvas.pack()
 
         if self.button_image:
@@ -49,6 +50,7 @@ class CustomButton:
         # Bind click event
         if self.image_item:
             self.canvas.tag_bind(self.image_item, "<Button-1>", self.on_button_click)
+            self.canvas.tag_bind(self.text_item, "<Button-1>", self.on_button_click)
         else:
             self.canvas.tag_bind(self.text_item, "<Button-1>", self.on_button_click)
 
