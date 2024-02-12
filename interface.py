@@ -29,7 +29,7 @@ WIN_WIDTH = 800
 WIN_HEIGHT = 500
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
-SET_WIN_WIDTH = 200
+SET_WIN_WIDTH = 300
 SET_WIN_HEIGHT = 300
 
 call_nr = 0
@@ -92,14 +92,6 @@ class Interface:
         debug.log("[2/2] Properties set!", text_color="magenta")
 
     def create_settings_button(self):
-        # self.settings_wrapper = LabelFrame(self.win,
-        #                                    text="Settings",
-        #                                    width=66,
-        #                                    height=80,
-        #                                    bg=BGCOLOR,
-        #                                    font=("Helvetica", TIME_FONT_SIZE, "bold"))
-        # # self.settings_wrapper.place(x=10, y=5)
-
         self.settings_button = custom_button.CustomButton(self.win,
                                                           command=self.create_settings_window,
                                                           button_type=custom_button.settings_button,
@@ -431,7 +423,7 @@ class Interface:
                            bg=BGCOLOR,
                            anchor="center")
         # lang_label.pack(pady=10, padx=10, side="left")
-        lang_label.place(x=10, y=label.winfo_reqheight() + 25)
+        lang_label.place(x=SET_WIN_WIDTH // 2 - lang_label.winfo_reqwidth() - 30, y=label.winfo_reqheight() + 25)
 
         # Create a list of options
         lang_options = [self.lang["english"], self.lang["hungarian"]]
@@ -457,14 +449,14 @@ class Interface:
         lang_option_menu = OptionMenu(settings_window, lang_selected_option, *lang_options)
         lang_option_menu.config(anchor="center")
         # option_menu.pack(padx=10, side="right")
-        lang_option_menu.place(x=lang_label.winfo_reqwidth() + 20, y=lang_label.winfo_reqheight() * 2)
+        lang_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=lang_label.winfo_reqheight() * 2)
 
         theme_label = Label(settings_window,
                             text=self.lang["theme"],
                             fg=FONT_COLOR,
                             bg=BGCOLOR,
                             anchor="center")
-        theme_label.place(x=10, y=lang_label.winfo_reqheight() * 4)
+        theme_label.place(x=SET_WIN_WIDTH // 2 - theme_label.winfo_reqwidth() - 30, y=lang_label.winfo_reqheight() * 4)
 
         # Create a list of options
         theme_options = [self.lang["dark"], self.lang["light"]]
@@ -474,7 +466,7 @@ class Interface:
         theme_option_menu = OptionMenu(settings_window, theme_selected_option, *theme_options)
         theme_option_menu.config(anchor="center")
         # option_menu.pack(padx=10, side="right")
-        theme_option_menu.place(x=lang_label.winfo_reqwidth() + 20, y=lang_label.winfo_reqheight() * 4)
+        theme_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=lang_label.winfo_reqheight() * 4)
 
         # Function to save the selected option
         def save_option():
@@ -489,6 +481,14 @@ class Interface:
                 chosen_theme_option = "dark"
             elif chosen_theme_option in ("Világos", "Light"):
                 chosen_theme_option = "light"
+
+            if chosen_lang_option != self.curr_lang or chosen_theme_option != self.curr_theme:
+                restart_label = Label(settings_window,
+                                      # text="Restart program for\nchanges to take place",
+                                      text=self.lang["restart"],
+                                      fg="#ff5b19",
+                                      bg=BGCOLOR)
+                restart_label.place(x=settings_window.winfo_reqwidth() // 2, y=200)
 
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
             # config.save_settings([self.lang[chosen_lang_option], self.lang[chosen_theme_option]])
