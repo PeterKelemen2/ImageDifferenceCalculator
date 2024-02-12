@@ -1,0 +1,17 @@
+title=Image Difference Calculator
+time=Idő
+browse=Tallózás
+video_data=Videó Adat
+width=Szélesség
+height=Magasság
+frames=Képkockák
+duration=Hossz
+framerate=Framerate
+bitrate=Bitráta
+open_vlc=Megnyitás VLC-ben
+process=Videó feldolgozása
+video_det=Video részletek:
+progress=Folyamat
+result_win_title=Feldolgozás eredménye
+proc_finished=Feldolgozás végrehajtva
+ok=OK

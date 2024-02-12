@@ -1,0 +1,17 @@
+title=Image Difference Calculator
+time=Time
+browse=Browse
+video_data=Video Data
+width=Width
+height=Height
+frames=Frames
+duration=Duration
+framerate=Framerate
+bitrate=Bitrate
+open_vlc=Open in VLC
+process=Process Video
+video_det=Video details:
+progress=Progress
+result_win_title=Processing result
+proc_finished=Processing finished!
+ok=OK
