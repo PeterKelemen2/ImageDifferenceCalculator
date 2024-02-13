@@ -365,7 +365,7 @@ class Interface:
                                         maximum=100)
         self.progress_bar.place(x=5, y=5)
 
-        self.progress_label = Label(progress_wrapper, text="100.00%", fg=FONT_COLOR, bg=BGCOLOR, font=FONT)
+        self.progress_label = Label(progress_wrapper, text="100.00%", fg=FONT_COLOR, bg=BGCOLOR, font=("Ubuntu", 10))
         self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 10, y=5)
 
     def update_progress(self, value):
