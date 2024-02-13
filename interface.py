@@ -375,7 +375,7 @@ class Interface:
         self.progress_label['text'] = str(value + "%")
         # debug.log(f"Nr of calls: {call_nr}")
         if processing.finished:
-            debug.log(processing.total_difference)
+            debug.log(f"{self.lang["diff"]}: {processing.total_difference}", text_color="blue")
             self.create_finished_window()
 
     def create_finished_window(self):
@@ -400,7 +400,7 @@ class Interface:
         title_label.pack(pady=20)
 
         result_label = Label(self.finished_window,
-                             text=processing.total_difference,
+                             text=f"{self.lang["diff"]}: {processing.total_difference}",
                              fg=FONT_COLOR,
                              bg=BGCOLOR,
                              font=FONT)
