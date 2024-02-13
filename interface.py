@@ -39,6 +39,8 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.ok_button = None
+        self.finished_window = None
         self.settings_wrapper = None
         self.selected_file_path = None
         self.win = None
@@ -365,27 +367,27 @@ class Interface:
             self.create_finished_window()
 
     def create_finished_window(self):
-        finished_window = Toplevel(self.win)
-        finished_window.title(self.lang["result_win_title"])
-        finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
-        finished_window.configure(background=BGCOLOR)
-        finished_window.resizable(False, False)
+        self.finished_window = Toplevel(self.win)
+        self.finished_window.title(self.lang["result_win_title"])
+        self.finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
+        self.finished_window.configure(background=BGCOLOR)
+        self.finished_window.resizable(False, False)
 
         # Centering finished window on screen
-        screen_width = finished_window.winfo_screenwidth()
-        screen_height = finished_window.winfo_screenheight()
+        screen_width = self.finished_window.winfo_screenwidth()
+        screen_height = self.finished_window.winfo_screenheight()
         x = (screen_width - FIN_WIN_WIDTH) // 2
         y = (screen_height - FIN_WIN_HEIGHT) // 2
-        finished_window.geometry(f"+{x}+{y}")
+        self.finished_window.geometry(f"+{x}+{y}")
 
-        title_label = Label(finished_window,
+        title_label = Label(self.finished_window,
                             text=self.lang["proc_finished"],
                             fg=FONT_COLOR,
                             bg=BGCOLOR,
                             font=("Helvetica", 10, "bold"))
         title_label.pack(pady=20)
 
-        result_label = Label(finished_window,
+        result_label = Label(self.finished_window,
                              text=processing.total_difference,
                              fg=FONT_COLOR,
                              bg=BGCOLOR,
@@ -393,14 +395,21 @@ class Interface:
         result_label.pack(pady=0)
 
         # This gives error when clicked
-        ok_button = custom_button.CustomButton(finished_window,
-                                               text=self.lang["ok"],
-                                               bg=BGCOLOR,
-                                               command=finished_window.destroy,
-                                               button_type=custom_button.button)
-        ok_button.canvas.pack(pady=20)
+        self.ok_button = custom_button.CustomButton(self.finished_window,
+                                                    text=self.lang["ok"],
+                                                    bg=BGCOLOR,
+                                                    command=self.close_finished_windows,
+                                                    button_type=custom_button.button)
+        self.ok_button.canvas.pack(pady=20)
         self.process_video_button.enable()
         self.browse_button.enable()
+
+    def close_finished_windows(self):
+        self.browse_button.enable()
+        self.process_video_button.enable()
+        self.ok_button.destroy()
+        self.finished_window.destroy()
+        debug.log("Finished window closed!", text_color="cyan")
 
     def create_settings_window(self):
         settings_window = Toplevel(self.win)

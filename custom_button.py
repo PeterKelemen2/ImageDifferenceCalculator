@@ -72,6 +72,17 @@ class CustomButton:
     def disable(self):
         self.button_state = "disabled"
 
+    def destroy(self):
+        """
+        Safely destroy the CustomButton and release resources.
+        """
+        # Remove the canvas and its contents
+        self.canvas.destroy()
+
+        # Clear references to PhotoImage objects to release memory
+        self.button_image = None
+        self.button_image_clicked = None
+        
     def is_enabled(self):
         if self.button_state == "enabled":
             return True
