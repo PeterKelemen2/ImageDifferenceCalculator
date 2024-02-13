@@ -1,5 +1,5 @@
 import threading
-from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu
+from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font
 from tkinter.ttk import Progressbar
 
 import cv2
@@ -19,9 +19,17 @@ import vlc_handler
 BGCOLOR = "#3a3a3a"
 WHITE = "#ffffff"
 BLACK = "#000000"
-FONT_COLOR = "#ffffff"
 
-TIME_FONT_SIZE = 10
+FONT_COLOR = "#ffffff"
+TIME_FONT_SIZE = 12
+BIG_FONT_SIZE = 14
+# FONT = ("Helvetica", TIME_FONT_SIZE)
+# BOLD_FONT = ("Helvetica", TIME_FONT_SIZE, "bold")
+FONT = ("Ubuntu", TIME_FONT_SIZE)
+BOLD_FONT = ("Ubuntu", TIME_FONT_SIZE, "bold")
+BIG_FONT = ("Ubuntu", BIG_FONT_SIZE)
+BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
+
 TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 80
 WIN_WIDTH = 800
@@ -79,6 +87,11 @@ class Interface:
 
         self.win.mainloop()
 
+    def create_font(self):
+        global FONT
+        font_file = "assets/fonts/Ubuntu-Regular.ttf"
+        FONT = font.Font(family="Ubuntu", file=font_file, size=10)
+
     def set_properties(self):
         # Set windows properties
         debug.log("[2/1] Setting properties...", text_color="magenta")
@@ -90,7 +103,7 @@ class Interface:
         self.win.resizable(False, False)
         self.win.protocol("WM_DELETE_WINDOW")
         self.selected_file_path = StringVar()
-
+        # self.create_font()
         debug.log("[2/2] Properties set!", text_color="magenta")
 
     def create_settings_button(self):
@@ -125,7 +138,7 @@ class Interface:
         debug.log("[3/3] Creating Time Label...", text_color="yellow")
 
         self.time_label = Label(self.time_wrapper, text=datetime.now().strftime("%H:%M:%S"))
-        self.time_label.config(font=("Helvetica", TIME_FONT_SIZE),  # Font size
+        self.time_label.config(font=("Ubuntu", 10),  # Font size
                                fg=FONT_COLOR,  # Font color
                                bg=BGCOLOR)  # Background color
 
@@ -133,7 +146,7 @@ class Interface:
 
         # Set Frame label to width and height of Label
         debug.log("[3/5] Updating Time Label config...", text_color="yellow")
-        self.time_wrapper.config(font=("Helvetica", TIME_FONT_SIZE, "bold"),
+        self.time_wrapper.config(font=BOLD_FONT,
                                  width=self.time_label.winfo_reqwidth() + 20)
         debug.log("[3/6] Time Label config updated!", text_color="yellow")
 
@@ -162,7 +175,7 @@ class Interface:
                                     bg=BGCOLOR,
                                     width=620,
                                     height=80,
-                                    font=("Helvetica", TIME_FONT_SIZE, "bold"))
+                                    font=BOLD_FONT)
         # Place to the right
         x_coordinate = WIN_WIDTH - button_wrapper.winfo_reqwidth() - 10
         button_wrapper.place(x=x_coordinate, y=5)
@@ -188,7 +201,7 @@ class Interface:
                                        textvariable=self.selected_file_path,
                                        fg=FONT_COLOR,
                                        bg=BGCOLOR,
-                                       font=("Helvetica", TIME_FONT_SIZE),
+                                       font=FONT,
                                        wraplength=520,
                                        justify="left")
         # Place right to the button, vertically centered
@@ -238,7 +251,7 @@ class Interface:
                                    bg=BGCOLOR,
                                    width=780,
                                    height=320,
-                                   font=("Helvetica", 10, "bold"))
+                                   font=BOLD_FONT)
         frame_wrapper.place(x=10, y=100)
         debug.log("[5/2] Video details wrapper created!", text_color="yellow")
 
@@ -312,19 +325,18 @@ class Interface:
                                      text=self.lang["video_det"],
                                      fg=FONT_COLOR,
                                      bg=BGCOLOR,
-                                     font=("Helvetica", 10, "bold")
-                                     )
+                                     font=BIG_FONT_BOLD)
         frame_details_header.place(x=new_width + 30, y=10)
         image_details = Label(frame_wrapper,
                               text=self.im_det,
                               fg=FONT_COLOR,
                               bg=BGCOLOR,
-                              font=("Helvetica", 10),
+                              font=FONT,
                               # Left alignment
                               justify="left",
                               anchor="w"
                               )
-        image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() * 1.5)
+        image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() + 5)
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
     def process_video(self):
@@ -343,7 +355,7 @@ class Interface:
                                       height=70,
                                       fg=FONT_COLOR,
                                       bg=BGCOLOR,
-                                      font=("Helvetica", 10, "bold"))
+                                      font=BOLD_FONT)
         progress_wrapper.place(x=10, y=420)
 
         self.progress_bar = Progressbar(progress_wrapper,
@@ -353,7 +365,7 @@ class Interface:
                                         maximum=100)
         self.progress_bar.place(x=5, y=5)
 
-        self.progress_label = Label(progress_wrapper, text="100.00%", fg=FONT_COLOR, bg=BGCOLOR, font=("Helvetica", 10))
+        self.progress_label = Label(progress_wrapper, text="100.00%", fg=FONT_COLOR, bg=BGCOLOR, font=FONT)
         self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 10, y=5)
 
     def update_progress(self, value):
@@ -384,14 +396,14 @@ class Interface:
                             text=self.lang["proc_finished"],
                             fg=FONT_COLOR,
                             bg=BGCOLOR,
-                            font=("Helvetica", 10, "bold"))
+                            font=BOLD_FONT)
         title_label.pack(pady=20)
 
         result_label = Label(self.finished_window,
                              text=processing.total_difference,
                              fg=FONT_COLOR,
                              bg=BGCOLOR,
-                             font=("Helvetica", 10))
+                             font=FONT)
         result_label.pack(pady=0)
 
         # This gives error when clicked
@@ -436,7 +448,7 @@ class Interface:
                       text=self.lang["settings"],
                       fg=FONT_COLOR,
                       bg=BGCOLOR,
-                      font=("Helvetica", 10, "bold"))
+                      font=BOLD_FONT)
         label.pack(pady=10)
 
         # Add a label for the language selection
@@ -444,8 +456,9 @@ class Interface:
                            text=self.lang["lang"],
                            fg=FONT_COLOR,
                            bg=BGCOLOR,
+                           font=FONT,
                            anchor="center")
-        lang_label.place(x=SET_WIN_WIDTH // 2 - lang_label.winfo_reqwidth() - 30, y=label.winfo_reqheight() + 25)
+        lang_label.place(x=SET_WIN_WIDTH // 2 - lang_label.winfo_reqwidth() - 20, y=label.winfo_reqheight() + 25)
 
         # Define language options
         lang_options = [self.lang["english"], self.lang["hungarian"]]
@@ -464,6 +477,7 @@ class Interface:
                             text=self.lang["theme"],
                             fg=FONT_COLOR,
                             bg=BGCOLOR,
+                            font=FONT,
                             anchor="center")
         theme_label.place(x=SET_WIN_WIDTH // 2 - theme_label.winfo_reqwidth() - 30, y=lang_label.winfo_reqheight() * 4)
 

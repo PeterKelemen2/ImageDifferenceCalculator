@@ -1,9 +1,11 @@
 import module_handler
 import vlc_handler
+import font_handler
 
 # Handling dependencies before program starts
 module_handler.module_handler()
 vlc_handler.vlc_installer()
+font_handler.install_font("Ubuntu-Regular.ttf")
 import debug
 import interface
 

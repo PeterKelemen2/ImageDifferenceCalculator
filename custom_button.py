@@ -4,6 +4,8 @@ from tkinter import Canvas, PhotoImage
 WHITE = "#ffffff"
 BLACK = "#000000"
 TRANSPARENT = "#00000000"
+FONT = ("Ubuntu", 10)
+BOLD_FONT = ("Ubuntu", 10, "bold")
 
 wide_button = "assets/wide_button2.png"
 wide_button_clicked = "assets/wide_button2_clicked.png"
@@ -15,7 +17,7 @@ settings_button_clicked = "assets/cog_button_clicked.png"
 
 class CustomButton:
     def __init__(self, master, text="", command=None, width=110, height=30, fg="black", bg=WHITE,
-                 font=("Helvetica", 10, "bold"), button_type=wide_button):
+                 font=FONT, button_type=wide_button):
         self.master = master
         self.command = command
         self.button_state = "enabled"
@@ -82,7 +84,7 @@ class CustomButton:
         # Clear references to PhotoImage objects to release memory
         self.button_image = None
         self.button_image_clicked = None
-        
+
     def is_enabled(self):
         if self.button_state == "enabled":
             return True
