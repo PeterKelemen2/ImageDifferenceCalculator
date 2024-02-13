@@ -412,12 +412,26 @@ class Interface:
         debug.log("Finished window closed!", text_color="cyan")
 
     def create_settings_window(self):
+        """
+        Creates the settings window.
+
+        This method creates a window where users can configure settings such as language and theme.
+
+        Args:
+            self: The instance of the Interface class.
+
+        Returns:
+            None
+        """
+
+        # Create the settings window
         settings_window = Toplevel(self.win)
         settings_window.title(self.lang["settings"])
-        settings_window.geometry(str(SET_WIN_WIDTH) + "x" + str(SET_WIN_HEIGHT))
+        settings_window.geometry(f"{SET_WIN_WIDTH}x{SET_WIN_HEIGHT}")
         settings_window.configure(background=BGCOLOR)
         settings_window.resizable(False, False)
 
+        # Add a label for the settings window title
         label = Label(settings_window,
                       text=self.lang["settings"],
                       fg=FONT_COLOR,
@@ -425,38 +439,27 @@ class Interface:
                       font=("Helvetica", 10, "bold"))
         label.pack(pady=10)
 
+        # Add a label for the language selection
         lang_label = Label(settings_window,
                            text=self.lang["lang"],
                            fg=FONT_COLOR,
                            bg=BGCOLOR,
                            anchor="center")
-        # lang_label.pack(pady=10, padx=10, side="left")
         lang_label.place(x=SET_WIN_WIDTH // 2 - lang_label.winfo_reqwidth() - 30, y=label.winfo_reqheight() + 25)
 
-        # Create a list of options
+        # Define language options
         lang_options = [self.lang["english"], self.lang["hungarian"]]
-        theme_options = [self.lang["dark"], self.lang["light"]]
-        # Create a StringVar to store the selected option
+
+        # Set default language option based on current language setting
         lang_selected_option = StringVar(settings_window)
-        theme_selected_option = StringVar(settings_window)
+        lang_selected_option.set(lang_options[1] if self.curr_lang == "hungarian" else lang_options[0])
 
-        if self.curr_lang == "hungarian":
-            lang_selected_option.set(lang_options[1])
-        else:
-            lang_selected_option.set(lang_options[0])
-
-        if self.curr_theme == "dark":
-            theme_selected_option.set(theme_options[0])
-        else:
-            theme_selected_option.set(theme_options[1])
-
-        # lang_selected_option.set(lang_options[0])  # Set the default selected option
-        # Create the OptionMenu widget
+        # Add language OptionMenu
         lang_option_menu = OptionMenu(settings_window, lang_selected_option, *lang_options)
         lang_option_menu.config(anchor="center")
-        # option_menu.pack(padx=10, side="right")
         lang_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=lang_label.winfo_reqheight() * 2)
 
+        # Add a label for the theme selection
         theme_label = Label(settings_window,
                             text=self.lang["theme"],
                             fg=FONT_COLOR,
@@ -464,42 +467,58 @@ class Interface:
                             anchor="center")
         theme_label.place(x=SET_WIN_WIDTH // 2 - theme_label.winfo_reqwidth() - 30, y=lang_label.winfo_reqheight() * 4)
 
-        # Create a list of options
+        # Define theme options
         theme_options = [self.lang["dark"], self.lang["light"]]
-        # Create a StringVar to store the selected option
 
-        # Create the OptionMenu widget
+        # Set default theme option based on current theme setting
+        theme_selected_option = StringVar(settings_window)
+        theme_selected_option.set(theme_options[0] if self.curr_theme == "dark" else theme_options[1])
+
+        # Add theme OptionMenu
         theme_option_menu = OptionMenu(settings_window, theme_selected_option, *theme_options)
         theme_option_menu.config(anchor="center")
-        # option_menu.pack(padx=10, side="right")
         theme_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=lang_label.winfo_reqheight() * 4)
 
-        # Function to save the selected option
         def save_option():
+            """
+            Saves the selected language and theme options.
+
+            This function retrieves the selected language and theme options from the OptionMenu widgets
+            and saves them to the configuration file. It also displays a message prompting the user to
+            restart the program for the changes to take effect.
+
+            Args:
+                None
+
+            Returns:
+                None
+            """
+
+            # Retrieve selected language option
             chosen_lang_option = lang_selected_option.get()
+
+            # Map language options to standard format
+            chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
+
+            # Retrieve selected theme option
             chosen_theme_option = theme_selected_option.get()
-            if chosen_lang_option in ("Magyar", "Hungarian"):
-                chosen_lang_option = "hungarian"
-            elif chosen_lang_option in ("Angol", "English"):
-                chosen_lang_option = "english"
 
-            if chosen_theme_option in ("Sötét", "Dark"):
-                chosen_theme_option = "dark"
-            elif chosen_theme_option in ("Világos", "Light"):
-                chosen_theme_option = "light"
+            # Map theme options to standard format
+            chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
 
+            # Display restart message if settings have changed
             if chosen_lang_option != self.curr_lang or chosen_theme_option != self.curr_theme:
                 restart_label = Label(settings_window,
-                                      # text="Restart program for\nchanges to take place",
                                       text=self.lang["restart"],
                                       fg="#ff5b19",
                                       bg=BGCOLOR)
                 restart_label.place(x=settings_window.winfo_reqwidth() // 2, y=200)
 
+            # Save selected options to configuration file
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
             config.save_settings([chosen_lang_option, chosen_theme_option])
 
-        # Create a button to save the selected option
+        # Add a button to save the selected options
         save_button = custom_button.CustomButton(settings_window,
                                                  text=self.lang["save"],
                                                  command=save_option,
