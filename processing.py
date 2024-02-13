@@ -22,13 +22,9 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
-    global total_difference
+    global total_difference, finished, progress_percentage
     total_difference = 0
-
-    global finished
     finished = False
-
-    global progress_percentage
 
     debug.log(f"Started processing of: {path}", text_color="blue")
     cap = cv2.VideoCapture(path)
@@ -47,26 +43,16 @@ def process_video(path, progress_callback):
                 current_frame_index += 1
                 frames_since_last_callback += 1
 
-                # debug.log(f"Progress: {progress_percentage}%")
-
                 if not ret:
                     break
 
                 abs_diff = cv2.absdiff(prev_frame, frame)
                 total_difference += abs_diff.mean()
 
-                # progress_percentage = "{:.2f}".format((current_frame_index * 100) / total_frames)
-                # progress_callback(progress_percentage)
-
                 if frames_since_last_callback == 5:
                     progress_percentage = "{:.2f}".format((current_frame_index * 100) / total_frames)
                     progress_callback(progress_percentage)
                     frames_since_last_callback = 0
-
-                # cv2.imshow("Absolute difference", abs_diff)
-                # cv2.resizeWindow("Absolute difference", 800, 600)
-                # if cv2.waitKey(25) & 0xFF == ord('q'):
-                #     break
 
                 prev_frame = frame
 
