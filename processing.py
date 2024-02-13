@@ -4,7 +4,6 @@ import time
 import cv2
 
 import debug
-import interface
 
 progress_callback = None
 progress_percentage = None

@@ -1,5 +1,5 @@
 import threading
-from tkinter import Tk, Label, LabelFrame, Button, StringVar, filedialog, PhotoImage, Toplevel, OptionMenu
+from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu
 from tkinter.ttk import Progressbar
 
 import cv2
@@ -16,7 +16,6 @@ import processing
 import vlc_handler
 
 # Global properties
-# BGCOLOR = "#00b685"
 BGCOLOR = "#3a3a3a"
 WHITE = "#ffffff"
 BLACK = "#000000"
@@ -39,6 +38,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.im_det = None
         self.ok_button = None
         self.finished_window = None
         self.settings_wrapper = None
@@ -266,12 +266,12 @@ class Interface:
             # Extracting video details from the first frame
             width, height = image.size
             aspect_ratio = width / height
-            im_det = (f"{self.lang["width"]}: {image.width}px\n"
-                      f"{self.lang["height"]}: {image.height}px\n"
-                      f"{self.lang["frames"]}: {frame_count}\n"
-                      f"{self.lang["duration"]}: {duration}\n"
-                      f"{self.lang["framerate"]}: {fps} fps\n"
-                      f"{self.lang["bitrate"]}: {bitrate} kbps")
+            self.im_det = (f"{self.lang["width"]}: {image.width}px\n"
+                           f"{self.lang["height"]}: {image.height}px\n"
+                           f"{self.lang["frames"]}: {frame_count}\n"
+                           f"{self.lang["duration"]}: {duration}\n"
+                           f"{self.lang["framerate"]}: {fps} fps\n"
+                           f"{self.lang["bitrate"]}: {bitrate} kbps")
 
             # Resizing the first frame to fit within the frame wrapper
             debug.log("[5/7] Calculating first frame information...", text_color="yellow")
@@ -316,7 +316,7 @@ class Interface:
                                      )
         frame_details_header.place(x=new_width + 30, y=10)
         image_details = Label(frame_wrapper,
-                              text=im_det,
+                              text=self.im_det,
                               fg=FONT_COLOR,
                               bg=BGCOLOR,
                               font=("Helvetica", 10),
@@ -486,12 +486,6 @@ class Interface:
             This function retrieves the selected language and theme options from the OptionMenu widgets
             and saves them to the configuration file. It also displays a message prompting the user to
             restart the program for the changes to take effect.
-
-            Args:
-                None
-
-            Returns:
-                None
             """
 
             # Retrieve selected language option
