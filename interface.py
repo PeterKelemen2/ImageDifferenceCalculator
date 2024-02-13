@@ -46,6 +46,18 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.save_button = None
+        self.lang_label = None
+        self.theme_label = None
+        self.lang_selected_option = None
+        self.lang_options = None
+        self.label = None
+        self.settings_window = None
+        self.progress_wrapper = None
+        self.media_player_button = None
+        self.image_details = None
+        self.frame_details_header = None
+        self.frame_wrapper = None
         self.button_wrapper = None
         self.im_det = None
         self.ok_button = None
@@ -65,6 +77,7 @@ class Interface:
         self.settings = config.load_settings()
         self.curr_lang = self.settings[0]
         self.curr_theme = self.settings[1]
+        self.image_detail_dict = None
 
         global BGCOLOR, FONT_COLOR
         if self.curr_theme == "dark":
@@ -123,6 +136,25 @@ class Interface:
     def update_text(self):
         if self.time_wrapper: self.time_wrapper.config(text=self.lang["time"])
         if self.button_wrapper is not None: self.button_wrapper.config(text=self.lang["input_file"])
+        if self.frame_wrapper is not None: self.frame_wrapper.config(text=self.lang["video_data"])
+        if self.frame_details_header is not None: self.frame_details_header.config(text=self.lang["video_det"])
+        if self.im_det is not None: self.im_det = (f"{self.lang["width"]}: {self.image_detail_dict["width"]}\n"
+                                                   f"{self.lang["height"]}: {self.image_detail_dict["height"]}\n"
+                                                   f"{self.lang["frames"]}: {self.image_detail_dict["frames"]}\n"
+                                                   f"{self.lang["duration"]}: {self.image_detail_dict["duration"]}\n"
+                                                   f"{self.lang["framerate"]}: {self.image_detail_dict["fps"]}\n"
+                                                   f"{self.lang["bitrate"]}: {self.image_detail_dict["bitrate"]}")
+        if self.image_details is not None: self.image_details.config(text=self.im_det)
+        if self.media_player_button is not None: self.media_player_button.config(text=self.lang["open_vlc"])
+        if self.process_video_button is not None: self.process_video_button.config(text=self.lang["process"])
+        if self.browse_button is not None: self.browse_button.config(text=self.lang["browse"])
+        if self.progress_wrapper is not None: self.progress_wrapper.config(text=self.lang["progress"])
+        if self.settings_window is not None: self.settings_window.title(self.lang["settings"])
+        if self.label is not None: self.label.config(text=self.lang["settings"])
+        if self.lang_options is not None: self.lang_options = [self.lang["english"], self.lang["hungarian"]]
+        if self.lang_label is not None: self.lang_label.config(text=self.lang["lang"])
+        if self.theme_label is not None: self.theme_label.config(text=self.lang["theme"])
+        if self.save_button is not None: self.save_button.config(text=self.lang["save"])
 
     def create_time_frame(self):
         # Wrapper for time Label
@@ -250,29 +282,31 @@ class Interface:
 
         # Creating a labeled frame to contain video details
         debug.log("[5/1] Creating video details wrapper...", text_color="yellow")
-        frame_wrapper = LabelFrame(self.win,
-                                   text=self.lang["video_data"],
-                                   fg=FONT_COLOR,
-                                   bg=BGCOLOR,
-                                   width=780,
-                                   height=320,
-                                   font=BOLD_FONT)
-        frame_wrapper.place(x=10, y=100)
+        self.frame_wrapper = LabelFrame(self.win,
+                                        text=self.lang["video_data"],
+                                        fg=FONT_COLOR,
+                                        bg=BGCOLOR,
+                                        width=780,
+                                        height=320,
+                                        font=BOLD_FONT)
+        self.frame_wrapper.place(x=10, y=100)
         debug.log("[5/2] Video details wrapper created!", text_color="yellow")
 
         # Creating a label to display the first frame of the video
         debug.log("[5/3] Creating placeholder label for first frame...", text_color="yellow")
-        frame_label = Label(frame_wrapper)
+        frame_label = Label(self.frame_wrapper)
         frame_label.place(x=5, y=5)
         debug.log("[5/4] First frame placeholder created!", text_color="yellow")
 
         # Opening the video and extracting details from the first frame
         debug.log("[5/5] Opening video file and getting first frame data...", text_color="yellow")
+
         cap = cv2.VideoCapture(path)
         fps = "{:.0f}".format(cap.get(cv2.CAP_PROP_FPS))
         bitrate = "{:.0f}".format(cap.get(cv2.CAP_PROP_BITRATE))
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         duration = "{:.0f}s".format(frame_count / int(fps))
+
         ret, frame = cap.read()
         cap.release()
         debug.log("[5/6] First frame data gathered!", text_color="yellow")
@@ -284,6 +318,14 @@ class Interface:
             # Extracting video details from the first frame
             width, height = image.size
             aspect_ratio = width / height
+            self.image_detail_dict = {
+                "width": f"{image.width}px",
+                "height": f"{image.height}px",
+                "frames": f"{frame_count}",
+                "duration": str("{:.0f}s".format(frame_count / int(fps))),
+                "fps": f"{fps} fps",
+                "bitrate": f"{bitrate} kbps"
+            }
             self.im_det = (f"{self.lang["width"]}: {image.width}px\n"
                            f"{self.lang["height"]}: {image.height}px\n"
                            f"{self.lang["frames"]}: {frame_count}\n"
@@ -293,7 +335,7 @@ class Interface:
 
             # Resizing the first frame to fit within the frame wrapper
             debug.log("[5/7] Calculating first frame information...", text_color="yellow")
-            new_width = frame_wrapper.winfo_reqwidth() // 2
+            new_width = self.frame_wrapper.winfo_reqwidth() // 2
             new_height = int(new_width / aspect_ratio)
             image = image.resize((new_width, new_height), Image.BILINEAR)
             image_file = ImageTk.PhotoImage(image)
@@ -306,42 +348,42 @@ class Interface:
             debug.log("[5/10] Image configured!", text_color="yellow")
 
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
-        media_player_button = custom_button.CustomButton(frame_wrapper,
-                                                         text=self.lang["open_vlc"],
-                                                         bg=BGCOLOR,
-                                                         width=110,
-                                                         height=30,
-                                                         # command=lambda: self.open_media_player(path))
-                                                         command=lambda: vlc_handler.open_video(path))
-        media_player_button.canvas.place(x=10,
-                                         y=new_height + 21)
+        self.media_player_button = custom_button.CustomButton(self.frame_wrapper,
+                                                              text=self.lang["open_vlc"],
+                                                              bg=BGCOLOR,
+                                                              width=110,
+                                                              height=30,
+                                                              # command=lambda: self.open_media_player(path))
+                                                              command=lambda: vlc_handler.open_video(path))
+        self.media_player_button.canvas.place(x=10,
+                                              y=new_height + 21)
 
-        self.process_video_button = custom_button.CustomButton(frame_wrapper,
+        self.process_video_button = custom_button.CustomButton(self.frame_wrapper,
                                                                text=self.lang["process"],
                                                                bg=BGCOLOR,
                                                                width=110,
                                                                height=30,
                                                                command=lambda: self.process_video())
-        self.process_video_button.canvas.place(x=media_player_button.winfo_reqwidth() + 20, y=new_height + 21)
+        self.process_video_button.canvas.place(x=self.media_player_button.winfo_reqwidth() + 20, y=new_height + 21)
 
         # Creating labels to display video details
         debug.log("[5/11] Creating labels to display video details...", text_color="yellow")
-        frame_details_header = Label(frame_wrapper,
-                                     text=self.lang["video_det"],
-                                     fg=FONT_COLOR,
-                                     bg=BGCOLOR,
-                                     font=BIG_FONT_BOLD)
-        frame_details_header.place(x=new_width + 30, y=10)
-        image_details = Label(frame_wrapper,
-                              text=self.im_det,
-                              fg=FONT_COLOR,
-                              bg=BGCOLOR,
-                              font=FONT,
-                              # Left alignment
-                              justify="left",
-                              anchor="w"
-                              )
-        image_details.place(x=new_width + 30, y=frame_details_header.winfo_reqheight() + 5)
+        self.frame_details_header = Label(self.frame_wrapper,
+                                          text=self.lang["video_det"],
+                                          fg=FONT_COLOR,
+                                          bg=BGCOLOR,
+                                          font=BIG_FONT_BOLD)
+        self.frame_details_header.place(x=new_width + 30, y=10)
+        self.image_details = Label(self.frame_wrapper,
+                                   text=self.im_det,
+                                   fg=FONT_COLOR,
+                                   bg=BGCOLOR,
+                                   font=FONT,
+                                   # Left alignment
+                                   justify="left",
+                                   anchor="w"
+                                   )
+        self.image_details.place(x=new_width + 30, y=self.frame_details_header.winfo_reqheight() + 5)
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
     def process_video(self):
@@ -354,23 +396,24 @@ class Interface:
             processing.process_video_thread(video_file_path)
 
     def create_progress_bar(self):
-        progress_wrapper = LabelFrame(self.win,
-                                      text=self.lang["progress"],
-                                      width=780,
-                                      height=70,
-                                      fg=FONT_COLOR,
-                                      bg=BGCOLOR,
-                                      font=BOLD_FONT)
-        progress_wrapper.place(x=10, y=420)
+        self.progress_wrapper = LabelFrame(self.win,
+                                           text=self.lang["progress"],
+                                           width=780,
+                                           height=70,
+                                           fg=FONT_COLOR,
+                                           bg=BGCOLOR,
+                                           font=BOLD_FONT)
+        self.progress_wrapper.place(x=10, y=420)
 
-        self.progress_bar = Progressbar(progress_wrapper,
+        self.progress_bar = Progressbar(self.progress_wrapper,
                                         orient="horizontal",
-                                        length=progress_wrapper.winfo_reqwidth() - 75,
+                                        length=self.progress_wrapper.winfo_reqwidth() - 75,
                                         mode="determinate",
                                         maximum=100)
         self.progress_bar.place(x=5, y=5)
 
-        self.progress_label = Label(progress_wrapper, text="100.00%", fg=FONT_COLOR, bg=BGCOLOR, font=("Ubuntu", 10))
+        self.progress_label = Label(self.progress_wrapper, text="100.00%", fg=FONT_COLOR, bg=BGCOLOR,
+                                    font=("Ubuntu", 10))
         self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 10, y=5)
 
     def update_progress(self, value):
@@ -442,61 +485,61 @@ class Interface:
         """
 
         # Create the settings window
-        settings_window = Toplevel(self.win)
-        settings_window.title(self.lang["settings"])
-        settings_window.geometry(f"{SET_WIN_WIDTH}x{SET_WIN_HEIGHT}")
-        settings_window.configure(background=BGCOLOR)
-        settings_window.resizable(False, False)
+        self.settings_window = Toplevel(self.win)
+        self.settings_window.title(self.lang["settings"])
+        self.settings_window.geometry(f"{SET_WIN_WIDTH}x{SET_WIN_HEIGHT}")
+        self.settings_window.configure(background=BGCOLOR)
+        self.settings_window.resizable(False, False)
 
         # Add a label for the settings window title
-        label = Label(settings_window,
-                      text=self.lang["settings"],
-                      fg=FONT_COLOR,
-                      bg=BGCOLOR,
-                      font=BOLD_FONT)
-        label.pack(pady=10)
+        self.label = Label(self.settings_window,
+                           text=self.lang["settings"],
+                           fg=FONT_COLOR,
+                           bg=BGCOLOR,
+                           font=BOLD_FONT)
+        self.label.pack(pady=10)
 
         # Add a label for the language selection
-        lang_label = Label(settings_window,
+        self.lang_label = Label(self.settings_window,
                            text=self.lang["lang"],
                            fg=FONT_COLOR,
                            bg=BGCOLOR,
                            font=FONT,
                            anchor="center")
-        lang_label.place(x=SET_WIN_WIDTH // 2 - lang_label.winfo_reqwidth() - 20, y=label.winfo_reqheight() + 25)
+        self.lang_label.place(x=SET_WIN_WIDTH // 4, y=self.label.winfo_reqheight() + 25)
 
         # Define language options
-        lang_options = [self.lang["english"], self.lang["hungarian"]]
+        self.lang_options = [self.lang["english"], self.lang["hungarian"]]
 
         # Set default language option based on current language setting
-        lang_selected_option = StringVar(settings_window)
-        lang_selected_option.set(lang_options[1] if self.curr_lang == "hungarian" else lang_options[0])
+        self.lang_selected_option = StringVar(self.settings_window)
+        self.lang_selected_option.set(self.lang_options[1] if self.curr_lang == "hungarian" else self.lang_options[0])
 
         # Add language OptionMenu
-        lang_option_menu = OptionMenu(settings_window, lang_selected_option, *lang_options)
+        lang_option_menu = OptionMenu(self.settings_window, self.lang_selected_option, *self.lang_options)
         lang_option_menu.config(anchor="center")
-        lang_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=lang_label.winfo_reqheight() * 2)
+        lang_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=self.lang_label.winfo_reqheight() * 2)
 
         # Add a label for the theme selection
-        theme_label = Label(settings_window,
+        self.theme_label = Label(self.settings_window,
                             text=self.lang["theme"],
                             fg=FONT_COLOR,
                             bg=BGCOLOR,
                             font=FONT,
                             anchor="center")
-        theme_label.place(x=SET_WIN_WIDTH // 2 - theme_label.winfo_reqwidth() - 30, y=lang_label.winfo_reqheight() * 4)
+        self.theme_label.place(x=SET_WIN_WIDTH // 4, y=self.lang_label.winfo_reqheight() * 4)
 
         # Define theme options
         theme_options = [self.lang["dark"], self.lang["light"]]
 
         # Set default theme option based on current theme setting
-        theme_selected_option = StringVar(settings_window)
+        theme_selected_option = StringVar(self.settings_window)
         theme_selected_option.set(theme_options[0] if self.curr_theme == "dark" else theme_options[1])
 
         # Add theme OptionMenu
-        theme_option_menu = OptionMenu(settings_window, theme_selected_option, *theme_options)
+        theme_option_menu = OptionMenu(self.settings_window, theme_selected_option, *theme_options)
         theme_option_menu.config(anchor="center")
-        theme_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=lang_label.winfo_reqheight() * 4)
+        theme_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=self.lang_label.winfo_reqheight() * 4)
 
         def save_option():
             """
@@ -508,7 +551,7 @@ class Interface:
             """
 
             # Retrieve selected language option
-            chosen_lang_option = lang_selected_option.get()
+            chosen_lang_option = self.lang_selected_option.get()
 
             # Map language options to standard format
             chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
@@ -520,12 +563,12 @@ class Interface:
             chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
 
             # Display restart message if settings have changed
-            if chosen_lang_option != self.curr_lang or chosen_theme_option != self.curr_theme:
-                restart_label = Label(settings_window,
+            if chosen_theme_option != self.curr_theme:
+                restart_label = Label(self.settings_window,
                                       text=self.lang["restart"],
                                       fg="#ff5b19",
                                       bg=BGCOLOR)
-                restart_label.place(x=settings_window.winfo_reqwidth() // 2, y=200)
+                restart_label.place(x=self.settings_window.winfo_reqwidth() // 2, y=200)
 
             # Save selected options to configuration file
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
@@ -535,9 +578,9 @@ class Interface:
             self.update_text()
 
         # Add a button to save the selected options
-        save_button = custom_button.CustomButton(settings_window,
+        self.save_button = custom_button.CustomButton(self.settings_window,
                                                  text=self.lang["save"],
                                                  command=save_option,
                                                  button_type=custom_button.button,
                                                  bg=BGCOLOR)
-        save_button.canvas.pack(pady=100)
+        self.save_button.canvas.pack(pady=100)

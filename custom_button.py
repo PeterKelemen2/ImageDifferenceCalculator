@@ -94,6 +94,10 @@ class CustomButton:
         if self.button_image:
             self.canvas.itemconfig(self.image_item, image=self.button_image)
 
+    def config(self, text):
+        self.text = text  # Update the stored text
+        self.canvas.itemconfig(self.text_item, text=self.text)
+
     def winfo_reqwidth(self):
         return self.canvas.winfo_reqwidth()
 
