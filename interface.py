@@ -131,10 +131,8 @@ class Interface:
 
         # Set Frame label to width and height of Label
         debug.log("[3/5] Updating Time Label config...", text_color="yellow")
-        label_width = self.time_label.winfo_reqwidth() + 20
-        label_height = self.time_label.winfo_reqheight() * 2
         self.time_wrapper.config(font=("Helvetica", TIME_FONT_SIZE, "bold"),
-                                 width=label_width)
+                                 width=self.time_label.winfo_reqwidth() + 20)
         debug.log("[3/6] Time Label config updated!", text_color="yellow")
 
         # Pack Label in Frame
@@ -142,7 +140,8 @@ class Interface:
         # self.time_label.pack(padx=10,
         #                      pady=5,
         #                      anchor="center")
-        self.time_label.place(x=10, y=5)
+        self.time_label.place(x=self.time_label.winfo_reqwidth() // 6,
+                              y=self.time_wrapper.winfo_reqheight() // 2 - self.time_label.winfo_reqheight())
         debug.log("[3/8] Time Label packed!", text_color="yellow")
         # Schedule the update_label method to be called
         self.win.after(1000, self.update_label)
