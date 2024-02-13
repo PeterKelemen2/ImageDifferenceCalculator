@@ -46,6 +46,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.button_wrapper = None
         self.im_det = None
         self.ok_button = None
         self.finished_window = None
@@ -119,6 +120,10 @@ class Interface:
         # Schedule the update_label method to be called again after 1000 milliseconds
         self.win.after(1000, self.update_label)
 
+    def update_text(self):
+        if self.time_wrapper: self.time_wrapper.config(text=self.lang["time"])
+        if self.button_wrapper is not None: self.button_wrapper.config(text=self.lang["input_file"])
+
     def create_time_frame(self):
         # Wrapper for time Label
         debug.log("[3/1] Creating Time Frame wrapper...", text_color="yellow")
@@ -169,22 +174,22 @@ class Interface:
     def create_browser(self):
         # Wrapper for file browsing
         debug.log("[4/1] Creating Browsing wrapper...", text_color="magenta")
-        button_wrapper = LabelFrame(self.win,
-                                    text="Input file",
-                                    fg=FONT_COLOR,
-                                    bg=BGCOLOR,
-                                    width=620,
-                                    height=80,
-                                    font=BOLD_FONT)
+        self.button_wrapper = LabelFrame(self.win,
+                                         text=self.lang["input_file"],
+                                         fg=FONT_COLOR,
+                                         bg=BGCOLOR,
+                                         width=620,
+                                         height=80,
+                                         font=BOLD_FONT)
         # Place to the right
-        x_coordinate = WIN_WIDTH - button_wrapper.winfo_reqwidth() - 10
-        button_wrapper.place(x=x_coordinate, y=5)
+        x_coordinate = WIN_WIDTH - self.button_wrapper.winfo_reqwidth() - 10
+        self.button_wrapper.place(x=x_coordinate, y=5)
         debug.log("[4/2] Browsing wrapper created!", text_color="magenta")
 
         # Button to initiate browsing
         debug.log("[4/3] Creating browse Button...", text_color="magenta")
 
-        self.browse_button = custom_button.CustomButton(button_wrapper,
+        self.browse_button = custom_button.CustomButton(self.button_wrapper,
                                                         text=self.lang["browse"],
                                                         command=self.browse_files,
                                                         width=70,
@@ -197,7 +202,7 @@ class Interface:
 
         # Label for showing opened file path
         debug.log("[4/5] Creating file path Label...", text_color="magenta")
-        self.opened_file_label = Label(button_wrapper,
+        self.opened_file_label = Label(self.button_wrapper,
                                        textvariable=self.selected_file_path,
                                        fg=FONT_COLOR,
                                        bg=BGCOLOR,
@@ -525,6 +530,9 @@ class Interface:
             # Save selected options to configuration file
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
             config.save_settings([chosen_lang_option, chosen_theme_option])
+
+            self.lang = lang.load_lang(chosen_lang_option)
+            self.update_text()
 
         # Add a button to save the selected options
         save_button = custom_button.CustomButton(settings_window,

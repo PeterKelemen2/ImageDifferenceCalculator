@@ -24,3 +24,7 @@ def load_lang(lang):
         return set_up_dict(lang_en)
     else:
         debug.log("Not supported language")
+
+
+def print_button_list(button_list):
+    print(button_list)
