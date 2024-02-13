@@ -94,9 +94,16 @@ class CustomButton:
         if self.button_image:
             self.canvas.itemconfig(self.image_item, image=self.button_image)
 
-    def config(self, text):
-        self.text = text  # Update the stored text
-        self.canvas.itemconfig(self.text_item, text=self.text)
+    def config(self, text=None, fg=None, bg=None):
+        if text is not None:
+            self.text = text
+            self.canvas.itemconfig(self.text_item, text=self.text)
+        if fg is not None:
+            self.fg = fg
+            self.canvas.itemconfig(self.text_item, fill=self.fg)
+        if bg is not None:
+            self.bg = bg
+            self.canvas.config(bg=self.bg)
 
     def winfo_reqwidth(self):
         return self.canvas.winfo_reqwidth()

@@ -46,6 +46,8 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.result_label = None
+        self.finished_title_label = None
         self.save_button = None
         self.lang_label = None
         self.theme_label = None
@@ -106,6 +108,15 @@ class Interface:
         font_file = "assets/fonts/Ubuntu-Regular.ttf"
         FONT = font.Font(family="Ubuntu", file=font_file, size=10)
 
+    def set_color(self):
+        global BGCOLOR, FONT_COLOR
+        if self.curr_theme == "dark":
+            BGCOLOR = "#3a3a3a"
+            FONT_COLOR = "#ffffff"
+        elif self.curr_theme == "light":
+            BGCOLOR = WHITE
+            FONT_COLOR = "#000000"
+
     def set_properties(self):
         # Set windows properties
         debug.log("[2/1] Setting properties...", text_color="magenta")
@@ -155,6 +166,32 @@ class Interface:
         if self.lang_label is not None: self.lang_label.config(text=self.lang["lang"])
         if self.theme_label is not None: self.theme_label.config(text=self.lang["theme"])
         if self.save_button is not None: self.save_button.config(text=self.lang["save"])
+
+    def update_colors(self):
+        self.set_color()
+        self.win["bg"] = BGCOLOR
+        if self.settings_window is not None: self.settings_window["bg"] = BGCOLOR
+        if self.settings_button is not None: self.settings_button.config(bg=BGCOLOR)
+        if self.time_wrapper: self.time_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.button_wrapper is not None: self.button_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.frame_wrapper is not None: self.frame_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.frame_details_header is not None: self.frame_details_header.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.image_details is not None: self.image_details.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.media_player_button is not None: self.media_player_button.config(bg=BGCOLOR)
+        if self.process_video_button is not None: self.process_video_button.config(bg=BGCOLOR)
+        if self.browse_button is not None: self.browse_button.config(bg=BGCOLOR)
+        if self.progress_wrapper is not None: self.progress_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.label is not None: self.label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.lang_label is not None: self.lang_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.theme_label is not None: self.theme_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.save_button is not None: self.save_button.config(bg=BGCOLOR)
+        if self.time_label is not None: self.time_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.opened_file_label is not None: self.opened_file_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.progress_label is not None: self.progress_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.finished_window is not None: self.finished_window.config(bg=BGCOLOR)
+        if self.result_label is not None: self.result_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.finished_title_label is not None: self.finished_title_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.ok_button is not None: self.ok_button.config(bg=BGCOLOR)
 
     def create_time_frame(self):
         # Wrapper for time Label
@@ -440,19 +477,19 @@ class Interface:
         y = (screen_height - FIN_WIN_HEIGHT) // 2
         self.finished_window.geometry(f"+{x}+{y}")
 
-        title_label = Label(self.finished_window,
-                            text=self.lang["proc_finished"],
-                            fg=FONT_COLOR,
-                            bg=BGCOLOR,
-                            font=BOLD_FONT)
-        title_label.pack(pady=20)
+        self.finished_title_label = Label(self.finished_window,
+                                          text=self.lang["proc_finished"],
+                                          fg=FONT_COLOR,
+                                          bg=BGCOLOR,
+                                          font=BOLD_FONT)
+        self.finished_title_label.pack(pady=20)
 
-        result_label = Label(self.finished_window,
-                             text=f"{self.lang["diff"]}: {processing.total_difference}",
-                             fg=FONT_COLOR,
-                             bg=BGCOLOR,
-                             font=FONT)
-        result_label.pack(pady=0)
+        self.result_label = Label(self.finished_window,
+                                  text=f"{self.lang["diff"]}: {processing.total_difference}",
+                                  fg=FONT_COLOR,
+                                  bg=BGCOLOR,
+                                  font=FONT)
+        self.result_label.pack(pady=0)
 
         # This gives error when clicked
         self.ok_button = custom_button.CustomButton(self.finished_window,
@@ -501,11 +538,11 @@ class Interface:
 
         # Add a label for the language selection
         self.lang_label = Label(self.settings_window,
-                           text=self.lang["lang"],
-                           fg=FONT_COLOR,
-                           bg=BGCOLOR,
-                           font=FONT,
-                           anchor="center")
+                                text=self.lang["lang"],
+                                fg=FONT_COLOR,
+                                bg=BGCOLOR,
+                                font=FONT,
+                                anchor="center")
         self.lang_label.place(x=SET_WIN_WIDTH // 4, y=self.label.winfo_reqheight() + 25)
 
         # Define language options
@@ -522,11 +559,11 @@ class Interface:
 
         # Add a label for the theme selection
         self.theme_label = Label(self.settings_window,
-                            text=self.lang["theme"],
-                            fg=FONT_COLOR,
-                            bg=BGCOLOR,
-                            font=FONT,
-                            anchor="center")
+                                 text=self.lang["theme"],
+                                 fg=FONT_COLOR,
+                                 bg=BGCOLOR,
+                                 font=FONT,
+                                 anchor="center")
         self.theme_label.place(x=SET_WIN_WIDTH // 4, y=self.lang_label.winfo_reqheight() * 4)
 
         # Define theme options
@@ -562,6 +599,15 @@ class Interface:
             # Map theme options to standard format
             chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
 
+            if chosen_lang_option != self.curr_lang:
+                self.lang = lang.load_lang(chosen_lang_option)
+                self.update_text()
+
+            if chosen_theme_option != self.curr_theme:
+                self.curr_theme = chosen_theme_option
+                print(self.curr_theme)
+                self.update_colors()
+
             # Display restart message if settings have changed
             if chosen_theme_option != self.curr_theme:
                 restart_label = Label(self.settings_window,
@@ -573,14 +619,12 @@ class Interface:
             # Save selected options to configuration file
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
             config.save_settings([chosen_lang_option, chosen_theme_option])
-
-            self.lang = lang.load_lang(chosen_lang_option)
-            self.update_text()
+            # self.update_text()
 
         # Add a button to save the selected options
         self.save_button = custom_button.CustomButton(self.settings_window,
-                                                 text=self.lang["save"],
-                                                 command=save_option,
-                                                 button_type=custom_button.button,
-                                                 bg=BGCOLOR)
+                                                      text=self.lang["save"],
+                                                      command=save_option,
+                                                      button_type=custom_button.button,
+                                                      bg=BGCOLOR)
         self.save_button.canvas.pack(pady=100)
