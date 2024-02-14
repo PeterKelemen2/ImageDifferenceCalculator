@@ -49,6 +49,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.history_content_list = None
         self.outline_frame = None
         self.history_exit_button = None
         self.history_title = None
@@ -122,13 +123,15 @@ class Interface:
         FONT = font.Font(family="Ubuntu", file=font_file, size=10)
 
     def set_color(self):
-        global BGCOLOR, FONT_COLOR
+        global BGCOLOR, FONT_COLOR, DARKER_BG
         if self.curr_theme == "dark":
             BGCOLOR = "#3a3a3a"
             FONT_COLOR = "#ffffff"
+            DARKER_BG = "#292929"
         elif self.curr_theme == "light":
             BGCOLOR = WHITE
             FONT_COLOR = "#000000"
+            DARKER_BG = "#e6e6e6"
 
     def set_properties(self):
         # Set windows properties
@@ -604,7 +607,6 @@ class Interface:
         history_list = processing.read_from_history()
         self.history_window = Toplevel(self.win)
         self.history_window.title(self.lang["history"])
-        # self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
         self.history_window.configure(background=BGCOLOR)
         self.history_window.resizable(False, False)
 
@@ -615,21 +617,23 @@ class Interface:
                                    font=BIG_FONT_BOLD)
         self.outline_frame = LabelFrame(self.history_window,
                                         bg=DARKER_BG)
-
+        self.history_content_list = list()
         for line in history_list:
-            content_list = list()
             new_line = line.split(";")
-            Label(self.outline_frame,
-                  text=new_line[0],
-                  font=FONT,
-                  wraplength=HIS_WIN_WIDTH - 40,
-                  fg=FONT_COLOR,
-                  bg=DARKER_BG).pack(padx=10, pady=5)
-            Label(self.outline_frame,
-                  text=new_line[1],
-                  fg=FONT_COLOR,
-                  bg=DARKER_BG,
-                  font=BOLD_FONT).pack()
+            self.history_content_list.append(Label(self.outline_frame,
+                                                   text=new_line[0],
+                                                   font=FONT,
+                                                   wraplength=HIS_WIN_WIDTH - 40,
+                                                   fg=FONT_COLOR,
+                                                   bg=DARKER_BG))
+            self.history_content_list[len(self.history_content_list) - 1].pack()
+
+            self.history_content_list.append(Label(self.outline_frame,
+                                                   text=new_line[1],
+                                                   fg=FONT_COLOR,
+                                                   bg=DARKER_BG,
+                                                   font=BOLD_FONT))
+            self.history_content_list[len(self.history_content_list) - 1].pack()
 
         self.history_title.pack(pady=10)
         self.outline_frame.pack(pady=5)
@@ -711,5 +715,7 @@ class Interface:
         if self.history_label is not None: self.history_label.config(fg=FONT_COLOR, bg=BGCOLOR)
         if self.history_exit_button is not None: self.history_exit_button.config(bg=BGCOLOR)
         if self.history_title is not None: self.history_title.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.outline_frame is not None: self.history_title.config(bg=DARKER_BG)
+        if self.outline_frame is not None: self.outline_frame.config(bg=DARKER_BG)
         if self.history_exit_button is not None: self.history_exit_button.config(bg=BGCOLOR)
+        for elem in self.history_content_list:
+            elem.config(fg=FONT_COLOR, bg=DARKER_BG)
