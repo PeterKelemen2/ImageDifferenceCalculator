@@ -49,6 +49,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.previous_language = None
         self.prev_lang_dict = None
         self.eng_dict = lang.load_lang("english")
         self.hun_dict = lang.load_lang("hungarian")
@@ -569,9 +570,11 @@ class Interface:
             chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
 
             if chosen_lang_option != self.curr_lang:
+                self.prev_lang = self.curr_lang
                 self.lang = lang.load_lang(chosen_lang_option)
                 self.curr_lang = chosen_lang_option
                 self.update_text()
+                # self.change_language(self.curr_lang)
 
             if chosen_theme_option != self.curr_theme:
                 self.curr_theme = chosen_theme_option
@@ -656,6 +659,36 @@ class Interface:
 
             self.history_window.destroy()
             self.history_window = None
+
+    def change_language(self, lang_to):
+        prev_lang = ""
+        if lang_to == "english":
+            prev_lang = "hungarian"
+        elif lang_to == "hungarian":
+            prev_lang = "english"
+        debug.log(f"Changing language from {prev_lang} to {lang_to}", text_color="blue")
+        self.prev_lang_dict = lang.load_lang(prev_lang)
+        self.lang = lang.load_lang(lang_to)
+        self.change_text(self.win)
+        # for widget in self.win:
+        #     print(widget)
+
+    # TODO: Only does it right from hun to eng
+    def change_text(self, widget):
+        if widget is not None:
+            for elem in widget.winfo_children():
+                if elem is not None:
+                    if "text" in elem.keys():
+                        print(elem.cget("text"))
+                        elem_value = self.get_key(self.prev_lang_dict, elem.cget("text"))
+                        print(elem_value)
+                self.change_colors(elem)
+
+    def get_key(self, my_dict: dict, value: str):
+        for key, val in my_dict.items():
+            if val == value:
+                return key
+        return None  # Return None instead of "None" if key is not found
 
     def update_text(self):
         if self.time_wrapper: self.time_wrapper.config(text=self.lang["time"])
