@@ -13,6 +13,7 @@ button = "assets/button2.png"
 button_clicked = "assets/button2_clicked.png"
 settings_button = "assets/cog_button.png"
 settings_button_clicked = "assets/cog_button_clicked.png"
+history_button = "assets/history_button.png"
 
 
 class CustomButton:
@@ -40,6 +41,11 @@ class CustomButton:
             self.button_image = PhotoImage(file=settings_button)
             self.button_image_clicked = PhotoImage(file=settings_button_clicked)
             # self.button_image_clicked = self.button_image_clicked.subsample(2)
+        elif button_type == history_button:
+            width = 60
+            height = 60
+            self.button_image = PhotoImage(file=history_button)
+            self.button_image_clicked = PhotoImage(file=history_button)
 
         self.canvas = Canvas(master, width=width, height=height, highlightthickness=0, bg=bg)
         self.canvas.pack()

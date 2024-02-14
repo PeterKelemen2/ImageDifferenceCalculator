@@ -46,6 +46,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.history_button = None
         self.result_label = None
         self.finished_title_label = None
         self.save_button = None
@@ -96,7 +97,8 @@ class Interface:
 
         self.set_properties()
         self.create_settings_button()
-        self.create_time_frame()
+        self.create_history_button()
+        # self.create_time_frame()
         self.create_browser()
 
         debug.log("[1/2] Interface created", text_color="blue")
@@ -138,60 +140,18 @@ class Interface:
                                                           bg=BGCOLOR)
         self.settings_button.canvas.place(x=10, y=20)
 
+    def create_history_button(self):
+        self.history_button = custom_button.CustomButton(self.win,
+                                                         command=lambda: self.create_history_window(),
+                                                         button_type=custom_button.history_button,
+                                                         bg=BGCOLOR)
+        self.history_button.canvas.place(x=self.settings_button.winfo_reqheight() + 30, y=20)
+
     def update_label(self):
         # Update the label text with the current time
         self.time_label.config(text=datetime.now().strftime("%H:%M:%S"))
         # Schedule the update_label method to be called again after 1000 milliseconds
         self.win.after(1000, self.update_label)
-
-    def update_text(self):
-        if self.time_wrapper: self.time_wrapper.config(text=self.lang["time"])
-        if self.button_wrapper is not None: self.button_wrapper.config(text=self.lang["input_file"])
-        if self.frame_wrapper is not None: self.frame_wrapper.config(text=self.lang["video_data"])
-        if self.frame_details_header is not None: self.frame_details_header.config(text=self.lang["video_det"])
-        if self.im_det is not None: self.im_det = (f"{self.lang["width"]}: {self.image_detail_dict["width"]}\n"
-                                                   f"{self.lang["height"]}: {self.image_detail_dict["height"]}\n"
-                                                   f"{self.lang["frames"]}: {self.image_detail_dict["frames"]}\n"
-                                                   f"{self.lang["duration"]}: {self.image_detail_dict["duration"]}\n"
-                                                   f"{self.lang["framerate"]}: {self.image_detail_dict["fps"]}\n"
-                                                   f"{self.lang["bitrate"]}: {self.image_detail_dict["bitrate"]}")
-        if self.image_details is not None: self.image_details.config(text=self.im_det)
-        if self.media_player_button is not None: self.media_player_button.config(text=self.lang["open_vlc"])
-        if self.process_video_button is not None: self.process_video_button.config(text=self.lang["process"])
-        if self.browse_button is not None: self.browse_button.config(text=self.lang["browse"])
-        if self.progress_wrapper is not None: self.progress_wrapper.config(text=self.lang["progress"])
-        if self.settings_window is not None: self.settings_window.title(self.lang["settings"])
-        if self.label is not None: self.label.config(text=self.lang["settings"])
-        if self.lang_options is not None: self.lang_options = [self.lang["english"], self.lang["hungarian"]]
-        if self.lang_label is not None: self.lang_label.config(text=self.lang["lang"])
-        if self.theme_label is not None: self.theme_label.config(text=self.lang["theme"])
-        if self.save_button is not None: self.save_button.config(text=self.lang["save"])
-
-    def update_colors(self):
-        self.set_color()
-        self.win["bg"] = BGCOLOR
-        if self.settings_window is not None: self.settings_window["bg"] = BGCOLOR
-        if self.settings_button is not None: self.settings_button.config(bg=BGCOLOR)
-        if self.time_wrapper: self.time_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.button_wrapper is not None: self.button_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.frame_wrapper is not None: self.frame_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.frame_details_header is not None: self.frame_details_header.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.image_details is not None: self.image_details.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.media_player_button is not None: self.media_player_button.config(bg=BGCOLOR)
-        if self.process_video_button is not None: self.process_video_button.config(bg=BGCOLOR)
-        if self.browse_button is not None: self.browse_button.config(bg=BGCOLOR)
-        if self.progress_wrapper is not None: self.progress_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.label is not None: self.label.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.lang_label is not None: self.lang_label.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.theme_label is not None: self.theme_label.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.save_button is not None: self.save_button.config(bg=BGCOLOR)
-        if self.time_label is not None: self.time_label.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.opened_file_label is not None: self.opened_file_label.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.progress_label is not None: self.progress_label.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.finished_window is not None: self.finished_window.config(bg=BGCOLOR)
-        if self.result_label is not None: self.result_label.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.finished_title_label is not None: self.finished_title_label.config(fg=FONT_COLOR, bg=BGCOLOR)
-        if self.ok_button is not None: self.ok_button.config(bg=BGCOLOR)
 
     def create_time_frame(self):
         # Wrapper for time Label
@@ -628,3 +588,56 @@ class Interface:
                                                       button_type=custom_button.button,
                                                       bg=BGCOLOR)
         self.save_button.canvas.pack(pady=100)
+
+    def create_history_window(self):
+        processing.read_from_history()
+
+    def update_text(self):
+        if self.time_wrapper: self.time_wrapper.config(text=self.lang["time"])
+        if self.button_wrapper is not None: self.button_wrapper.config(text=self.lang["input_file"])
+        if self.frame_wrapper is not None: self.frame_wrapper.config(text=self.lang["video_data"])
+        if self.frame_details_header is not None: self.frame_details_header.config(text=self.lang["video_det"])
+        if self.im_det is not None: self.im_det = (f"{self.lang["width"]}: {self.image_detail_dict["width"]}\n"
+                                                   f"{self.lang["height"]}: {self.image_detail_dict["height"]}\n"
+                                                   f"{self.lang["frames"]}: {self.image_detail_dict["frames"]}\n"
+                                                   f"{self.lang["duration"]}: {self.image_detail_dict["duration"]}\n"
+                                                   f"{self.lang["framerate"]}: {self.image_detail_dict["fps"]}\n"
+                                                   f"{self.lang["bitrate"]}: {self.image_detail_dict["bitrate"]}")
+        if self.image_details is not None: self.image_details.config(text=self.im_det)
+        if self.media_player_button is not None: self.media_player_button.config(text=self.lang["open_vlc"])
+        if self.process_video_button is not None: self.process_video_button.config(text=self.lang["process"])
+        if self.browse_button is not None: self.browse_button.config(text=self.lang["browse"])
+        if self.progress_wrapper is not None: self.progress_wrapper.config(text=self.lang["progress"])
+        if self.settings_window is not None: self.settings_window.title(self.lang["settings"])
+        if self.label is not None: self.label.config(text=self.lang["settings"])
+        if self.lang_options is not None: self.lang_options = [self.lang["english"], self.lang["hungarian"]]
+        if self.lang_label is not None: self.lang_label.config(text=self.lang["lang"])
+        if self.theme_label is not None: self.theme_label.config(text=self.lang["theme"])
+        if self.save_button is not None: self.save_button.config(text=self.lang["save"])
+
+    def update_colors(self):
+        self.set_color()
+        self.win["bg"] = BGCOLOR
+        if self.settings_window is not None: self.settings_window["bg"] = BGCOLOR
+        if self.settings_button is not None: self.settings_button.config(bg=BGCOLOR)
+        if self.time_wrapper: self.time_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.button_wrapper is not None: self.button_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.frame_wrapper is not None: self.frame_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.frame_details_header is not None: self.frame_details_header.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.image_details is not None: self.image_details.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.media_player_button is not None: self.media_player_button.config(bg=BGCOLOR)
+        if self.process_video_button is not None: self.process_video_button.config(bg=BGCOLOR)
+        if self.browse_button is not None: self.browse_button.config(bg=BGCOLOR)
+        if self.progress_wrapper is not None: self.progress_wrapper.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.label is not None: self.label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.lang_label is not None: self.lang_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.theme_label is not None: self.theme_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.save_button is not None: self.save_button.config(bg=BGCOLOR)
+        if self.time_label is not None: self.time_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.opened_file_label is not None: self.opened_file_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.progress_label is not None: self.progress_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.finished_window is not None: self.finished_window.config(bg=BGCOLOR)
+        if self.result_label is not None: self.result_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.finished_title_label is not None: self.finished_title_label.config(fg=FONT_COLOR, bg=BGCOLOR)
+        if self.ok_button is not None: self.ok_button.config(bg=BGCOLOR)
+        if self.history_button is not None: self.history_button.config(bg=BGCOLOR)

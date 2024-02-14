@@ -1,3 +1,4 @@
+import os
 import threading
 import time
 
@@ -9,6 +10,7 @@ progress_callback = None
 progress_percentage = None
 total_difference = None
 finished = False
+HISTORY_PATH = "processing_history.txt"
 
 
 def set_progress_callback(callback):
@@ -57,6 +59,8 @@ def process_video(path, progress_callback):
 
             finished = True
             total_difference = total_difference // total_frames
+            write_to_history(path, total_difference)
+            read_from_history()
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
             progress_callback("100.00")
 
@@ -71,3 +75,25 @@ def process_video_thread(path):
         return
     thread = threading.Thread(target=process_video, args=(path, progress_callback))
     thread.start()
+
+
+def write_to_history(video_file, result):
+    with open(HISTORY_PATH, "a") as history_file:
+        history_file.write(f"File: {video_file};Result: {result}\n")
+
+
+def read_from_history():
+    res_list = list()
+    with open(HISTORY_PATH, "r") as history_file:
+        for line in history_file:
+            res_list.append(line)
+
+    # Show last 10 lines
+    while len(res_list) > 10:
+        res_list.pop(0)
+
+    i = 0
+    for line in res_list:
+        i += 1
+        print(f"{i} - {line.rstrip()}")
+    return res_list
