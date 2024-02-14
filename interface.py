@@ -658,6 +658,8 @@ class Interface:
             prev_lang = "hungarian"
         elif lang_to == "hungarian":
             prev_lang = "english"
+        else:
+            debug.log("Not supported language", text_color="red")
         debug.log(f"Changing language from {prev_lang} to {lang_to}", text_color="blue")
         self.prev_lang_dict = lang.load_lang(prev_lang)
         self.lang = lang.load_lang(lang_to)
@@ -672,9 +674,9 @@ class Interface:
                 if elem is not None:
                     if "text" in elem.keys():
                         print(elem.cget("text"))
-                        elem_value = self.get_key(self.prev_lang_dict, elem.cget("text"))
+                        elem_value = self.get_key(self.lang, elem.cget("text"))
                         print(elem_value)
-                self.change_colors(elem)
+                # self.change_colors(elem)
 
     def get_key(self, my_dict: dict, value: str):
         for key, val in my_dict.items():
