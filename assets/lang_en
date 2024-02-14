@@ -26,3 +26,4 @@ restart=Restart program for changes to take place
 save=Save
 diff=Difference
 input_file=Input file
+history=History

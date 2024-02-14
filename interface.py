@@ -38,6 +38,8 @@ FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 300
 SET_WIN_HEIGHT = 300
+HIS_WIN_WIDTH = 900
+HIS_WIN_HEIGHT = 700
 
 call_nr = 0
 video_file_path = None
@@ -46,6 +48,10 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.history_title = None
+        self.history_label = None
+        self.history_text = None
+        self.history_window = None
         self.history_button = None
         self.result_label = None
         self.finished_title_label = None
@@ -590,7 +596,30 @@ class Interface:
         self.save_button.canvas.pack(pady=100)
 
     def create_history_window(self):
-        processing.read_from_history()
+        history_list = processing.read_from_history()
+        self.history_window = Toplevel(self.win)
+        self.history_window.title(self.lang["history"])
+        self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
+        self.history_window.configure(background=BGCOLOR)
+        self.history_window.resizable(False, False)
+
+        self.history_text = ""
+        for line in history_list:
+            new_line = line.split(";")
+            self.history_text += f"{new_line[0]} -- {new_line[1]}\n"
+        self.history_title = Label(self.history_window,
+                                   text=self.lang["history"],
+                                   fg=FONT_COLOR,
+                                   bg=BGCOLOR,
+                                   font=BIG_FONT_BOLD)
+        self.history_label = Label(self.history_window,
+                                   text=self.history_text,
+                                   fg=FONT_COLOR,
+                                   bg=BGCOLOR,
+                                   font=FONT)
+
+        self.history_title.pack(pady=10)
+        self.history_label.pack(pady=5)
 
     def update_text(self):
         if self.time_wrapper: self.time_wrapper.config(text=self.lang["time"])
@@ -614,6 +643,8 @@ class Interface:
         if self.lang_label is not None: self.lang_label.config(text=self.lang["lang"])
         if self.theme_label is not None: self.theme_label.config(text=self.lang["theme"])
         if self.save_button is not None: self.save_button.config(text=self.lang["save"])
+        if self.history_title is not None: self.history_title.config(text=self.lang["history"])
+        if self.history_window is not None: self.history_window.title(self.lang["history"])
 
     def update_colors(self):
         self.set_color()
@@ -637,6 +668,7 @@ class Interface:
         if self.opened_file_label is not None: self.opened_file_label.config(fg=FONT_COLOR, bg=BGCOLOR)
         if self.progress_label is not None: self.progress_label.config(fg=FONT_COLOR, bg=BGCOLOR)
         if self.finished_window is not None: self.finished_window.config(bg=BGCOLOR)
+        if self.history_window is not None: self.history_window.config(bg=BGCOLOR)
         if self.result_label is not None: self.result_label.config(fg=FONT_COLOR, bg=BGCOLOR)
         if self.finished_title_label is not None: self.finished_title_label.config(fg=FONT_COLOR, bg=BGCOLOR)
         if self.ok_button is not None: self.ok_button.config(bg=BGCOLOR)
