@@ -601,7 +601,7 @@ class Interface:
         history_list = processing.read_from_history()
         self.history_window = Toplevel(self.win)
         self.history_window.title(self.lang["history"])
-        self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
+        # self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
         self.history_window.configure(background=BGCOLOR)
         self.history_window.resizable(False, False)
 
@@ -635,8 +635,12 @@ class Interface:
                                                               command=self.close_history_window,
                                                               button_type=custom_button.button,
                                                               bg=BGCOLOR)
-        self.history_exit_button.canvas.place(x=HIS_WIN_WIDTH // 2 - self.history_exit_button.winfo_reqwidth() // 2,
-                                              y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
+
+        self.history_window.update_idletasks()
+        self.history_window.geometry(f"{outline_frame.winfo_reqwidth() + 40}x{HIS_WIN_HEIGHT}")
+        self.history_exit_button.canvas.place(
+            x=self.history_window.winfo_width() // 2 - self.history_exit_button.winfo_reqwidth() // 4,
+            y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
 
     def close_history_window(self):
         self.history_exit_button.destroy()
