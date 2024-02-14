@@ -6,6 +6,7 @@ import font_handler
 module_handler.module_handler()
 vlc_handler.vlc_installer()
 font_handler.install_font("Ubuntu-Regular.ttf")
+font_handler.install_font("Ubuntu-Bold.ttf")
 import debug
 import interface
 

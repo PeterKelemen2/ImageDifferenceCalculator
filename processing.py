@@ -77,9 +77,10 @@ def process_video_thread(path):
     thread.start()
 
 
-def write_to_history(video_file, result):
+def write_to_history(video_file: str, result):
+    file_name = video_file.split("/")
     with open(HISTORY_PATH, "a") as history_file:
-        history_file.write(f"File: {video_file};Result: {result}\n")
+        history_file.write(f"File: {file_name[len(file_name) - 1]};Result: {result}\n")
 
 
 def read_from_history():
@@ -89,7 +90,7 @@ def read_from_history():
             res_list.append(line)
 
     # Show last 10 lines
-    while len(res_list) > 10:
+    while len(res_list) > 7:
         res_list.pop(0)
 
     i = 0
