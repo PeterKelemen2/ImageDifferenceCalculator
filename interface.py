@@ -581,14 +581,6 @@ class Interface:
                 print(self.curr_theme)
                 self.update_colors()
 
-            # Display restart message if settings have changed
-            if chosen_theme_option != self.curr_theme:
-                restart_label = Label(self.settings_window,
-                                      text=self.lang["restart"],
-                                      fg="#ff5b19",
-                                      bg=BGCOLOR)
-                restart_label.place(x=self.settings_window.winfo_reqwidth() // 2, y=200)
-
             # Save selected options to configuration file
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
             config.save_settings([chosen_lang_option, chosen_theme_option])
