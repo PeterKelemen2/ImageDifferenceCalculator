@@ -654,41 +654,73 @@ class Interface:
             self.history_window = None
 
     def change_language(self):
+        """
+        Change the language of the GUI elements based on the selected language.
+        This method updates the text of labels, buttons, and other widgets
+        to reflect the language change.
+
+        """
+        # Update text for labels
         for label in [self.settings_window, self.history_window, self.button_wrapper, self.frame_wrapper,
                       self.progress_wrapper, self.finished_window]:
             self.change_text(label)
 
+        # Update text for buttons
         for button in [self.save_button, self.history_exit_button, self.browse_button, self.process_video_button,
                        self.media_player_button]:
             self.change_button_text(button)
 
+        # Update image details if available
         if self.im_det is not None:
             self.im_det = "\n".join(
                 [f"{self.lang[key]}: {self.image_detail_dict[key]}"
                  for key, value in self.image_detail_dict.items()])
-        if self.image_details is not None: self.image_details.config(text=self.im_det)
+        if self.image_details is not None:
+            self.image_details.config(text=self.im_det)
 
-        if self.result_label is not None: self.result_label.config(
-            text=f"{self.lang["diff"]}: {processing.total_difference}")
+        # Update result label with total difference
+        if self.result_label is not None:
+            self.result_label.config(
+                text=f"{self.lang['diff']}: {processing.total_difference}")
 
     def change_button_text(self, button: custom_button.CustomButton):
+        """
+        Change the text of a custom button widget based on the selected language.
+
+        :param button: The custom button widget whose text needs to be updated.
+        :type button: custom_button.CustomButton
+        """
         if button is not None and self.get_key(self.prev_lang_dict, button.get_text()) is not None:
             button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, button.get_text())])
 
     def change_text(self, widget):
+        """
+        Change the text displayed on the widgets recursively within the given widget.
+
+        :param widget: The parent widget whose children widgets' text needs to be updated.
+        :type widget: tkinter.Widget or None
+        """
         if widget is not None:
+            # Update text for the parent widget
             if "text" in widget.keys():
+                # Check if the current text has a translation available
                 if self.get_key(self.prev_lang_dict, widget.cget("text")) in self.next_lang:
                     widget.config(text=self.next_lang[self.get_key(self.prev_lang_dict, widget.cget("text"))])
+
+            # Recursively update text for children widgets
             for elem in widget.winfo_children():
                 if "text" in elem.keys() and widget.winfo_children() is not None:
+                    # Exclude specific widgets from text change
                     if elem not in [self.history_content_list, self.selected_file_path]:
+                        # Check if the widget is not an OptionMenu or CustomButton
                         if not isinstance(elem, OptionMenu) and not isinstance(elem, custom_button.CustomButton):
+                            # Check if the current text has a translation available
                             if self.get_key(self.prev_lang_dict, elem.cget("text")) in self.next_lang:
-                                # elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
+                                # Replace text with translated text
                                 elem.config(text=elem.cget("text").replace(
                                     self.prev_lang_dict[self.get_key(self.prev_lang_dict, elem.cget("text"))],
                                     self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))]))
+                                # Update UI to reflect changes
                                 elem.update()
                                 elem.update_idletasks()
 
