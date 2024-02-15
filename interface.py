@@ -654,30 +654,32 @@ class Interface:
             self.history_window = None
 
     def change_language(self):
+        # Settings window
         self.change_text(self.settings_window)
-        # self.save_button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, self.save_button.get_text())])
         self.change_button_text(self.save_button)
-        # self.change_text(self.history_window)
+
+        # History window
+        self.change_button_text(self.history_exit_button)
+        self.change_text(self.history_window)
 
     def change_button_text(self, button: custom_button.CustomButton):
-        button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, button.get_text())])
+        if button is not None:
+            button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, button.get_text())])
 
     def change_text(self, widget):
         if widget is not None:
             for elem in widget.winfo_children():
-                if isinstance(elem, custom_button.CustomButton):
-                    debug.log("BUTTON FOUND!!", text_color="red")
-                    button_text = elem.get_text()
-                    button_text_key = self.get_key(self.prev_lang_dict, button_text)
-                    # elem.config(text=self.next_lang[button_text_key])
-                    elem.set_text(self.next_lang[button_text_key])
-                else:
-                    if "text" in elem.keys():
-                        if "File" not in elem.cget("text") or "Result" not in elem.cget("text"):
-                            if not isinstance(elem, OptionMenu):
-                                elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
-                if widget.winfo_children() is not None:
-                    self.change_text(elem)
+                if "text" in elem.keys():
+                    if "File:" not in elem.cget("text") and "Result:" not in elem.cget("text"):
+                        if not isinstance(elem, OptionMenu) and not isinstance(elem, custom_button.CustomButton):
+                            elem.cget("text")
+                            elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
+                        else:
+                            debug.log("OptionMenu or CustomButton found", text_color="red")
+                    else:
+                        debug.log("History text found!", text_color="red")
+                # if widget.winfo_children() is not None:
+                #     self.change_text(elem)
 
     def get_key(self, my_dict: dict, value: str):
         for key, val in my_dict.items():
