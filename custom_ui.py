@@ -1,5 +1,4 @@
 from tkinter import PhotoImage, Canvas
-
 from PIL import Image, ImageTk
 
 bg_path = "assets/rounded_frame.png"
@@ -36,16 +35,13 @@ class CustomLabelFrame:
         self.rec = None
 
         # Load the images using PIL
-        circle_im = Image.open(circle)
-        rect_im = Image.open(rect)
+        circle_im = Image.open(circle).convert("RGBA")  # Convert to RGBA mode
+        rect_im = Image.open(rect).convert("RGBA")  # Convert to RGBA mode
 
         # Resize the image (width, height)
-        circle_im = circle_im.resize((radius * 2,
-                                      radius * 2))
-        rect_im_hor = rect_im.resize((width - radius * 2,
-                                      radius * 2))
-        rect_im_ver = rect_im.resize((radius * 2,
-                                      height - radius * 2))
+        circle_im = circle_im.resize((radius * 2, radius * 2))
+        rect_im_hor = rect_im.resize((width - radius * 2, radius * 2))
+        rect_im_ver = rect_im.resize((radius * 2, height - radius * 2))
         rect_im_center = rect_im.resize((width - 2 * radius, height - 2 * radius))
 
         # Convert the resized image to a Tkinter PhotoImage object
