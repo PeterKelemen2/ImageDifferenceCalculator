@@ -655,20 +655,29 @@ class Interface:
 
     def change_language(self):
         self.change_text(self.settings_window)
-        self.change_text(self.history_window)
+        self.save_button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, self.save_button.get_text())])
+        # self.change_text(self.history_window)
 
     def change_text(self, widget):
         if widget is not None:
             for elem in widget.winfo_children():
-                if "text" in elem.keys():
-                    if "File" not in elem.cget("text") or "Result" not in elem.cget("text"):
-                        # old_text = elem.cget("text")
-                        # debug.log(old_text, text_color="blue")
-                        # text_key = self.get_key(self.prev_lang_dict, elem.cget("text"))
-                        # debug.log(text_key, text_color="red")
-                        #
-                        # debug.log(f"Changing {old_text} to {self.next_lang[text_key]}")
-                        elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
+                if isinstance(elem, custom_button.CustomButton):
+                    debug.log("BUTTON FOUND!!", text_color="red")
+                    button_text = elem.get_text()
+                    button_text_key = self.get_key(self.prev_lang_dict, button_text)
+                    # elem.config(text=self.next_lang[button_text_key])
+                    elem.set_text(self.next_lang[button_text_key])
+                else:
+                    if "text" in elem.keys():
+                        if "File" not in elem.cget("text") or "Result" not in elem.cget("text"):
+                            if not isinstance(elem, OptionMenu):
+                                # old_text = elem.cget("text")
+                                # debug.log(old_text, text_color="blue")
+                                # text_key = self.get_key(self.prev_lang_dict, elem.cget("text"))
+                                # debug.log(text_key, text_color="red")
+                                # debug.log(f"Changing {old_text} to {self.next_lang[text_key]}")
+                                # elem.config(text=self.next_lang[text_key])
+                                elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
                 self.change_text(elem)
 
     def get_key(self, my_dict: dict, value: str):

@@ -119,6 +119,13 @@ class CustomButton:
     def keys(self):
         return ["text"]
 
+    def get_text(self):
+        return self.text_item
+
+    def set_text(self, new_text):
+        self.text = new_text
+        self.canvas.itemconfig(self.text_item, text=new_text)
+
     def winfo_reqwidth(self):
         return self.canvas.winfo_reqwidth()
 
