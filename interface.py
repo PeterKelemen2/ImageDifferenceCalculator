@@ -654,33 +654,20 @@ class Interface:
             self.history_window = None
 
     def change_language(self):
-        # Settings window
-        self.change_text(self.settings_window)
-        self.change_button_text(self.save_button)
+        for label in [self.settings_window, self.history_window, self.button_wrapper, self.frame_wrapper,
+                      self.progress_wrapper, self.finished_window]:
+            self.change_text(label)
 
-        # History window
-        self.change_button_text(self.history_exit_button)
-        self.change_text(self.history_window)
+        for button in [self.save_button, self.history_exit_button, self.browse_button, self.process_video_button,
+                       self.media_player_button]:
+            self.change_button_text(button)
 
-        # Browser
-        self.change_button_text(self.browse_button)
-        self.change_text(self.button_wrapper)
-
-        # Frame info
-        self.change_text(self.frame_wrapper)
         if self.im_det is not None:
             self.im_det = "\n".join(
                 [f"{self.lang[key]}: {self.image_detail_dict[key]}"
                  for key, value in self.image_detail_dict.items()])
         if self.image_details is not None: self.image_details.config(text=self.im_det)
-        self.change_button_text(self.process_video_button)
-        self.change_button_text(self.media_player_button)
 
-        # Progress
-        self.change_text(self.progress_wrapper)
-
-        # Finished window
-        self.change_text(self.finished_window)
         if self.result_label is not None: self.result_label.config(
             text=f"{self.lang["diff"]}: {processing.total_difference}")
 
@@ -694,17 +681,16 @@ class Interface:
                 if self.get_key(self.prev_lang_dict, widget.cget("text")) in self.next_lang:
                     widget.config(text=self.next_lang[self.get_key(self.prev_lang_dict, widget.cget("text"))])
             for elem in widget.winfo_children():
-                if "text" in elem.keys():
-                    if widget.winfo_children() is not None:
-                        if elem not in [self.history_content_list, self.selected_file_path]:
-                            if not isinstance(elem, OptionMenu) and not isinstance(elem, custom_button.CustomButton):
-                                if self.get_key(self.prev_lang_dict, elem.cget("text")) in self.next_lang:
-                                    # elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
-                                    elem.config(text=elem.cget("text").replace(
-                                        self.prev_lang_dict[self.get_key(self.prev_lang_dict, elem.cget("text"))],
-                                        self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))]))
-                                    elem.update()
-                                    elem.update_idletasks()
+                if "text" in elem.keys() and widget.winfo_children() is not None:
+                    if elem not in [self.history_content_list, self.selected_file_path]:
+                        if not isinstance(elem, OptionMenu) and not isinstance(elem, custom_button.CustomButton):
+                            if self.get_key(self.prev_lang_dict, elem.cget("text")) in self.next_lang:
+                                # elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
+                                elem.config(text=elem.cget("text").replace(
+                                    self.prev_lang_dict[self.get_key(self.prev_lang_dict, elem.cget("text"))],
+                                    self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))]))
+                                elem.update()
+                                elem.update_idletasks()
 
     def get_key(self, my_dict: dict, value: str):
         for key, val in my_dict.items():
