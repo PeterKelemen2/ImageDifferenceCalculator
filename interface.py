@@ -8,6 +8,8 @@ from PIL import Image, ImageTk
 from datetime import datetime
 
 import config
+import custom_ui
+
 import debug
 
 import custom_button
@@ -111,6 +113,9 @@ class Interface:
         self.create_browser()
 
         debug.log("[1/2] Interface created", text_color="blue")
+
+        rounded_label_frame = custom_ui.CustomLabelFrame(self.win, width=200, height=300, text="asd")
+        rounded_label_frame.canvas.place(x=100, y=100)
 
         self.win.mainloop()
 
@@ -249,10 +254,10 @@ class Interface:
                                        font=FONT,
                                        wraplength=520,
                                        justify="left")
-        self.opened_file_label.config(text=self.lang["None"])
+        self.opened_file_label.config(text=self.lang["None"], anchor="center")
         # Place right to the button, vertically centered
         self.opened_file_label.place(x=self.browse_button.winfo_reqwidth() * 2 - 55,
-                                     y=self.browse_button.winfo_reqheight() / 2 - 5)
+                                     y=self.button_wrapper.winfo_reqheight() // 2 - self.opened_file_label.winfo_reqheight() * 1.5)
         debug.log("[4/6] File path Label created!", text_color="magenta")
 
     def browse_files(self):
@@ -731,24 +736,48 @@ class Interface:
         return None
 
     def update_colors(self):
+        """
+        Update the colors of the GUI elements to match the current theme settings.
+        This method sets the background and foreground colors of various widgets,
+        including the main window, history window, outline frame, and history content list.
+
+        """
+        # Set color for main window and history window
         self.set_color()
         self.change_colors(self.win)
         self.change_colors(self.history_window)
-        if self.outline_frame is not None: self.outline_frame.config(bg=DARKER_BG)
-        if self.history_content_list is not None:
-            if len(self.history_content_list) > 0:
-                for elem in self.history_content_list:
-                    if elem is not None:
-                        elem.config(fg=FONT_COLOR, bg=DARKER_BG)
+
+        # Set background color for outline frame if available
+        if self.outline_frame is not None:
+            self.outline_frame.config(bg=DARKER_BG)
+
+        # Set colors for history content list items
+        if self.history_content_list is not None and len(self.history_content_list) > 0:
+            for elem in self.history_content_list:
+                if elem is not None:
+                    elem.config(fg=FONT_COLOR, bg=DARKER_BG)
+
+        # Set background color for the main window
         self.win["bg"] = BGCOLOR
 
     def change_colors(self, widget):
+        """
+        Recursively update the background and foreground colors of the given widget
+        and its children widgets to match the current theme settings.
+
+        :param widget: The parent widget whose colors need to be updated.
+        :type widget: tkinter.Widget or None
+        """
         if widget is not None:
+            # Update colors for the current widget
             for elem in widget.winfo_children():
                 if elem is not None:
+                    # Set background color if available
                     if "bg" in elem.keys():
                         elem.config(bg=BGCOLOR)
+                    # Set foreground color if available
                     if "fg" in elem.keys():
                         elem.config(fg=FONT_COLOR)
+                    # Recursively update colors for children widgets
                     if elem.winfo_children():
                         self.change_colors(elem)
