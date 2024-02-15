@@ -256,6 +256,7 @@ class Interface:
         self.rounded_label_frame = custom_ui.CustomLabelFrame(self.win,
                                                               text=self.lang["input_file"],
                                                               fill="#32a852",
+                                                              fg=BLACK,
                                                               width=620,
                                                               height=80,
                                                               radius=15)
@@ -264,7 +265,6 @@ class Interface:
         self.new_button = custom_button.CustomButton(self.rounded_label_frame.canvas, text="Gonb", bg="#32a852",
                                                      button_type=custom_button.button)
         self.new_button.canvas.place(x=10, y=30)
-
 
         debug.log("[4/4] Browse Button created!", text_color="magenta")
 
