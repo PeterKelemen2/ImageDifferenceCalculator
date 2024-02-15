@@ -332,7 +332,7 @@ class Interface:
                 "height": f"{image.height}px",
                 "frames": f"{frame_count}",
                 "duration": str("{:.0f}s".format(frame_count / int(fps))),
-                "fps": f"{fps} fps",
+                "framerate": f"{fps} fps",
                 "bitrate": f"{bitrate} kbps"
             }
             self.im_det = (f"{self.lang["width"]}: {image.width}px\n"
@@ -660,29 +660,57 @@ class Interface:
 
         # History window
         self.change_button_text(self.history_exit_button)
-        # self.change_text(self.history_window)
+        self.change_text(self.history_window)
 
+        # Browser
         self.change_button_text(self.browse_button)
+        self.change_text(self.button_wrapper)
+
+        # Frame info
+        self.change_text(self.frame_wrapper)
+        if self.im_det is not None:
+            self.im_det = "\n".join(
+                [f"{self.lang[key]}: {self.image_detail_dict[key]}"
+                 for key, value in self.image_detail_dict.items()])
+        if self.image_details is not None: self.image_details.config(text=self.im_det)
         self.change_button_text(self.process_video_button)
         self.change_button_text(self.media_player_button)
-        self.change_button_text(self.browse_button)
-        self.change_text(self.win)
+
+        # Progress
+        self.change_text(self.progress_wrapper)
+
+        # Finished window
+        self.change_text(self.finished_window)
+        if self.result_label is not None: self.result_label.config(
+            text=f"{self.lang["diff"]}: {processing.total_difference}")
 
     def change_button_text(self, button: custom_button.CustomButton):
-        if button is not None:
+        if button is not None and self.get_key(self.prev_lang_dict, button.get_text()) is not None:
             button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, button.get_text())])
 
     def change_text(self, widget):
         if widget is not None:
+            if "text" in widget.keys():
+                if self.get_key(self.prev_lang_dict, widget.cget("text")) in self.next_lang:
+                    widget.config(text=self.next_lang[self.get_key(self.prev_lang_dict, widget.cget("text"))])
             for elem in widget.winfo_children():
                 if "text" in elem.keys():
                     if "File:" not in elem.cget("text") and "Result:" not in elem.cget("text"):
                         if not isinstance(elem, OptionMenu) and not isinstance(elem, custom_button.CustomButton):
-                            elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
+                            if self.get_key(self.prev_lang_dict, elem.cget("text")) in self.next_lang:
+                                # elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
+                                elem.config(text=elem.cget("text").replace(
+                                    self.prev_lang_dict[self.get_key(self.prev_lang_dict, elem.cget("text"))],
+                                    self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))]))
+                                elem.update()
+                                elem.update_idletasks()
                         else:
                             debug.log("OptionMenu or CustomButton found", text_color="red")
                     else:
-                        debug.log("History text found!", text_color="red")
+                        # debug.log("History text found!", text_color="red")
+                        if isinstance(elem, custom_button.CustomButton):
+                            self.change_button_text(elem)
+
                 if widget.winfo_children() is not None:
                     # Check if the widget is not related to history content list
                     if elem not in [self.history_content_list, self.selected_file_path]:
@@ -703,7 +731,7 @@ class Interface:
                                                    f"{self.lang["height"]}: {self.image_detail_dict["height"]}\n"
                                                    f"{self.lang["frames"]}: {self.image_detail_dict["frames"]}\n"
                                                    f"{self.lang["duration"]}: {self.image_detail_dict["duration"]}\n"
-                                                   f"{self.lang["framerate"]}: {self.image_detail_dict["fps"]}\n"
+                                                   f"{self.lang["framerate"]}: {self.image_detail_dict["framerate"]}\n"
                                                    f"{self.lang["bitrate"]}: {self.image_detail_dict["bitrate"]}")
         if self.image_details is not None: self.image_details.config(text=self.im_det)
         if self.media_player_button is not None: self.media_player_button.config(text=self.lang["open_vlc"])
