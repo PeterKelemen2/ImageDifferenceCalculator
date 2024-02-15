@@ -49,6 +49,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.next_lang = None
         self.previous_language = None
         self.prev_lang_dict = None
         self.eng_dict = lang.load_lang("english")
@@ -242,12 +243,13 @@ class Interface:
         # Label for showing opened file path
         debug.log("[4/5] Creating file path Label...", text_color="magenta")
         self.opened_file_label = Label(self.button_wrapper,
-                                       textvariable=self.selected_file_path,
+                                       text=self.selected_file_path,
                                        fg=FONT_COLOR,
                                        bg=BGCOLOR,
                                        font=FONT,
                                        wraplength=520,
                                        justify="left")
+        self.opened_file_label.config(text=self.lang["None"])
         # Place right to the button, vertically centered
         self.opened_file_label.place(x=self.browse_button.winfo_reqwidth() * 2 - 55,
                                      y=self.browse_button.winfo_reqheight() / 2 - 5)
@@ -264,7 +266,7 @@ class Interface:
 
         # Update the label with the selected file path
         if file_path:
-            self.selected_file_path.set(file_path)
+            self.selected_file_path.config(text=file_path)
             debug.log(f"Selected file: {file_path}", text_color="blue")
             self.show_first_frame_details(file_path)
             video_file_path = file_path
@@ -557,24 +559,23 @@ class Interface:
             restart the program for the changes to take effect.
             """
 
-            # Retrieve selected language option
+            # Retrieve selected language and theme option
             chosen_lang_option = self.lang_selected_option.get()
+            chosen_theme_option = theme_selected_option.get()
 
             # Map language options to standard format
             chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
-
-            # Retrieve selected theme option
-            chosen_theme_option = theme_selected_option.get()
-
             # Map theme options to standard format
             chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
 
             if chosen_lang_option != self.curr_lang:
-                self.prev_lang = self.curr_lang
+                print(self.curr_lang, chosen_lang_option)
+                self.prev_lang_dict = lang.load_lang(self.curr_lang)
+                self.next_lang = lang.load_lang(chosen_lang_option)
+
                 self.lang = lang.load_lang(chosen_lang_option)
                 self.curr_lang = chosen_lang_option
-                self.update_text()
-                # self.change_language(self.curr_lang)
+                self.change_language()
 
             if chosen_theme_option != self.curr_theme:
                 self.curr_theme = chosen_theme_option
@@ -652,31 +653,23 @@ class Interface:
             self.history_window.destroy()
             self.history_window = None
 
-    def change_language(self, lang_to):
-        prev_lang = ""
-        if lang_to == "english":
-            prev_lang = "hungarian"
-        elif lang_to == "hungarian":
-            prev_lang = "english"
-        else:
-            debug.log("Not supported language", text_color="red")
-        debug.log(f"Changing language from {prev_lang} to {lang_to}", text_color="blue")
-        self.prev_lang_dict = lang.load_lang(prev_lang)
-        self.lang = lang.load_lang(lang_to)
-        self.change_text(self.win)
-        # for widget in self.win:
-        #     print(widget)
+    def change_language(self):
+        self.change_text(self.settings_window)
+        self.change_text(self.history_window)
 
-    # TODO: Only does it right from hun to eng
     def change_text(self, widget):
         if widget is not None:
             for elem in widget.winfo_children():
-                if elem is not None:
-                    if "text" in elem.keys():
-                        print(elem.cget("text"))
-                        elem_value = self.get_key(self.lang, elem.cget("text"))
-                        print(elem_value)
-                # self.change_colors(elem)
+                if "text" in elem.keys():
+                    if "File" not in elem.cget("text") or "Result" not in elem.cget("text"):
+                        # old_text = elem.cget("text")
+                        # debug.log(old_text, text_color="blue")
+                        # text_key = self.get_key(self.prev_lang_dict, elem.cget("text"))
+                        # debug.log(text_key, text_color="red")
+                        #
+                        # debug.log(f"Changing {old_text} to {self.next_lang[text_key]}")
+                        elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
+                self.change_text(elem)
 
     def get_key(self, my_dict: dict, value: str):
         for key, val in my_dict.items():

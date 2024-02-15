@@ -4,10 +4,9 @@ import debug
 lang_en = "assets/lang_en"
 lang_hu = "assets/lang_hu"
 
-lang_dict = dict()
-
 
 def set_up_dict(lang_file):
+    lang_dict = dict()
     with open(lang_file, 'r', encoding="utf-8") as lang:
         for line in lang:
             entry = line.rstrip().split("=")

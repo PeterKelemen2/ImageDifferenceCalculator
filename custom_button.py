@@ -111,6 +111,14 @@ class CustomButton:
             self.bg = bg
             self.canvas.config(bg=self.bg)
 
+    def cget(self, text_arg="text"):
+        if text_arg == "text":
+            return self.text
+        return None
+
+    def keys(self):
+        return ["text"]
+
     def winfo_reqwidth(self):
         return self.canvas.winfo_reqwidth()
 
