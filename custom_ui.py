@@ -21,12 +21,13 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 
 
 class CustomLabelFrame:
-    def __init__(self, master, width, height, text="", fg=WHITE, bg=BGCOLOR):
+    def __init__(self, master, width, height, text="", fg=WHITE, bg=BGCOLOR, radius=10):
         self.width = width
         self.height = height
         self.fg = fg
         self.bg = bg
         self.text = text
+        self.radius = radius
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
         self.canvas.pack()
 
@@ -38,17 +39,32 @@ class CustomLabelFrame:
         circle_im = Image.open(circle)
         rect_im = Image.open(rect)
 
-        # Resize the image
-        circle_im = circle_im.resize((30, 30))
-        rect_im = rect_im.resize((width - circle_im.size[0] // 2 - 15, circle_im.size[0]))
+        # Resize the image (width, height)
+        circle_im = circle_im.resize((radius * 2,
+                                      radius * 2))
+        rect_im_hor = rect_im.resize((width - radius * 2,
+                                      radius * 2))
+        rect_im_ver = rect_im.resize((radius * 2,
+                                      height - radius * 2))
+        rect_im_center = rect_im.resize((width - 2 * radius, height - 2 * radius))
 
         # Convert the resized image to a Tkinter PhotoImage object
         self.cir_im = ImageTk.PhotoImage(circle_im)
-        self.rec_im = ImageTk.PhotoImage(rect_im)
+        self.rec_im_hor = ImageTk.PhotoImage(rect_im_hor)
+        self.rec_im_ver = ImageTk.PhotoImage(rect_im_ver)
+        self.center_rec = ImageTk.PhotoImage(rect_im_center)
 
-        # Display the resized image on the canvas
-        self.cir = self.canvas.create_image(15, 15, anchor="center", image=self.cir_im)
+        # Create circles (x,y)
+        self.cir1 = self.canvas.create_image(radius, radius, anchor="center", image=self.cir_im)
+        self.cir2 = self.canvas.create_image(width - radius, radius, anchor="center", image=self.cir_im)
+        self.cir3 = self.canvas.create_image(radius, height - radius, anchor="center", image=self.cir_im)
+        self.cir4 = self.canvas.create_image(width - radius, height - radius, anchor="center", image=self.cir_im)
 
-        self.rec = self.canvas.create_image(15, 15, anchor="w", image=self.rec_im)
-        self.cir2 = self.canvas.create_image(185, 15, anchor="center", image=self.cir_im)
+        self.rec1 = self.canvas.create_image(radius, radius, anchor="w", image=self.rec_im_hor)
+        self.rec2 = self.canvas.create_image(radius, height - radius, anchor="w", image=self.rec_im_hor)
+        self.rec3 = self.canvas.create_image(radius, height - radius, anchor="s", image=self.rec_im_ver)
+        self.rec3 = self.canvas.create_image(width - radius, height - radius, anchor="s", image=self.rec_im_ver)
+
+        self.center = self.canvas.create_image(radius, radius, anchor="nw", image=self.center_rec)
+
         self.text_item = self.canvas.create_text(10, 15, text=text, fill=fg, anchor="w", font=FONT)

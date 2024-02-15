@@ -114,8 +114,8 @@ class Interface:
 
         debug.log("[1/2] Interface created", text_color="blue")
 
-        rounded_label_frame = custom_ui.CustomLabelFrame(self.win, width=200, height=300, text="asd")
-        rounded_label_frame.canvas.place(x=100, y=100)
+        rounded_label_frame = custom_ui.CustomLabelFrame(self.win, text="Pina", width=400, height=400, radius=20)
+        rounded_label_frame.canvas.place(x=200, y=50)
 
         self.win.mainloop()
 
