@@ -253,12 +253,15 @@ class Interface:
                                                         bg=BGCOLOR)
         # self.browse_button.canvas.place(x=10, y=10)
 
-        self.rounded_label_frame = custom_ui.CustomLabelFrame(self.win, text=self.lang["input_file"], width=620,
+        self.rounded_label_frame = custom_ui.CustomLabelFrame(self.win,
+                                                              text=self.lang["input_file"],
+                                                              fill="#32a852",
+                                                              width=620,
                                                               height=80,
                                                               radius=15)
         self.rounded_label_frame.canvas.place(x=170, y=10)
 
-        self.new_button = custom_button.CustomButton(self.rounded_label_frame.canvas, text="Gonb", bg=BLACK,
+        self.new_button = custom_button.CustomButton(self.rounded_label_frame.canvas, text="Gonb", bg="#32a852",
                                                      button_type=custom_button.button)
         self.new_button.canvas.place(x=10, y=30)
 

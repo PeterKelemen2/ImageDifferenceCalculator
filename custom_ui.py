@@ -1,9 +1,11 @@
 from tkinter import PhotoImage, Canvas
+
+import PIL.ImageOps
 from PIL import Image, ImageTk
 
 bg_path = "assets/rounded_frame.png"
-circle = "assets/circle.png"
-rect = "assets/black.png"
+circle = "assets/frame_circle.png"
+rect = "assets/frame_square.png"
 
 BGCOLOR = "#3a3a3a"
 DARKER_BG = "#292929"
@@ -20,9 +22,10 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 
 
 class CustomLabelFrame:
-    def __init__(self, master, width, height, text="", fg=WHITE, bg=BGCOLOR, radius=10):
+    def __init__(self, master, width, height, text="", fill=BLACK, fg=WHITE, bg=BGCOLOR, radius=10):
         self.width = width
         self.height = height
+        self.fill = fill
         self.fg = fg
         self.bg = bg
         self.text = text
@@ -45,8 +48,13 @@ class CustomLabelFrame:
         self.center_rec = None
 
         # Load the images using PIL
-        circle_im = Image.open(circle).convert("RGBA")  # Convert to RGBA mode
-        rect_im = Image.open(rect).convert("RGBA")  # Convert to RGBA mode
+        circle_im = Image.open(circle).convert("RGBA")
+        rect_im = Image.open(rect).convert("RGBA")
+
+        # Overlay fill color on images
+        overlay = Image.new("RGBA", circle_im.size, fill)
+        circle_im = Image.composite(overlay, circle_im, circle_im)
+        rect_im = Image.composite(overlay, rect_im, rect_im)
 
         # Resize the image (width, height)
         circle_im = circle_im.resize((radius * 2, radius * 2))
