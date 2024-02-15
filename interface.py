@@ -1,5 +1,5 @@
 import threading
-from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font
+from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button
 from tkinter.ttk import Progressbar
 
 import cv2
@@ -99,6 +99,9 @@ class Interface:
         self.curr_theme = self.settings[1]
         self.image_detail_dict = None
 
+        self.rounded_label_frame = None
+        self.new_button = None
+
         self.set_color()
 
         debug.log("[1/1] Creating interface...", text_color="blue")
@@ -114,8 +117,14 @@ class Interface:
 
         debug.log("[1/2] Interface created", text_color="blue")
 
-        rounded_label_frame = custom_ui.CustomLabelFrame(self.win, text="Pina", width=400, height=400, radius=20)
-        rounded_label_frame.canvas.place(x=200, y=50)
+        # self.rounded_label_frame = custom_ui.CustomLabelFrame(self.win, text=self.lang["input_file"], width=620,
+        #                                                       height=80,
+        #                                                       radius=15)
+        # self.rounded_label_frame.canvas.place(x=170, y=10)
+        #
+        # self.new_button = custom_button.CustomButton(self.rounded_label_frame.canvas, text="Gonb", bg=BLACK,
+        #                                              button_type=custom_button.button)
+        # self.new_button.canvas.place(x=10, y=30)
 
         self.win.mainloop()
 
@@ -217,6 +226,7 @@ class Interface:
         file_browser_thread.start()
 
     def create_browser(self):
+
         # Wrapper for file browsing
         debug.log("[4/1] Creating Browsing wrapper...", text_color="magenta")
         self.button_wrapper = LabelFrame(self.win,
@@ -228,7 +238,7 @@ class Interface:
                                          font=BOLD_FONT)
         # Place to the right
         x_coordinate = WIN_WIDTH - self.button_wrapper.winfo_reqwidth() - 10
-        self.button_wrapper.place(x=x_coordinate, y=5)
+        # self.button_wrapper.place(x=x_coordinate, y=5)
         debug.log("[4/2] Browsing wrapper created!", text_color="magenta")
 
         # Button to initiate browsing
@@ -241,7 +251,17 @@ class Interface:
                                                         height=30,
                                                         button_type=custom_button.button,
                                                         bg=BGCOLOR)
-        self.browse_button.canvas.place(x=10, y=10)
+        # self.browse_button.canvas.place(x=10, y=10)
+
+        self.rounded_label_frame = custom_ui.CustomLabelFrame(self.win, text=self.lang["input_file"], width=620,
+                                                              height=80,
+                                                              radius=15)
+        self.rounded_label_frame.canvas.place(x=170, y=10)
+
+        self.new_button = custom_button.CustomButton(self.rounded_label_frame.canvas, text="Gonb", bg=BLACK,
+                                                     button_type=custom_button.button)
+        self.new_button.canvas.place(x=10, y=30)
+
 
         debug.log("[4/4] Browse Button created!", text_color="magenta")
 

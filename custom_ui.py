@@ -30,9 +30,19 @@ class CustomLabelFrame:
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
         self.canvas.pack()
 
-        self.cir = None
+        self.cir1 = None
         self.cir2 = None
-        self.rec = None
+        self.cir3 = None
+        self.cir4 = None
+        self.rec1 = None
+        self.rec2 = None
+        self.rec3 = None
+        self.rec4 = None
+        self.center = None
+        self.cir_im = None
+        self.rec_im_hor = None
+        self.rec_im_ver = None
+        self.center_rec = None
 
         # Load the images using PIL
         circle_im = Image.open(circle).convert("RGBA")  # Convert to RGBA mode
@@ -63,4 +73,4 @@ class CustomLabelFrame:
 
         self.center = self.canvas.create_image(radius, radius, anchor="nw", image=self.center_rec)
 
-        self.text_item = self.canvas.create_text(10, 15, text=text, fill=fg, anchor="w", font=FONT)
+        self.text_item = self.canvas.create_text(radius, radius, text=text, fill=fg, anchor="w", font=BOLD_FONT)
