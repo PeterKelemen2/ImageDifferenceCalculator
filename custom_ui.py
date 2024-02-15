@@ -31,6 +31,7 @@ class CustomLabelFrame:
         self.canvas.pack()
 
         self.cir = None
+        self.cir2 = None
         self.rec = None
 
         # Load the images using PIL
@@ -39,13 +40,15 @@ class CustomLabelFrame:
 
         # Resize the image
         circle_im = circle_im.resize((30, 30))
-        rect_im = rect_im.resize((width - circle_im.size[0] // 2, circle_im.size[0]))
+        rect_im = rect_im.resize((width - circle_im.size[0] // 2 - 15, circle_im.size[0]))
 
         # Convert the resized image to a Tkinter PhotoImage object
         self.cir_im = ImageTk.PhotoImage(circle_im)
         self.rec_im = ImageTk.PhotoImage(rect_im)
 
         # Display the resized image on the canvas
-        self.cir = self.canvas.create_image(15, 30, anchor="center", image=self.cir_im)
-        self.rec = self.canvas.create_image(15, 30, anchor="w", image=self.rec_im)
-        # self.text_item = self.canvas.create_text(10, 15, text=text, fill=fg, anchor="w", font=FONT)
+        self.cir = self.canvas.create_image(15, 15, anchor="center", image=self.cir_im)
+
+        self.rec = self.canvas.create_image(15, 15, anchor="w", image=self.rec_im)
+        self.cir2 = self.canvas.create_image(185, 15, anchor="center", image=self.cir_im)
+        self.text_item = self.canvas.create_text(10, 15, text=text, fill=fg, anchor="w", font=FONT)
