@@ -243,7 +243,7 @@ class Interface:
         # Label for showing opened file path
         debug.log("[4/5] Creating file path Label...", text_color="magenta")
         self.opened_file_label = Label(self.button_wrapper,
-                                       text=self.selected_file_path,
+                                       textvariable=self.selected_file_path,
                                        fg=FONT_COLOR,
                                        bg=BGCOLOR,
                                        font=FONT,
@@ -266,7 +266,7 @@ class Interface:
 
         # Update the label with the selected file path
         if file_path:
-            self.selected_file_path.config(text=file_path)
+            self.selected_file_path.set(file_path)
             debug.log(f"Selected file: {file_path}", text_color="blue")
             self.show_first_frame_details(file_path)
             video_file_path = file_path
@@ -660,7 +660,13 @@ class Interface:
 
         # History window
         self.change_button_text(self.history_exit_button)
-        self.change_text(self.history_window)
+        # self.change_text(self.history_window)
+
+        self.change_button_text(self.browse_button)
+        self.change_button_text(self.process_video_button)
+        self.change_button_text(self.media_player_button)
+        self.change_button_text(self.browse_button)
+        self.change_text(self.win)
 
     def change_button_text(self, button: custom_button.CustomButton):
         if button is not None:
@@ -672,14 +678,15 @@ class Interface:
                 if "text" in elem.keys():
                     if "File:" not in elem.cget("text") and "Result:" not in elem.cget("text"):
                         if not isinstance(elem, OptionMenu) and not isinstance(elem, custom_button.CustomButton):
-                            elem.cget("text")
                             elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
                         else:
                             debug.log("OptionMenu or CustomButton found", text_color="red")
                     else:
                         debug.log("History text found!", text_color="red")
-                # if widget.winfo_children() is not None:
-                #     self.change_text(elem)
+                if widget.winfo_children() is not None:
+                    # Check if the widget is not related to history content list
+                    if elem not in [self.history_content_list, self.selected_file_path]:
+                        self.change_text(elem)
 
     def get_key(self, my_dict: dict, value: str):
         for key, val in my_dict.items():
