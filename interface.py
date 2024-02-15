@@ -695,58 +695,22 @@ class Interface:
                     widget.config(text=self.next_lang[self.get_key(self.prev_lang_dict, widget.cget("text"))])
             for elem in widget.winfo_children():
                 if "text" in elem.keys():
-                    if "File:" not in elem.cget("text") and "Result:" not in elem.cget("text"):
-                        if not isinstance(elem, OptionMenu) and not isinstance(elem, custom_button.CustomButton):
-                            if self.get_key(self.prev_lang_dict, elem.cget("text")) in self.next_lang:
-                                # elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
-                                elem.config(text=elem.cget("text").replace(
-                                    self.prev_lang_dict[self.get_key(self.prev_lang_dict, elem.cget("text"))],
-                                    self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))]))
-                                elem.update()
-                                elem.update_idletasks()
-                        else:
-                            debug.log("OptionMenu or CustomButton found", text_color="red")
-                    else:
-                        # debug.log("History text found!", text_color="red")
-                        if isinstance(elem, custom_button.CustomButton):
-                            self.change_button_text(elem)
-
-                if widget.winfo_children() is not None:
-                    # Check if the widget is not related to history content list
-                    if elem not in [self.history_content_list, self.selected_file_path]:
-                        self.change_text(elem)
+                    if widget.winfo_children() is not None:
+                        if elem not in [self.history_content_list, self.selected_file_path]:
+                            if not isinstance(elem, OptionMenu) and not isinstance(elem, custom_button.CustomButton):
+                                if self.get_key(self.prev_lang_dict, elem.cget("text")) in self.next_lang:
+                                    # elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
+                                    elem.config(text=elem.cget("text").replace(
+                                        self.prev_lang_dict[self.get_key(self.prev_lang_dict, elem.cget("text"))],
+                                        self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))]))
+                                    elem.update()
+                                    elem.update_idletasks()
 
     def get_key(self, my_dict: dict, value: str):
         for key, val in my_dict.items():
             if val == value:
                 return key
-        return None  # Return None instead of "None" if key is not found
-
-    def update_text(self):
-        if self.time_wrapper: self.time_wrapper.config(text=self.lang["time"])
-        if self.button_wrapper is not None: self.button_wrapper.config(text=self.lang["input_file"])
-        if self.frame_wrapper is not None: self.frame_wrapper.config(text=self.lang["video_data"])
-        if self.frame_details_header is not None: self.frame_details_header.config(text=self.lang["video_det"])
-        if self.im_det is not None: self.im_det = (f"{self.lang["width"]}: {self.image_detail_dict["width"]}\n"
-                                                   f"{self.lang["height"]}: {self.image_detail_dict["height"]}\n"
-                                                   f"{self.lang["frames"]}: {self.image_detail_dict["frames"]}\n"
-                                                   f"{self.lang["duration"]}: {self.image_detail_dict["duration"]}\n"
-                                                   f"{self.lang["framerate"]}: {self.image_detail_dict["framerate"]}\n"
-                                                   f"{self.lang["bitrate"]}: {self.image_detail_dict["bitrate"]}")
-        if self.image_details is not None: self.image_details.config(text=self.im_det)
-        if self.media_player_button is not None: self.media_player_button.config(text=self.lang["open_vlc"])
-        if self.process_video_button is not None: self.process_video_button.config(text=self.lang["process"])
-        if self.browse_button is not None: self.browse_button.config(text=self.lang["browse"])
-        if self.progress_wrapper is not None: self.progress_wrapper.config(text=self.lang["progress"])
-        if self.settings_window is not None: self.settings_window.title(self.lang["settings"])
-        if self.label is not None: self.label.config(text=self.lang["settings"])
-        if self.lang_options is not None: self.lang_options = [self.lang["english"], self.lang["hungarian"]]
-        if self.lang_label is not None: self.lang_label.config(text=self.lang["lang"])
-        if self.theme_label is not None: self.theme_label.config(text=self.lang["theme"])
-        if self.save_button is not None: self.save_button.config(text=self.lang["save"])
-        if self.history_title is not None: self.history_title.config(text=self.lang["history"])
-        if self.history_window is not None: self.history_window.title(self.lang["history"])
-        if self.history_exit_button is not None: self.history_exit_button.config(text=self.lang["exit"])
+        return None
 
     def update_colors(self):
         self.set_color()
