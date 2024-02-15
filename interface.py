@@ -655,8 +655,12 @@ class Interface:
 
     def change_language(self):
         self.change_text(self.settings_window)
-        self.save_button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, self.save_button.get_text())])
+        # self.save_button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, self.save_button.get_text())])
+        self.change_button_text(self.save_button)
         # self.change_text(self.history_window)
+
+    def change_button_text(self, button: custom_button.CustomButton):
+        button.set_text(self.next_lang[self.get_key(self.prev_lang_dict, button.get_text())])
 
     def change_text(self, widget):
         if widget is not None:
@@ -671,14 +675,9 @@ class Interface:
                     if "text" in elem.keys():
                         if "File" not in elem.cget("text") or "Result" not in elem.cget("text"):
                             if not isinstance(elem, OptionMenu):
-                                # old_text = elem.cget("text")
-                                # debug.log(old_text, text_color="blue")
-                                # text_key = self.get_key(self.prev_lang_dict, elem.cget("text"))
-                                # debug.log(text_key, text_color="red")
-                                # debug.log(f"Changing {old_text} to {self.next_lang[text_key]}")
-                                # elem.config(text=self.next_lang[text_key])
                                 elem.config(text=self.next_lang[self.get_key(self.prev_lang_dict, elem.cget("text"))])
-                self.change_text(elem)
+                if widget.winfo_children() is not None:
+                    self.change_text(elem)
 
     def get_key(self, my_dict: dict, value: str):
         for key, val in my_dict.items():

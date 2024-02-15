@@ -22,7 +22,7 @@ class CustomButton:
         self.master = master
         self.command = command
         self.button_state = "enabled"
-
+        self.text = text
         # Store the PhotoImage objects as attributes to prevent garbage collection
         self.button_image = None
         self.button_image_clicked = None
@@ -120,7 +120,7 @@ class CustomButton:
         return ["text"]
 
     def get_text(self):
-        return self.text_item
+        return self.text
 
     def set_text(self, new_text):
         self.text = new_text
