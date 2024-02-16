@@ -33,3 +33,10 @@ File: Ud-Smt-Patkany-Sep3-Adhoc-3-20230214-152625907---V1.mp4;Result: 4.0
 File: Ud-Smt-Patkany-Sep3-Adhoc-3-20230214-152351358---V1.mp4;Result: 2.0
 File: Ud-Smt-Patkany-Sep3-Adhoc-3-20230214-152625907---V1.mp4;Result: 4.0
 File: Ud-Smt-Patkany-Sep3-Adhoc-3-20230214-152625907---V1.mp4;Result: 4.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0

@@ -82,3 +82,19 @@ class CustomLabelFrame:
         self.center = self.canvas.create_image(radius, radius, anchor="nw", image=self.center_rec)
 
         self.text_item = self.canvas.create_text(radius, radius, text=text, fill=fg, anchor="w", font=BOLD_FONT)
+
+    def get_label_width(self):
+        bbox = self.canvas.bbox(self.text_item)
+        width = bbox[2] - bbox[0]
+        return width
+
+    def get_label_height(self):
+        bbox = self.canvas.bbox(self.text_item)
+        height = bbox[3] - bbox[1]
+        return height
+
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height

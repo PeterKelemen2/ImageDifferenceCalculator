@@ -18,10 +18,12 @@ import processing
 import vlc_handler
 
 # Global properties
-BGCOLOR = "#3a3a3a"
+BGCOLOR = "#262626"
 DARKER_BG = "#292929"
 WHITE = "#ffffff"
 BLACK = "#000000"
+ACCENT = "#545454"
+DARK = "#262626"
 
 FONT_COLOR = "#ffffff"
 TIME_FONT_SIZE = 12
@@ -36,7 +38,7 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 80
 WIN_WIDTH = 800
-WIN_HEIGHT = 500
+WIN_HEIGHT = 510
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 300
@@ -51,6 +53,8 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.new_progress_wrapper = None
+        self.new_frame_wrapper = None
         self.next_lang = None
         self.previous_language = None
         self.prev_lang_dict = None
@@ -99,8 +103,8 @@ class Interface:
         self.curr_theme = self.settings[1]
         self.image_detail_dict = None
 
-        self.rounded_label_frame = None
-        self.new_button = None
+        self.browse_wrapper = None
+        self.new_browse_button = None
 
         self.set_color()
 
@@ -136,9 +140,10 @@ class Interface:
     def set_color(self):
         global BGCOLOR, FONT_COLOR, DARKER_BG
         if self.curr_theme == "dark":
-            BGCOLOR = "#3a3a3a"
+            BGCOLOR = "#262626"
             FONT_COLOR = "#ffffff"
             DARKER_BG = "#292929"
+            ACCENT = "#6b6b6b"
         elif self.curr_theme == "light":
             BGCOLOR = WHITE
             FONT_COLOR = "#000000"
@@ -231,7 +236,7 @@ class Interface:
         debug.log("[4/1] Creating Browsing wrapper...", text_color="magenta")
         self.button_wrapper = LabelFrame(self.win,
                                          text=self.lang["input_file"],
-                                         fg=FONT_COLOR,
+                                         fg=WHITE,
                                          bg=BGCOLOR,
                                          width=620,
                                          height=80,
@@ -253,34 +258,38 @@ class Interface:
                                                         bg=BGCOLOR)
         # self.browse_button.canvas.place(x=10, y=10)
 
-        self.rounded_label_frame = custom_ui.CustomLabelFrame(self.win,
-                                                              text=self.lang["input_file"],
-                                                              fill="#32a852",
-                                                              fg=BLACK,
-                                                              width=620,
-                                                              height=80,
-                                                              radius=15)
-        self.rounded_label_frame.canvas.place(x=170, y=10)
+        self.browse_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                         text=self.lang["input_file"],
+                                                         fill=ACCENT,
+                                                         fg=WHITE,
+                                                         bg=BGCOLOR,
+                                                         width=620,
+                                                         height=80,
+                                                         radius=15)
+        self.browse_wrapper.canvas.place(x=170, y=10)
 
-        self.new_button = custom_button.CustomButton(self.rounded_label_frame.canvas, text="Gonb", bg="#32a852",
-                                                     button_type=custom_button.button)
-        self.new_button.canvas.place(x=10, y=30)
+        self.new_browse_button = custom_button.CustomButton(self.browse_wrapper.canvas,
+                                                            text=self.lang["browse"],
+                                                            command=self.browse_files,
+                                                            bg=ACCENT,
+                                                            button_type=custom_button.button)
+        self.new_browse_button.canvas.place(x=10, y=30)
 
         debug.log("[4/4] Browse Button created!", text_color="magenta")
 
         # Label for showing opened file path
         debug.log("[4/5] Creating file path Label...", text_color="magenta")
-        self.opened_file_label = Label(self.button_wrapper,
+        self.opened_file_label = Label(self.browse_wrapper.canvas,
                                        textvariable=self.selected_file_path,
                                        fg=FONT_COLOR,
-                                       bg=BGCOLOR,
+                                       bg=ACCENT,
                                        font=FONT,
                                        wraplength=520,
                                        justify="left")
         self.opened_file_label.config(text=self.lang["None"], anchor="center")
+
         # Place right to the button, vertically centered
-        self.opened_file_label.place(x=self.browse_button.winfo_reqwidth() * 2 - 55,
-                                     y=self.button_wrapper.winfo_reqheight() // 2 - self.opened_file_label.winfo_reqheight() * 1.5)
+        self.opened_file_label.place(x=85, y=self.new_browse_button.winfo_reqheight())
         debug.log("[4/6] File path Label created!", text_color="magenta")
 
     def browse_files(self):
@@ -326,13 +335,23 @@ class Interface:
                                         width=780,
                                         height=320,
                                         font=BOLD_FONT)
-        self.frame_wrapper.place(x=10, y=100)
+
+        self.new_frame_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                            text=self.lang["video_data"],
+                                                            fill=ACCENT,
+                                                            bg=BGCOLOR,
+                                                            radius=15,
+                                                            width=780,
+                                                            height=320)
+
+        # self.frame_wrapper.place(x=10, y=100)
+        self.new_frame_wrapper.canvas.place(x=10, y=100)
         debug.log("[5/2] Video details wrapper created!", text_color="yellow")
 
         # Creating a label to display the first frame of the video
         debug.log("[5/3] Creating placeholder label for first frame...", text_color="yellow")
-        frame_label = Label(self.frame_wrapper)
-        frame_label.place(x=5, y=5)
+        frame_label = Label(self.new_frame_wrapper.canvas)
+        frame_label.place(x=10, y=self.new_frame_wrapper.get_label_height() + 10)
         debug.log("[5/4] First frame placeholder created!", text_color="yellow")
 
         # Opening the video and extracting details from the first frame
@@ -372,7 +391,7 @@ class Interface:
 
             # Resizing the first frame to fit within the frame wrapper
             debug.log("[5/7] Calculating first frame information...", text_color="yellow")
-            new_width = self.frame_wrapper.winfo_reqwidth() // 2
+            new_width = self.new_frame_wrapper.get_width() // 2
             new_height = int(new_width / aspect_ratio)
             image = image.resize((new_width, new_height), Image.BILINEAR)
             image_file = ImageTk.PhotoImage(image)
@@ -385,42 +404,43 @@ class Interface:
             debug.log("[5/10] Image configured!", text_color="yellow")
 
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
-        self.media_player_button = custom_button.CustomButton(self.frame_wrapper,
+        self.media_player_button = custom_button.CustomButton(self.new_frame_wrapper.canvas,
                                                               text=self.lang["open_vlc"],
-                                                              bg=BGCOLOR,
+                                                              bg=ACCENT,
                                                               width=110,
                                                               height=30,
                                                               # command=lambda: self.open_media_player(path))
                                                               command=lambda: vlc_handler.open_video(path))
         self.media_player_button.canvas.place(x=10,
-                                              y=new_height + 21)
+                                              y=new_height + 40)
 
-        self.process_video_button = custom_button.CustomButton(self.frame_wrapper,
+        self.process_video_button = custom_button.CustomButton(self.new_frame_wrapper.canvas,
                                                                text=self.lang["process"],
-                                                               bg=BGCOLOR,
+                                                               bg=ACCENT,
                                                                width=110,
                                                                height=30,
                                                                command=lambda: self.process_video())
-        self.process_video_button.canvas.place(x=self.media_player_button.winfo_reqwidth() + 20, y=new_height + 21)
+        self.process_video_button.canvas.place(x=self.media_player_button.winfo_reqwidth() + 20, y=new_height + 40)
 
         # Creating labels to display video details
         debug.log("[5/11] Creating labels to display video details...", text_color="yellow")
-        self.frame_details_header = Label(self.frame_wrapper,
+        self.frame_details_header = Label(self.new_frame_wrapper.canvas,
                                           text=self.lang["video_det"],
                                           fg=FONT_COLOR,
-                                          bg=BGCOLOR,
+                                          bg=ACCENT,
                                           font=BIG_FONT_BOLD)
-        self.frame_details_header.place(x=new_width + 30, y=10)
-        self.image_details = Label(self.frame_wrapper,
+        self.frame_details_header.place(x=new_width + 30, y=20)
+        self.image_details = Label(self.new_frame_wrapper.canvas,
                                    text=self.im_det,
                                    fg=FONT_COLOR,
-                                   bg=BGCOLOR,
+                                   bg=ACCENT,
                                    font=FONT,
                                    # Left alignment
                                    justify="left",
                                    anchor="w"
                                    )
-        self.image_details.place(x=new_width + 30, y=self.frame_details_header.winfo_reqheight() + 5)
+        self.image_details.place(x=new_width + 30,
+                                 y=self.frame_details_header.winfo_y() + self.frame_details_header.winfo_reqheight() + 20)
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
     def process_video(self):
@@ -440,18 +460,28 @@ class Interface:
                                            fg=FONT_COLOR,
                                            bg=BGCOLOR,
                                            font=BOLD_FONT)
-        self.progress_wrapper.place(x=10, y=420)
+        # self.progress_wrapper.place(x=10, y=420)
 
-        self.progress_bar = Progressbar(self.progress_wrapper,
+        self.new_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                               text=self.lang["progress"],
+                                                               width=780,
+                                                               height=70,
+                                                               fill=ACCENT,
+                                                               radius=15,
+                                                               bg=BGCOLOR)
+        self.new_progress_wrapper.canvas.place(x=10, y=430)
+
+        self.progress_bar = Progressbar(self.new_progress_wrapper.canvas,
                                         orient="horizontal",
                                         length=self.progress_wrapper.winfo_reqwidth() - 75,
                                         mode="determinate",
                                         maximum=100)
-        self.progress_bar.place(x=5, y=5)
+        self.progress_bar.place(x=10, y=self.new_progress_wrapper.get_height() // 2)
 
-        self.progress_label = Label(self.progress_wrapper, text="100.00%", fg=FONT_COLOR, bg=BGCOLOR,
+        self.progress_label = Label(self.new_progress_wrapper.canvas, text="100.00%", fg=FONT_COLOR, bg=ACCENT,
                                     font=("Ubuntu", 10))
-        self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 10, y=5)
+        self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 10,
+                                  y=self.progress_bar.winfo_reqheight() * 1.5)
 
     def update_progress(self, value):
         global call_nr
