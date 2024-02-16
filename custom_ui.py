@@ -127,9 +127,10 @@ class CustomLabelFrame:
         if fill is not None:
             self.change_fill_color(fill)
 
-    def switch_theme(self, new_fill=None, new_text_color=None, buttons=None, labels=None):
+    def switch_theme(self, new_fill=None, new_text_color=None, new_bg=None, buttons=None, labels=None):
         if new_fill is not None: self.change_fill_color(new_fill)
         if new_text_color is not None: self.change_text_color(new_text_color)
+        if new_bg is not None: self.canvas.config(bg=new_bg)
         if self.canvas.winfo_children():
             for child in self.canvas.winfo_children():
                 if "text" in child.keys():

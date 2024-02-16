@@ -18,8 +18,8 @@ import processing
 import vlc_handler
 
 # Global properties
-LIGHT_BG = "#fafafa"
-LIGHT_ACCENT = "#e8e8e8"
+LIGHT_BG = "#e8e8e8"
+LIGHT_ACCENT = "#fafafa"
 LIGHT_FONT_COLOR = "#000000"
 
 DARK_BG = "#262626"
@@ -52,7 +52,7 @@ FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 300
 SET_WIN_HEIGHT = 300
-HIS_WIN_WIDTH = 900
+HIS_WIN_WIDTH = 750
 HIS_WIN_HEIGHT = 800
 
 call_nr = 0
@@ -62,18 +62,17 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.history_outline_frame = None
         self.theme_options = None
         self.theme_selected_option = None
         self.lang_option_menu = None
         self.theme_option_menu = None
         self.buttons_wrapper = None
         self.new_progress_wrapper = None
-        self.new_frame_wrapper = None
+        self.frame_wrapper = None
         self.next_lang = None
         self.previous_language = None
         self.prev_lang_dict = None
-        self.eng_dict = lang.load_lang("english")
-        self.hun_dict = lang.load_lang("hungarian")
         self.history_content_list = list()
         self.outline_frame = None
         self.history_exit_button = None
@@ -116,9 +115,8 @@ class Interface:
         self.curr_lang = self.settings[0]
         self.curr_theme = self.settings[1]
         self.image_detail_dict = None
-
         self.browse_wrapper = None
-        self.new_browse_button = None
+        self.browse_button = None
 
         self.set_color()
 
@@ -213,12 +211,12 @@ class Interface:
         debug.log("[4/2] Browsing wrapper created!", text_color="magenta")
 
         debug.log("[4/3] Creating browse Button...", text_color="magenta")
-        self.new_browse_button = custom_button.CustomButton(self.browse_wrapper.canvas,
-                                                            text=self.lang["browse"],
-                                                            command=self.browse_files,
-                                                            bg=ACCENT,
-                                                            button_type=custom_button.button)
-        self.new_browse_button.canvas.place(x=10, y=30)
+        self.browse_button = custom_button.CustomButton(self.browse_wrapper.canvas,
+                                                        text=self.lang["browse"],
+                                                        command=self.browse_files,
+                                                        bg=ACCENT,
+                                                        button_type=custom_button.button)
+        self.browse_button.canvas.place(x=10, y=30)
 
         debug.log("[4/4] Browse Button created!", text_color="magenta")
 
@@ -234,7 +232,7 @@ class Interface:
         self.opened_file_label.config(text=self.lang["None"], anchor="center")
 
         # Place right to the button, vertically centered
-        self.opened_file_label.place(x=85, y=self.new_browse_button.winfo_reqheight())
+        self.opened_file_label.place(x=85, y=self.browse_button.winfo_reqheight())
         debug.log("[4/6] File path Label created!", text_color="magenta")
 
     def browse_files(self):
@@ -273,20 +271,20 @@ class Interface:
 
         # Creating a labeled frame to contain video details
         debug.log("[5/1] Creating video details wrapper...", text_color="yellow")
-        self.new_frame_wrapper = custom_ui.CustomLabelFrame(self.win,
-                                                            text=self.lang["video_data"],
-                                                            fill=ACCENT,
-                                                            bg=BGCOLOR,
-                                                            radius=15,
-                                                            width=780,
-                                                            height=320)
-        self.new_frame_wrapper.canvas.place(x=10, y=100)
+        self.frame_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                        text=self.lang["video_data"],
+                                                        fill=ACCENT,
+                                                        bg=BGCOLOR,
+                                                        radius=15,
+                                                        width=780,
+                                                        height=320)
+        self.frame_wrapper.canvas.place(x=10, y=100)
         debug.log("[5/2] Video details wrapper created!", text_color="yellow")
 
         # Creating a label to display the first frame of the video
         debug.log("[5/3] Creating placeholder label for first frame...", text_color="yellow")
-        frame_label = Label(self.new_frame_wrapper.canvas)
-        frame_label.place(x=10, y=self.new_frame_wrapper.get_label_height() + 10)
+        frame_label = Label(self.frame_wrapper.canvas)
+        frame_label.place(x=10, y=self.frame_wrapper.get_label_height() + 10)
         debug.log("[5/4] First frame placeholder created!", text_color="yellow")
 
         # Opening the video and extracting details from the first frame
@@ -326,7 +324,7 @@ class Interface:
 
             # Resizing the first frame to fit within the frame wrapper
             debug.log("[5/7] Calculating first frame information...", text_color="yellow")
-            new_width = self.new_frame_wrapper.get_width() // 2
+            new_width = self.frame_wrapper.get_width() // 2
             new_height = int(new_width / aspect_ratio)
             image = image.resize((new_width, new_height), Image.BILINEAR)
             image_file = ImageTk.PhotoImage(image)
@@ -339,7 +337,7 @@ class Interface:
             debug.log("[5/10] Image configured!", text_color="yellow")
 
         # media_player_button = Button(frame_wrapper, text="Open Media Player")
-        self.media_player_button = custom_button.CustomButton(self.new_frame_wrapper.canvas,
+        self.media_player_button = custom_button.CustomButton(self.frame_wrapper.canvas,
                                                               text=self.lang["open_vlc"],
                                                               bg=ACCENT,
                                                               width=110,
@@ -349,7 +347,7 @@ class Interface:
         self.media_player_button.canvas.place(x=10,
                                               y=new_height + 40)
 
-        self.process_video_button = custom_button.CustomButton(self.new_frame_wrapper.canvas,
+        self.process_video_button = custom_button.CustomButton(self.frame_wrapper.canvas,
                                                                text=self.lang["process"],
                                                                bg=ACCENT,
                                                                width=110,
@@ -359,13 +357,13 @@ class Interface:
 
         # Creating labels to display video details
         debug.log("[5/11] Creating labels to display video details...", text_color="yellow")
-        self.frame_details_header = Label(self.new_frame_wrapper.canvas,
+        self.frame_details_header = Label(self.frame_wrapper.canvas,
                                           text=self.lang["video_det"],
                                           fg=FONT_COLOR,
                                           bg=ACCENT,
                                           font=BIG_FONT_BOLD)
         self.frame_details_header.place(x=new_width + 30, y=20)
-        self.image_details = Label(self.new_frame_wrapper.canvas,
+        self.image_details = Label(self.frame_wrapper.canvas,
                                    text=self.im_det,
                                    fg=FONT_COLOR,
                                    bg=ACCENT,
@@ -381,7 +379,7 @@ class Interface:
     def process_video(self):
         if video_file_path:
             self.process_video_button.disable()
-            self.new_browse_button.disable()
+            self.browse_button.disable()
             self.create_progress_bar()
             # processing.process_video(video_file_path, self.update_progress_bar)
             processing.set_progress_callback(self.update_progress)
@@ -455,10 +453,10 @@ class Interface:
                                                     button_type=custom_button.button)
         self.ok_button.canvas.pack(pady=20)
         self.process_video_button.enable()
-        self.new_browse_button.enable()
+        self.browse_button.enable()
 
     def close_finished_windows(self):
-        self.new_browse_button.enable()
+        self.browse_button.enable()
         self.process_video_button.enable()
         self.ok_button.destroy()
         self.finished_window.destroy()
@@ -607,6 +605,7 @@ class Interface:
         self.history_window = Toplevel(self.win)
         self.history_window.title(self.lang["history"])
         self.history_window.configure(background=BGCOLOR)
+        self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
         self.history_window.resizable(False, False)
 
         self.history_title = Label(self.history_window,
@@ -614,9 +613,15 @@ class Interface:
                                    fg=FONT_COLOR,
                                    bg=BGCOLOR,
                                    font=BIG_FONT_BOLD)
+        self.history_title.place(y=20)
         self.outline_frame = LabelFrame(self.history_window,
-                                        bg=DARKER_BG)
+                                        bg=ACCENT,
+                                        width=HIS_WIN_WIDTH - 30,
+                                        height=HIS_WIN_HEIGHT - 155)
+        self.outline_frame.place(x=15, y=70)
         self.history_content_list = list()
+        y_pos = 10
+        y_offset = 40
         for line in history_list:
             new_line = line.split(";")
             self.history_content_list.append(Label(self.outline_frame,
@@ -624,18 +629,18 @@ class Interface:
                                                    font=FONT,
                                                    wraplength=HIS_WIN_WIDTH - 40,
                                                    fg=FONT_COLOR,
-                                                   bg=DARKER_BG))
-            self.history_content_list[len(self.history_content_list) - 1].pack()
+                                                   bg=ACCENT))
+            self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
 
+            y_pos += 25
             self.history_content_list.append(Label(self.outline_frame,
                                                    text=new_line[1],
                                                    fg=FONT_COLOR,
-                                                   bg=DARKER_BG,
+                                                   bg=ACCENT,
                                                    font=BOLD_FONT))
-            self.history_content_list[len(self.history_content_list) - 1].pack()
-
-        self.history_title.pack(pady=10)
-        self.outline_frame.pack(pady=5)
+            self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
+            y_pos += y_offset
+        self.history_title.place(x=10, y=10)
 
         self.history_exit_button = custom_button.CustomButton(self.history_window,
                                                               text=self.lang["exit"],
@@ -646,19 +651,26 @@ class Interface:
         self.history_window.update_idletasks()
         self.history_window.geometry(f"{self.outline_frame.winfo_reqwidth() + 40}x{HIS_WIN_HEIGHT}")
         self.history_exit_button.canvas.place(
-            x=self.history_window.winfo_width() // 2 - self.history_exit_button.winfo_reqwidth() // 4,
+            x=self.history_window.winfo_width() // 2 - self.history_exit_button.winfo_reqwidth() // 2,
             y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
 
     def close_history_window(self):
-        if self.history_window is not None:
-            self.history_exit_button.destroy()
-            self.history_exit_button = None
-            self.history_label = None
-            self.history_content_list = None
-            self.outline_frame = None
+        history_object_list = [self.history_window, self.history_title, self.outline_frame, self.history_exit_button]
+        for obj in history_object_list:
+            if obj is not None:
+                obj.destroy()
+        for label in self.history_content_list:
+            label.destroy()
 
-            self.history_window.destroy()
-            self.history_window = None
+        # if self.history_window is not None:
+        #     self.history_exit_button.destroy()
+        #     self.history_exit_button = None
+        #     self.history_label = None
+        #     self.history_content_list = None
+        #     self.outline_frame = None
+        #
+        #     self.history_window.destroy()
+        #     self.history_window = None
 
     def change_language(self):
         """
@@ -670,7 +682,7 @@ class Interface:
         # Update text for labels
 
         if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
-        if self.new_frame_wrapper is not None: self.new_frame_wrapper.set_label_text(self.lang["video_data"])
+        if self.frame_wrapper is not None: self.frame_wrapper.set_label_text(self.lang["video_data"])
         if self.new_progress_wrapper is not None: self.new_progress_wrapper.set_label_text(self.lang["progress"])
 
         for label in [self.settings_window, self.history_window, self.button_wrapper, self.frame_wrapper,
@@ -693,7 +705,7 @@ class Interface:
                                             *self.theme_options)
 
         # Update text for buttons
-        for button in [self.save_button, self.history_exit_button, self.new_browse_button, self.browse_button,
+        for button in [self.save_button, self.history_exit_button, self.browse_button, self.browse_button,
                        self.process_video_button, self.media_player_button]:
             self.change_button_text(button)
 
@@ -767,45 +779,42 @@ class Interface:
         """
         # Set color for main window and history window
         self.set_color()
-        self.change_colors(self.win)
-        self.change_colors(self.history_window)
+        # self.change_colors(self.win)
+        # self.change_colors(self.history_label)
 
         if self.buttons_wrapper is not None:
-            self.buttons_wrapper.switch_theme(ACCENT, FONT_COLOR,
+            self.buttons_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
                                               buttons=[self.settings_button, self.history_button])
 
         if self.browse_wrapper is not None:
-            self.browse_wrapper.switch_theme(ACCENT, FONT_COLOR,
-                                             buttons=[self.new_browse_button],
+            self.browse_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
+                                             buttons=[self.browse_button],
                                              labels=[self.opened_file_label])
 
-        if self.new_frame_wrapper is not None:
-            self.new_frame_wrapper.switch_theme(ACCENT, FONT_COLOR,
-                                                buttons=[self.media_player_button, self.process_video_button],
-                                                labels=[self.frame_details_header, self.image_details])
+        if self.frame_wrapper is not None:
+            self.frame_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
+                                            buttons=[self.media_player_button, self.process_video_button],
+                                            labels=[self.frame_details_header, self.image_details])
 
         if self.new_progress_wrapper is not None:
-            self.new_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, labels=[self.progress_label])
+            self.new_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.progress_label])
 
         if self.settings_wrapper is not None:
-            self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, buttons=[self.save_button],
+            self.settings_window.configure(bg=BGCOLOR)
+            self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, buttons=[self.save_button],
                                                labels=[self.label, self.lang_label, self.theme_label])
             self.theme_option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
                                           activeforeground=FONT_COLOR, highlightbackground=ACCENT)
             self.lang_option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
                                          activeforeground=FONT_COLOR, highlightbackground=ACCENT)
 
-        # Set background color for outline frame if available
-        if self.outline_frame is not None:
-            self.outline_frame.config(bg=DARKER_BG)
-
         # Set colors for history content list items
-        if self.history_content_list is not None and len(self.history_content_list) > 0:
-            for elem in self.history_content_list:
-                if elem is not None:
-                    elem.config(fg=FONT_COLOR, bg=DARKER_BG)
+        # if self.history_content_list is not None and len(self.history_content_list) > 0:
+        #     for elem in self.history_content_list:
+        #         if elem is not None:
+        #             elem.config(fg=FONT_COLOR, bg=DARKER_BG)
 
-        # Set background color for the main window
+        # # Set background color for the main window
         self.win["bg"] = BGCOLOR
 
     def change_colors(self, widget):
@@ -827,5 +836,5 @@ class Interface:
                     if "fg" in elem.keys():
                         elem.config(fg=FONT_COLOR)
                     # Recursively update colors for children widgets
-                    if elem.winfo_children():
+                    if elem.winfo_children() is not None:
                         self.change_colors(elem)
