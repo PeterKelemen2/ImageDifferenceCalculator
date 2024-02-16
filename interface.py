@@ -62,6 +62,8 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.lang_option_menu = None
+        self.theme_option_menu = None
         self.buttons_wrapper = None
         self.new_progress_wrapper = None
         self.new_frame_wrapper = None
@@ -561,15 +563,15 @@ class Interface:
         self.lang_selected_option.set(self.lang_options[1] if self.curr_lang == "hungarian" else self.lang_options[0])
 
         # Add language OptionMenu
-        lang_option_menu = OptionMenu(self.settings_wrapper.canvas, self.lang_selected_option, *self.lang_options)
-        lang_option_menu.config(anchor="center",
-                                bg=BGCOLOR,
-                                fg=FONT_COLOR,
-                                activebackground=ACCENT,
-                                activeforeground=FONT_COLOR,
-                                highlightbackground=ACCENT)
-        lang_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
-                               y=self.lang_label.winfo_reqheight() * 2)
+        self.lang_option_menu = OptionMenu(self.settings_wrapper.canvas, self.lang_selected_option, *self.lang_options)
+        self.lang_option_menu.config(anchor="center",
+                                     bg=BGCOLOR,
+                                     fg=FONT_COLOR,
+                                     activebackground=ACCENT,
+                                     activeforeground=FONT_COLOR,
+                                     highlightbackground=ACCENT)
+        self.lang_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
+                                    y=self.lang_label.winfo_reqheight() * 2)
 
         # Add a label for the theme selection
         self.theme_label = Label(self.settings_wrapper.canvas,
@@ -589,15 +591,15 @@ class Interface:
         theme_selected_option.set(theme_options[0] if self.curr_theme == "dark" else theme_options[1])
 
         # Add theme OptionMenu
-        theme_option_menu = OptionMenu(self.settings_wrapper.canvas, theme_selected_option, *theme_options)
-        theme_option_menu.config(anchor="center",
-                                 bg=BGCOLOR,
-                                 fg=FONT_COLOR,
-                                 activebackground=ACCENT,
-                                 activeforeground=FONT_COLOR,
-                                 highlightbackground=ACCENT)
-        theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
-                                y=self.lang_label.winfo_reqheight() * 4)
+        self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, theme_selected_option, *theme_options)
+        self.theme_option_menu.config(anchor="center",
+                                      bg=BGCOLOR,
+                                      fg=FONT_COLOR,
+                                      activebackground=ACCENT,
+                                      activeforeground=FONT_COLOR,
+                                      highlightbackground=ACCENT)
+        self.theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
+                                     y=self.lang_label.winfo_reqheight() * 4)
 
         def save_option():
             """
@@ -818,6 +820,10 @@ class Interface:
         if self.settings_wrapper is not None:
             self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, buttons=[self.save_button],
                                                labels=[self.label, self.lang_label, self.theme_label])
+            self.theme_option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
+                                          activeforeground=FONT_COLOR, highlightbackground=ACCENT)
+            self.lang_option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
+                                         activeforeground=FONT_COLOR, highlightbackground=ACCENT)
 
         # Set background color for outline frame if available
         if self.outline_frame is not None:
