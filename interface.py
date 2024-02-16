@@ -62,6 +62,8 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.theme_options = None
+        self.theme_selected_option = None
         self.lang_option_menu = None
         self.theme_option_menu = None
         self.buttons_wrapper = None
@@ -584,14 +586,15 @@ class Interface:
                                y=self.lang_label.winfo_reqheight() * 4)
 
         # Define theme options
-        theme_options = [self.lang["dark"], self.lang["light"]]
+        self.theme_options = [self.lang["dark"], self.lang["light"]]
 
         # Set default theme option based on current theme setting
-        theme_selected_option = StringVar(self.settings_wrapper.canvas)
-        theme_selected_option.set(theme_options[0] if self.curr_theme == "dark" else theme_options[1])
+        self.theme_selected_option = StringVar(self.settings_wrapper.canvas)
+        self.theme_selected_option.set(self.theme_options[0] if self.curr_theme == "dark" else self.theme_options[1])
 
         # Add theme OptionMenu
-        self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, theme_selected_option, *theme_options)
+        self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, self.theme_selected_option,
+                                            *self.theme_options)
         self.theme_option_menu.config(anchor="center",
                                       bg=BGCOLOR,
                                       fg=FONT_COLOR,
@@ -612,7 +615,7 @@ class Interface:
 
             # Retrieve selected language and theme option
             chosen_lang_option = self.lang_selected_option.get()
-            chosen_theme_option = theme_selected_option.get()
+            chosen_theme_option = self.theme_selected_option.get()
 
             # Map language options to standard format
             chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
@@ -721,6 +724,21 @@ class Interface:
         for label in [self.settings_window, self.history_window, self.button_wrapper, self.frame_wrapper,
                       self.progress_wrapper, self.finished_window, self.label, self.lang_label, self.theme_label]:
             self.change_text(label)
+
+        self.lang_options = [self.lang["english"], self.lang["hungarian"]]
+        if self.curr_lang == "english":
+            self.lang_selected_option.set(self.lang_options[0])
+        else:
+            self.lang_selected_option.set(self.lang_options[1])
+        self.lang_option_menu = OptionMenu(self.settings_wrapper.canvas, self.lang_selected_option, *self.lang_options)
+
+        self.theme_options = [self.lang["dark"], self.lang["light"]]
+        if self.curr_theme == "dark":
+            self.theme_selected_option.set(self.theme_options[0])
+        else:
+            self.theme_selected_option.set(self.theme_options[1])
+        self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, self.theme_selected_option,
+                                            *self.theme_options)
 
         # Update text for buttons
         for button in [self.save_button, self.history_exit_button, self.new_browse_button, self.browse_button,
