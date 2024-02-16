@@ -562,75 +562,88 @@ class Interface:
 
         # Add language OptionMenu
         lang_option_menu = OptionMenu(self.settings_wrapper.canvas, self.lang_selected_option, *self.lang_options)
-        lang_option_menu.config(anchor="center")
+        lang_option_menu.config(anchor="center",
+                                bg=BGCOLOR,
+                                fg=FONT_COLOR,
+                                activebackground=ACCENT,
+                                activeforeground=FONT_COLOR,
+                                highlightbackground=ACCENT)
         lang_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
                                y=self.lang_label.winfo_reqheight() * 2)
 
-        # # Add a label for the theme selection
-        # self.theme_label = Label(self.settings_wrapper.canvas,
-        #                          text=self.lang["theme"],
-        #                          fg=FONT_COLOR,
-        #                          bg=BGCOLOR,
-        #                          font=FONT,
-        #                          anchor="center")
-        # self.theme_label.place(x=SET_WIN_WIDTH // 4, y=self.lang_label.winfo_reqheight() * 4)
-        #
-        # # Define theme options
-        # theme_options = [self.lang["dark"], self.lang["light"]]
-        #
-        # # Set default theme option based on current theme setting
-        # theme_selected_option = StringVar(self.settings_wrapper.canvas)
-        # theme_selected_option.set(theme_options[0] if self.curr_theme == "dark" else theme_options[1])
-        #
-        # # Add theme OptionMenu
-        # theme_option_menu = OptionMenu(self.settings_wrapper.canvas, theme_selected_option, *theme_options)
-        # theme_option_menu.config(anchor="center")
-        # theme_option_menu.place(x=SET_WIN_WIDTH // 2 + 10, y=self.lang_label.winfo_reqheight() * 4)
-        #
-        # def save_option():
-        #     """
-        #     Saves the selected language and theme options.
-        #
-        #     This function retrieves the selected language and theme options from the OptionMenu widgets
-        #     and saves them to the configuration file. It also displays a message prompting the user to
-        #     restart the program for the changes to take effect.
-        #     """
-        #
-        #     # Retrieve selected language and theme option
-        #     chosen_lang_option = self.lang_selected_option.get()
-        #     chosen_theme_option = theme_selected_option.get()
-        #
-        #     # Map language options to standard format
-        #     chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
-        #     # Map theme options to standard format
-        #     chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
-        #
-        #     if chosen_lang_option != self.curr_lang:
-        #         print(self.curr_lang, chosen_lang_option)
-        #         self.prev_lang_dict = lang.load_lang(self.curr_lang)
-        #         self.next_lang = lang.load_lang(chosen_lang_option)
-        #
-        #         self.lang = lang.load_lang(chosen_lang_option)
-        #         self.curr_lang = chosen_lang_option
-        #         self.change_language()
-        #
-        #     if chosen_theme_option != self.curr_theme:
-        #         self.curr_theme = chosen_theme_option
-        #         print(self.curr_theme)
-        #         self.update_colors()
-        #
-        #     # Save selected options to configuration file
-        #     debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
-        #     config.save_settings([chosen_lang_option, chosen_theme_option])
-        #     # self.update_text()
-        #
-        # # Add a button to save the selected options
-        # self.save_button = custom_button.CustomButton(self.settings_wrapper.canvas,
-        #                                               text=self.lang["save"],
-        #                                               command=save_option,
-        #                                               button_type=custom_button.button,
-        #                                               bg=BGCOLOR)
-        # self.save_button.canvas.pack(pady=100)
+        # Add a label for the theme selection
+        self.theme_label = Label(self.settings_wrapper.canvas,
+                                 text=self.lang["theme"],
+                                 fg=FONT_COLOR,
+                                 bg=ACCENT,
+                                 font=FONT,
+                                 anchor="center")
+        self.theme_label.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 - 60,
+                               y=self.lang_label.winfo_reqheight() * 4)
+
+        # Define theme options
+        theme_options = [self.lang["dark"], self.lang["light"]]
+
+        # Set default theme option based on current theme setting
+        theme_selected_option = StringVar(self.settings_wrapper.canvas)
+        theme_selected_option.set(theme_options[0] if self.curr_theme == "dark" else theme_options[1])
+
+        # Add theme OptionMenu
+        theme_option_menu = OptionMenu(self.settings_wrapper.canvas, theme_selected_option, *theme_options)
+        theme_option_menu.config(anchor="center",
+                                 bg=BGCOLOR,
+                                 fg=FONT_COLOR,
+                                 activebackground=ACCENT,
+                                 activeforeground=FONT_COLOR,
+                                 highlightbackground=ACCENT)
+        theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
+                                y=self.lang_label.winfo_reqheight() * 4)
+
+        def save_option():
+            """
+            Saves the selected language and theme options.
+
+            This function retrieves the selected language and theme options from the OptionMenu widgets
+            and saves them to the configuration file. It also displays a message prompting the user to
+            restart the program for the changes to take effect.
+            """
+
+            # Retrieve selected language and theme option
+            chosen_lang_option = self.lang_selected_option.get()
+            chosen_theme_option = theme_selected_option.get()
+
+            # Map language options to standard format
+            chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
+            # Map theme options to standard format
+            chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
+
+            if chosen_lang_option != self.curr_lang:
+                print(self.curr_lang, chosen_lang_option)
+                self.prev_lang_dict = lang.load_lang(self.curr_lang)
+                self.next_lang = lang.load_lang(chosen_lang_option)
+
+                self.lang = lang.load_lang(chosen_lang_option)
+                self.curr_lang = chosen_lang_option
+                self.change_language()
+
+            if chosen_theme_option != self.curr_theme:
+                self.curr_theme = chosen_theme_option
+                print(self.curr_theme)
+                self.update_colors()
+
+            # Save selected options to configuration file
+            debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
+            config.save_settings([chosen_lang_option, chosen_theme_option])
+            # self.update_text()
+
+        # Add a button to save the selected options
+        self.save_button = custom_button.CustomButton(self.settings_wrapper.canvas,
+                                                      text=self.lang["save"],
+                                                      command=save_option,
+                                                      button_type=custom_button.button,
+                                                      bg=ACCENT)
+        self.save_button.canvas.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2,
+                                      y=200)
 
     def create_history_window(self):
         history_list = processing.read_from_history()
@@ -801,6 +814,10 @@ class Interface:
 
         if self.new_progress_wrapper is not None:
             self.new_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, labels=[self.progress_label])
+
+        if self.settings_wrapper is not None:
+            self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, buttons=[self.save_button],
+                                               labels=[self.label, self.lang_label, self.theme_label])
 
         # Set background color for outline frame if available
         if self.outline_frame is not None:
