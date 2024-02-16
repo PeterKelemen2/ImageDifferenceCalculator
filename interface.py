@@ -719,7 +719,7 @@ class Interface:
         if self.new_progress_wrapper is not None: self.new_progress_wrapper.set_label_text(self.lang["progress"])
 
         for label in [self.settings_window, self.history_window, self.button_wrapper, self.frame_wrapper,
-                      self.progress_wrapper, self.finished_window]:
+                      self.progress_wrapper, self.finished_window, self.label, self.lang_label, self.theme_label]:
             self.change_text(label)
 
         # Update text for buttons
