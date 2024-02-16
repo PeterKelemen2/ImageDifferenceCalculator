@@ -743,6 +743,8 @@ class Interface:
                        self.process_video_button, self.media_player_button]:
             self.change_button_text(button)
 
+        if self.frame_details_header is not None:
+            self.frame_details_header.config(text=self.lang["video_det"])
         # Update image details if available
         if self.im_det is not None:
             self.im_det = "\n".join(
@@ -819,6 +821,19 @@ class Interface:
             self.browse_wrapper.change_text_color(FONT_COLOR)
             self.new_browse_button.change_bg_color(ACCENT)
             self.opened_file_label.config(bg=ACCENT)
+
+        if self.new_frame_wrapper is not None:
+            self.new_frame_wrapper.change_fill_color(ACCENT)
+            self.new_frame_wrapper.change_text_color(FONT_COLOR)
+            self.media_player_button.config(bg=ACCENT)
+            self.process_video_button.config(bg=ACCENT)
+            self.frame_details_header.config(bg=ACCENT)
+            self.image_details.config(bg=ACCENT)
+
+        if self.new_progress_wrapper is not None:
+            self.new_progress_wrapper.change_fill_color(ACCENT)
+            self.new_progress_wrapper.change_text_color(FONT_COLOR)
+            self.progress_label.config(bg=ACCENT)
 
         # Set background color for outline frame if available
         if self.outline_frame is not None:
