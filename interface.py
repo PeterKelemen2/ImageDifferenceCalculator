@@ -777,15 +777,17 @@ class Interface:
         self.change_colors(self.history_window)
 
         if self.buttons_wrapper is not None:
-            self.buttons_wrapper.change_fill_color(ACCENT)
-            self.settings_button.config(bg=ACCENT)
-            self.history_button.config(bg=ACCENT)
+            self.buttons_wrapper.switch_theme(ACCENT, FONT_COLOR, [self.settings_button, self.history_button])
+            # self.buttons_wrapper.change_fill_color(ACCENT)
+            # self.settings_button.config(bg=ACCENT)
+            # self.history_button.config(bg=ACCENT)
 
         if self.browse_wrapper is not None:
-            self.browse_wrapper.change_fill_color(ACCENT)
-            self.browse_wrapper.change_text_color(FONT_COLOR)
-            self.new_browse_button.change_bg_color(ACCENT)
-            self.opened_file_label.config(bg=ACCENT)
+            self.browse_wrapper.switch_theme(ACCENT, FONT_COLOR, [self.new_browse_button], [self.opened_file_label])
+            # self.browse_wrapper.change_fill_color(ACCENT)
+            # self.browse_wrapper.change_text_color(FONT_COLOR)
+            # self.new_browse_button.change_bg_color(ACCENT)
+            # self.opened_file_label.config(bg=ACCENT)
 
         if self.new_frame_wrapper is not None:
             self.new_frame_wrapper.change_fill_color(ACCENT)

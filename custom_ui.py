@@ -3,6 +3,7 @@ from tkinter import PhotoImage, Canvas
 import PIL.ImageOps
 from PIL import Image, ImageTk
 
+import custom_button
 import interface
 
 bg_path = "assets/rounded_frame.png"
@@ -24,7 +25,7 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 
 
 class CustomLabelFrame:
-    def __init__(self, master, width, height, text="", fill=BLACK, fg=WHITE, bg=BGCOLOR, radius=10):
+    def __init__(self, master, width, height, text=None, fill=BLACK, fg=WHITE, bg=BGCOLOR, radius=10):
         self.width = width
         self.height = height
         self.fill = fill
@@ -112,6 +113,33 @@ class CustomLabelFrame:
 
         self.text_item = self.canvas.create_text(self.radius, self.radius, text=self.text, fill=self.fg, anchor="w",
                                                  font=BOLD_FONT)
+
+    def config(self, text=None, fg=None, bg=None, fill=None):
+        if text is not None:
+            self.text = text
+            self.canvas.itemconfig(self.text_item, text=self.text)
+        if fg is not None:
+            self.fg = fg
+            self.canvas.itemconfig(self.text_item, fill=self.fg)
+        if bg is not None:
+            self.bg = bg
+            self.canvas.config(bg=self.bg)
+        if fill is not None:
+            self.change_fill_color(fill)
+
+    def switch_theme(self, new_fill=None, new_text_color=None, buttons=None, labels=None):
+        if new_fill is not None: self.change_fill_color(new_fill)
+        if new_text_color is not None: self.change_text_color(new_text_color)
+        if self.canvas.winfo_children():
+            for child in self.canvas.winfo_children():
+                if "text" in child.keys():
+                    child.config(fg=new_text_color)
+        if buttons is not None:
+            for button in buttons:
+                button.config(bg=new_fill)
+        if labels is not None:
+            for label in labels:
+                label.config(bg=new_fill, fg=new_text_color)
 
     def change_fill_color(self, new_color):
         self.fill = new_color
