@@ -23,6 +23,12 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 
 class CustomLabelFrame:
     def __init__(self, master, width, height, text="", fill=BLACK, fg=WHITE, bg=BGCOLOR, radius=10):
+        self.rect_im = None
+        self.circle_im = None
+        self.rect_im_hor = None
+        self.overlay = None
+        self.rect_im_ver = None
+        self.rect_im_center = None
         self.width = width
         self.height = height
         self.fill = fill
@@ -33,60 +39,93 @@ class CustomLabelFrame:
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
         self.canvas.pack()
 
-        # self.cir1 = None
-        # self.cir2 = None
-        # self.cir3 = None
-        # self.cir4 = None
-        # self.rec1 = None
-        # self.rec2 = None
-        # self.rec3 = None
-        # self.rec4 = None
-        # self.center = None
-        # self.cir_im = None
-        # self.rec_im_hor = None
-        # self.rec_im_ver = None
-        # self.center_rec = None
+        self.item_list = list()
+        self.text_item = None
+        self.cir1 = None
+        self.cir2 = None
+        self.cir3 = None
+        self.cir4 = None
+        self.rec1 = None
+        self.rec2 = None
+        self.rec3 = None
+        self.rec4 = None
+        self.center = None
+        self.cir_im = None
+        self.rec_im_hor = None
+        self.rec_im_ver = None
+        self.center_rec = None
 
         # Load the images using PIL
-        circle_im = Image.open(circle).convert("RGBA")
-        rect_im = Image.open(rect).convert("RGBA")
 
+        # self.load_images()
+        self.create_images()
+        self.create_labelframe()
+
+    def load_images(self):
+        self.circle_im = None
+        self.rect_im = None
+        self.circle_im = Image.open(circle).convert("RGBA")
+        self.rect_im = Image.open(rect).convert("RGBA")
+
+    def create_images(self):
         # Overlay fill color on images
-        overlay = Image.new("RGBA", circle_im.size, fill)
-        circle_im = Image.composite(overlay, circle_im, circle_im)
-        rect_im = Image.composite(overlay, rect_im, rect_im)
+
+        self.load_images()
+
+        self.overlay = Image.new("RGBA", self.circle_im.size, self.fill)
+        self.circle_im = Image.composite(self.overlay, self.circle_im, self.circle_im)
+        self.rect_im = Image.composite(self.overlay, self.rect_im, self.rect_im)
 
         # Resize the image (width, height)
-        circle_im = circle_im.resize((radius * 2, radius * 2))
-        rect_im_hor = rect_im.resize((width - radius * 2, radius * 2))
-        rect_im_ver = rect_im.resize((radius * 2, height - radius * 2))
-        rect_im_center = rect_im.resize((width - 2 * radius, height - 2 * radius))
+        self.circle_im = self.circle_im.resize((self.radius * 2, self.radius * 2))
+        self.rect_im_hor = self.rect_im.resize((self.width - self.radius * 2, self.radius * 2))
+        self.rect_im_ver = self.rect_im.resize((self.radius * 2, self.height - self.radius * 2))
+        self.rect_im_center = self.rect_im.resize((self.width - 2 * self.radius, self.height - 2 * self.radius))
 
-        # Convert the resized image to a Tkinter PhotoImage object
-        self.cir_im = ImageTk.PhotoImage(circle_im)
-        self.rec_im_hor = ImageTk.PhotoImage(rect_im_hor)
-        self.rec_im_ver = ImageTk.PhotoImage(rect_im_ver)
-        self.center_rec = ImageTk.PhotoImage(rect_im_center)
+    def create_labelframe(self):
+        self.item_list = list()
+        self.cir_im = ImageTk.PhotoImage(self.circle_im)
+        self.rec_im_hor = ImageTk.PhotoImage(self.rect_im_hor)
+        self.rec_im_ver = ImageTk.PhotoImage(self.rect_im_ver)
+        self.center_rec = ImageTk.PhotoImage(self.rect_im_center)
 
         # Create circles (x,y)
-        self.cir1 = self.canvas.create_image(radius, radius, anchor="center", image=self.cir_im)
-        self.cir2 = self.canvas.create_image(width - radius, radius, anchor="center", image=self.cir_im)
-        self.cir3 = self.canvas.create_image(radius, height - radius, anchor="center", image=self.cir_im)
-        self.cir4 = self.canvas.create_image(width - radius, height - radius, anchor="center", image=self.cir_im)
+        self.item_list.append(self.canvas.create_image(self.radius, self.radius, anchor="center", image=self.cir_im))
+        self.item_list.append(
+            self.canvas.create_image(self.width - self.radius, self.radius, anchor="center", image=self.cir_im))
+        self.item_list.append(
+            self.canvas.create_image(self.radius, self.height - self.radius, anchor="center", image=self.cir_im))
+        self.item_list.append(
+            self.canvas.create_image(self.width - self.radius, self.height - self.radius, anchor="center",
+                                     image=self.cir_im))
+        # self.item_list.append(self.cir1, self.cir2, self.cir3, self.cir4)
 
-        self.rec1 = self.canvas.create_image(radius, radius, anchor="w", image=self.rec_im_hor)
-        self.rec2 = self.canvas.create_image(radius, height - radius, anchor="w", image=self.rec_im_hor)
-        self.rec3 = self.canvas.create_image(radius, height - radius, anchor="s", image=self.rec_im_ver)
-        self.rec3 = self.canvas.create_image(width - radius, height - radius, anchor="s", image=self.rec_im_ver)
+        self.item_list.append(self.canvas.create_image(self.radius, self.radius, anchor="w", image=self.rec_im_hor))
+        self.item_list.append(
+            self.canvas.create_image(self.radius, self.height - self.radius, anchor="w", image=self.rec_im_hor))
+        self.item_list.append(
+            self.canvas.create_image(self.radius, self.height - self.radius, anchor="s", image=self.rec_im_ver))
+        self.item_list.append(self.canvas.create_image(self.width - self.radius, self.height - self.radius, anchor="s",
+                                                       image=self.rec_im_ver))
 
-        self.center = self.canvas.create_image(radius, radius, anchor="nw", image=self.center_rec)
+        self.item_list.append(self.canvas.create_image(self.radius, self.radius, anchor="nw", image=self.center_rec))
 
-        self.text_item = self.canvas.create_text(radius, radius, text=text, fill=fg, anchor="w", font=BOLD_FONT)
+        self.text_item = self.canvas.create_text(self.radius, self.radius, text=self.text, fill=self.fg, anchor="w",
+                                                 font=BOLD_FONT)
+
+    def change_fill_color(self, new_color):
+        self.fill = new_color
+        self.create_images()
+        self.create_labelframe()
 
     def get_label_width(self):
         bbox = self.canvas.bbox(self.text_item)
         width = bbox[2] - bbox[0]
         return width
+
+    def set_label_text(self, new_text):
+        if self.canvas is not None:
+            self.canvas.itemconfig(self.text_item, text=new_text)
 
     def get_label_height(self):
         bbox = self.canvas.bbox(self.text_item)

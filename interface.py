@@ -719,13 +719,18 @@ class Interface:
 
         """
         # Update text for labels
+
+        if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
+        if self.new_frame_wrapper is not None: self.new_frame_wrapper.set_label_text(self.lang["video_data"])
+        if self.new_progress_wrapper is not None: self.new_progress_wrapper.set_label_text(self.lang["progress"])
+
         for label in [self.settings_window, self.history_window, self.button_wrapper, self.frame_wrapper,
                       self.progress_wrapper, self.finished_window]:
             self.change_text(label)
 
         # Update text for buttons
-        for button in [self.save_button, self.history_exit_button, self.browse_button, self.process_video_button,
-                       self.media_player_button]:
+        for button in [self.save_button, self.history_exit_button, self.new_browse_button, self.browse_button,
+                       self.process_video_button, self.media_player_button]:
             self.change_button_text(button)
 
         # Update image details if available
@@ -738,8 +743,7 @@ class Interface:
 
         # Update result label with total difference
         if self.result_label is not None:
-            self.result_label.config(
-                text=f"{self.lang['diff']}: {processing.total_difference}")
+            self.result_label.config(text=f"{self.lang['diff']}: {processing.total_difference}")
 
     def change_button_text(self, button: custom_button.CustomButton):
         """
@@ -799,6 +803,8 @@ class Interface:
         self.set_color()
         self.change_colors(self.win)
         self.change_colors(self.history_window)
+
+        self.browse_wrapper.change_fill_color("#b04c4c")
 
         # Set background color for outline frame if available
         if self.outline_frame is not None:
