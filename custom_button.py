@@ -65,6 +65,9 @@ class CustomButton:
         else:
             self.canvas.tag_bind(self.text_item, "<Button-1>", self.on_button_click)
 
+    def change_bg_color(self, new_color):
+        self.canvas.config(bg=new_color)
+
     def on_button_click(self, event):
         if self.command and self.button_state == "enabled":
             self.command()

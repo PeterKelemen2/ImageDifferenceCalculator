@@ -3,6 +3,8 @@ from tkinter import PhotoImage, Canvas
 import PIL.ImageOps
 from PIL import Image, ImageTk
 
+import interface
+
 bg_path = "assets/rounded_frame.png"
 circle = "assets/frame_circle.png"
 rect = "assets/frame_square.png"
@@ -23,16 +25,10 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 
 class CustomLabelFrame:
     def __init__(self, master, width, height, text="", fill=BLACK, fg=WHITE, bg=BGCOLOR, radius=10):
-        self.rect_im = None
-        self.circle_im = None
-        self.rect_im_hor = None
-        self.overlay = None
-        self.rect_im_ver = None
-        self.rect_im_center = None
         self.width = width
         self.height = height
         self.fill = fill
-        self.fg = fg
+        self.fg = interface.FONT_COLOR
         self.bg = bg
         self.text = text
         self.radius = radius
@@ -40,6 +36,12 @@ class CustomLabelFrame:
         self.canvas.pack()
 
         self.item_list = list()
+        self.rect_im = None
+        self.circle_im = None
+        self.rect_im_hor = None
+        self.overlay = None
+        self.rect_im_ver = None
+        self.rect_im_center = None
         self.text_item = None
         self.cir1 = None
         self.cir2 = None
@@ -55,13 +57,11 @@ class CustomLabelFrame:
         self.rec_im_ver = None
         self.center_rec = None
 
-        # Load the images using PIL
-
-        # self.load_images()
         self.create_images()
         self.create_labelframe()
 
     def load_images(self):
+        # Load the images using PIL
         self.circle_im = None
         self.rect_im = None
         self.circle_im = Image.open(circle).convert("RGBA")
@@ -117,6 +117,10 @@ class CustomLabelFrame:
         self.fill = new_color
         self.create_images()
         self.create_labelframe()
+
+    def change_text_color(self, new_color):
+        self.fg = new_color
+        self.canvas.itemconfig(self.text_item, fill=self.fg)
 
     def get_label_width(self):
         bbox = self.canvas.bbox(self.text_item)

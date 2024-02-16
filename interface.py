@@ -18,11 +18,20 @@ import processing
 import vlc_handler
 
 # Global properties
+LIGHT_BG = "#fafafa"
+LIGHT_ACCENT = "#e8e8e8"
+LIGHT_FONT_COLOR = "#000000"
+
+DARK_BG = "#262626"
+DARK_ACCENT = "#545454"
+DARK_FONT_COLOR = "#ffffff"
+
 BGCOLOR = "#262626"
 DARKER_BG = "#292929"
 WHITE = "#ffffff"
 BLACK = "#000000"
 ACCENT = "#545454"
+
 DARK = "#262626"
 
 FONT_COLOR = "#ffffff"
@@ -138,16 +147,17 @@ class Interface:
         FONT = font.Font(family="Ubuntu", file=font_file, size=10)
 
     def set_color(self):
-        global BGCOLOR, FONT_COLOR, DARKER_BG
+        global BGCOLOR, FONT_COLOR, DARKER_BG, ACCENT
         if self.curr_theme == "dark":
-            BGCOLOR = "#262626"
-            FONT_COLOR = "#ffffff"
+            BGCOLOR = DARK_BG
+            FONT_COLOR = DARK_FONT_COLOR
             DARKER_BG = "#292929"
-            ACCENT = "#6b6b6b"
+            ACCENT = DARK_ACCENT
         elif self.curr_theme == "light":
-            BGCOLOR = WHITE
-            FONT_COLOR = "#000000"
+            BGCOLOR = LIGHT_BG
+            FONT_COLOR = LIGHT_FONT_COLOR
             DARKER_BG = "#e6e6e6"
+            ACCENT = LIGHT_ACCENT
 
     def set_properties(self):
         # Set windows properties
@@ -804,7 +814,11 @@ class Interface:
         self.change_colors(self.win)
         self.change_colors(self.history_window)
 
-        self.browse_wrapper.change_fill_color("#b04c4c")
+        if self.browse_wrapper is not None:
+            self.browse_wrapper.change_fill_color(ACCENT)
+            self.browse_wrapper.change_text_color(FONT_COLOR)
+            self.new_browse_button.change_bg_color(ACCENT)
+            self.opened_file_label.config(bg=ACCENT)
 
         # Set background color for outline frame if available
         if self.outline_frame is not None:
