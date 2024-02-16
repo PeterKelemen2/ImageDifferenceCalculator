@@ -136,10 +136,12 @@ class CustomLabelFrame:
                     child.config(fg=new_text_color)
         if buttons is not None:
             for button in buttons:
-                button.config(bg=new_fill)
+                if button is not None:
+                    button.config(bg=new_fill)
         if labels is not None:
             for label in labels:
-                label.config(bg=new_fill, fg=new_text_color)
+                if label is not None:
+                    label.config(bg=new_fill, fg=new_text_color)
 
     def change_fill_color(self, new_color):
         self.fill = new_color

@@ -49,3 +49,4 @@ File: sample.mp4;Result: 3.0
 File: sample.mp4;Result: 3.0
 File: sample.mp4;Result: 3.0
 File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
