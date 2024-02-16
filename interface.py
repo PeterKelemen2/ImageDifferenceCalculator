@@ -193,54 +193,6 @@ class Interface:
                                                          bg=ACCENT)
         self.history_button.canvas.place(x=80, y=self.buttons_wrapper.get_height() // 8)
 
-    def update_label(self):
-        # Update the label text with the current time
-        self.time_label.config(text=datetime.now().strftime("%H:%M:%S"))
-        # Schedule the update_label method to be called again after 1000 milliseconds
-        self.win.after(1000, self.update_label)
-
-    def create_time_frame(self):
-        # Wrapper for time Label
-        debug.log("[3/1] Creating Time Frame wrapper...", text_color="yellow")
-
-        self.time_wrapper = LabelFrame(self.win,
-                                       text=self.lang["time"],
-                                       width=TIME_WRAPPER_WIDTH,
-                                       height=TIME_WRAPPER_HEIGHT,
-                                       bg=BGCOLOR,
-                                       fg=FONT_COLOR)
-
-        self.time_wrapper.place(x=83, y=5)
-
-        debug.log("[3/2] Time wrapper created!", text_color="yellow")
-
-        # Label that shows the current time and date
-        debug.log("[3/3] Creating Time Label...", text_color="yellow")
-
-        self.time_label = Label(self.time_wrapper, text=datetime.now().strftime("%H:%M:%S"))
-        self.time_label.config(font=("Ubuntu", 10),  # Font size
-                               fg=FONT_COLOR,  # Font color
-                               bg=BGCOLOR)  # Background color
-
-        debug.log("[3/4] Time Label created!", text_color="yellow")
-
-        # Set Frame label to width and height of Label
-        debug.log("[3/5] Updating Time Label config...", text_color="yellow")
-        self.time_wrapper.config(font=BOLD_FONT,
-                                 width=self.time_label.winfo_reqwidth() + 20)
-        debug.log("[3/6] Time Label config updated!", text_color="yellow")
-
-        # Pack Label in Frame
-        debug.log("[3/7] Packing Time Label in Frame...", text_color="yellow")
-        # self.time_label.pack(padx=10,
-        #                      pady=5,
-        #                      anchor="center")
-        self.time_label.place(x=self.time_label.winfo_reqwidth() // 6,
-                              y=self.time_wrapper.winfo_reqheight() // 2 - self.time_label.winfo_reqheight())
-        debug.log("[3/8] Time Label packed!", text_color="yellow")
-        # Schedule the update_label method to be called
-        self.win.after(1000, self.update_label)
-
     def run_browser_on_thread(self):
         # Run the file browser on a separate thread
         file_browser_thread = threading.Thread(target=self.create_browser)
