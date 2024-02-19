@@ -29,12 +29,15 @@ DARK_FONT_COLOR = "#ffffff"
 
 PALENIGHT_BG = "#202331"
 PALENIGHT_ACCENT = "#303754"
+PALENIGHT_PB = "#78408f"
 
+BASIC_PB_COLOR = "#73ff7b"
 BGCOLOR = "#262626"
 DARKER_BG = "#292929"
 WHITE = "#ffffff"
 BLACK = "#000000"
 ACCENT = "#545454"
+PB_COLOR = "#73ff7b"
 
 DARK = "#262626"
 
@@ -155,19 +158,22 @@ class Interface:
         FONT = font.Font(family="Ubuntu", file=font_file, size=10)
 
     def set_color(self):
-        global BGCOLOR, FONT_COLOR, DARKER_BG, ACCENT, PALENIGHT_ACCENT, PALENIGHT_ACCENT
+        global BGCOLOR, FONT_COLOR, DARKER_BG, ACCENT, PALENIGHT_ACCENT, PALENIGHT_ACCENT, PB_COLOR
         if self.curr_theme == "dark":
             BGCOLOR = DARK_BG
             FONT_COLOR = DARK_FONT_COLOR
             ACCENT = DARK_ACCENT
+            PB_COLOR = BASIC_PB_COLOR
         elif self.curr_theme == "light":
             BGCOLOR = LIGHT_BG
             FONT_COLOR = LIGHT_FONT_COLOR
             ACCENT = LIGHT_ACCENT
+            PB_COLOR = BASIC_PB_COLOR
         elif self.curr_theme == "palenight":
             BGCOLOR = PALENIGHT_BG
             FONT_COLOR = DARK_FONT_COLOR
             ACCENT = PALENIGHT_ACCENT
+            PB_COLOR = PALENIGHT_PB
 
     def set_properties(self):
         # Set windows properties
@@ -423,7 +429,7 @@ class Interface:
                                                                padding=6,
                                                                bg=ACCENT,
                                                                bar_bg_accent="#b3b3b3",
-                                                               pr_bar="#73ff7b")
+                                                               pr_bar=PB_COLOR)
         self.custom_progress_bar.canvas.place(x=10, y=self.new_progress_wrapper.get_height() // 2 - 5)
 
         self.progress_label = Label(self.new_progress_wrapper.canvas, text="100.00%", fg=FONT_COLOR, bg=ACCENT,
@@ -570,11 +576,18 @@ class Interface:
                                y=self.lang_label.winfo_reqheight() * 4)
 
         # Define theme options
-        self.theme_options = [self.lang["dark"], self.lang["light"]]
+        self.theme_options = [self.lang["dark"], self.lang["light"], self.lang["palenight"]]
 
         # Set default theme option based on current theme setting
         self.theme_selected_option = StringVar(self.settings_wrapper.canvas)
-        self.theme_selected_option.set(self.theme_options[0] if self.curr_theme == "dark" else self.theme_options[1])
+        # self.theme_selected_option.set(self.theme_options[0] if self.curr_theme == "dark" else self.theme_options[1])
+
+        if self.curr_theme == "dark":
+            self.theme_selected_option.set(self.theme_options[0])
+        elif self.curr_theme == "light":
+            self.theme_selected_option.set(self.theme_options[1])
+        elif self.curr_theme == "palenight":
+            self.theme_selected_option.set(self.theme_options[2])
 
         # Add theme OptionMenu
         self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, self.theme_selected_option,
@@ -606,7 +619,13 @@ class Interface:
             # Map language options to standard format
             chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
             # Map theme options to standard format
-            chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
+            # chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
+            if chosen_theme_option in ["Sötét", "Dark"]:
+                chosen_theme_option = "dark"
+            elif chosen_theme_option in ["Világos", "Light"]:
+                chosen_theme_option = "light"
+            elif chosen_theme_option == "Palenight":
+                chosen_theme_option = "palenight"
 
             if chosen_lang_option != self.curr_lang:
                 print(self.curr_lang, chosen_lang_option)
@@ -839,6 +858,7 @@ class Interface:
             self.custom_progress_bar.config(bg=ACCENT)
             self.pbar_overlay.change_fill_color(ACCENT)
             self.pbar_overlay.change_bg_color(ACCENT)
+            self.custom_progress_bar.change_pb_color(PB_COLOR)
 
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)
