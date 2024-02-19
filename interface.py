@@ -134,13 +134,14 @@ class Interface:
         self.create_browser()
 
         self.custom_progress_bar = custom_ui.CustomProgressBar(self.win,
-                                                               width=200,
-                                                               height=30,
-                                                               padding=5,
-                                                               bg="#fcba03",  # Accent
-                                                               bar_bg_accent="#27c250",
-                                                               pr_bar="#ff1100")
+                                                               width=400,
+                                                               height=100,
+                                                               padding=4,
+                                                               bg=BGCOLOR,
+                                                               bar_bg_accent=ACCENT,
+                                                               pr_bar="#59ff6f")
         self.custom_progress_bar.canvas.place(x=100, y=200)
+        # self.custom_progress_bar.set_percentage(50)
 
         debug.log("[1/2] Interface created", text_color="blue")
         self.win.mainloop()

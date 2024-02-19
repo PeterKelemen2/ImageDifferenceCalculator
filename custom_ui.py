@@ -167,6 +167,10 @@ class CustomLabelFrame:
         height = bbox[3] - bbox[1]
         return height
 
+    def set_width(self, new_width):
+        self.width = new_width
+        self.create_labelframe()
+
     def get_width(self):
         return self.width
 
@@ -174,10 +178,17 @@ class CustomLabelFrame:
         return self.height
 
 
+bar_height = 0
+
+
 class CustomProgressBar:
+
     def __init__(self, master, width, height,
                  bg=BLACK, pr_bar=BLACK, pr_bar_bg=WHITE, bar_bg=WHITE, bar_bg_accent=BGCOLOR,
-                 radius=10, padding=5):
+                 radius=10, padding=4):
+        global bar_height
+        bar_height = height
+
         self.bg = bg
         self.bar_bg_accent = bar_bg_accent
         self.bar_bg = bar_bg
@@ -191,6 +202,7 @@ class CustomProgressBar:
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
         self.canvas.pack()
 
+        self.progress_bar_fg = None
         self.progress_bar_bg = None
         self.progress_bar_bg = CustomLabelFrame(self.canvas,
                                                 width=self.width,
@@ -198,12 +210,29 @@ class CustomProgressBar:
                                                 radius=self.radius,
                                                 fill=self.bar_bg_accent,
                                                 bg=self.bg)
+        self.create_pbar_fg(width=self.width - self.padding * 2, height=self.height - self.padding * 2)
+
+        # self.progress_bar_fg = CustomLabelFrame(self.canvas,
+        #                                         width=self.width - self.padding * 2,
+        #                                         height=self.height - self.padding * 2,
+        #                                         radius=self.radius,
+        #                                         fill=self.pr_bar,
+        #                                         bg=self.bar_bg_accent)
+        # self.progress_bar_bg.canvas.place(x=0, y=0)
+        # self.progress_bar_fg.canvas.place(x=padding, y=padding)
+
+    def create_pbar_fg(self, width, height=30, padding=4):
+        global bar_height
         self.progress_bar_fg = None
         self.progress_bar_fg = CustomLabelFrame(self.canvas,
-                                                width=self.width - self.padding,
-                                                height=self.height - self.padding,
+                                                width=width,
+                                                height=bar_height - padding * 2,
                                                 radius=self.radius,
                                                 fill=self.pr_bar,
                                                 bg=self.bar_bg_accent)
-        self.progress_bar_bg.canvas.place(x=0, y=0)
-        self.progress_bar_fg.canvas.place(x=padding // 2, y=padding // 2)
+        self.progress_bar_fg.canvas.place(x=self.padding, y=self.padding)
+
+    def set_percentage(self, percentage):
+        new_width = int(round(self.progress_bar_bg.width * (percentage / 100)))
+        print("new_width:", new_width)
+        self.create_pbar_fg(width=percentage * 2)
