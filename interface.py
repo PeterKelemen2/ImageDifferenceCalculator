@@ -62,6 +62,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.history_title_frame = None
         self.settings_window_opened = False
         self.history_window_opened = False
         self.history_outline_frame = None
@@ -628,18 +629,20 @@ class Interface:
         self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
         self.history_window.resizable(False, False)
 
-        self.history_title = Label(self.history_window,
+        self.history_title_frame = custom_ui.CustomLabelFrame(self.history_window,
+                                                              width=200,
+                                                              height=40,
+                                                              fill=ACCENT,
+                                                              bg=BGCOLOR)
+        self.history_title_frame.canvas.place(x=HIS_WIN_WIDTH // 2 - self.history_title_frame.get_width() // 2, y=15)
+
+        self.history_title = Label(self.history_title_frame.canvas,
                                    text=self.lang["history"],
                                    fg=FONT_COLOR,
-                                   bg=BGCOLOR,
+                                   bg=ACCENT,
                                    font=BIG_FONT_BOLD)
-        self.history_title.place(y=20)
-        self.outline_frame = LabelFrame(self.history_window,
-                                        bg=ACCENT,
-                                        width=HIS_WIN_WIDTH - 30,
-                                        height=HIS_WIN_HEIGHT - 155)
-        # self.outline_frame.place(x=15, y=70)
-
+        self.history_title.place(x=self.history_title_frame.get_width() // 2 - self.history_title.winfo_reqwidth() // 2,
+                                 y=self.history_title_frame.get_height() // 2 - self.history_title.winfo_reqheight() // 2)
         self.history_outline_frame = custom_ui.CustomLabelFrame(self.history_window,
                                                                 width=HIS_WIN_WIDTH - 30,
                                                                 height=HIS_WIN_HEIGHT - 155,
@@ -669,7 +672,6 @@ class Interface:
                                                    font=BOLD_FONT))
             self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
             y_pos += y_offset
-        self.history_title.place(x=HIS_WIN_WIDTH // 2 - self.history_title.winfo_reqwidth() // 2, y=10)
 
         self.history_exit_button = custom_button.CustomButton(self.history_window,
                                                               text=self.lang["exit"],
@@ -681,7 +683,7 @@ class Interface:
             y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
 
         self.history_window.update_idletasks()
-        self.history_window.geometry(f"{self.outline_frame.winfo_reqwidth() + 40}x{HIS_WIN_HEIGHT}")
+        self.history_window.geometry(f"{self.history_outline_frame.get_width() + 40}x{HIS_WIN_HEIGHT}")
 
     def close_history_window(self):
         self.history_window_opened = False
@@ -826,7 +828,8 @@ class Interface:
                                          activeforeground=FONT_COLOR, highlightbackground=ACCENT)
 
         if self.history_window_opened:
-            self.history_title.config(bg=BGCOLOR, fg=FONT_COLOR)
+            self.history_title.config(bg=ACCENT, fg=FONT_COLOR)
+            self.history_title_frame.config(fill=ACCENT, bg=BGCOLOR)
             self.history_outline_frame.config(fill=ACCENT, bg=BGCOLOR)
             for entry in self.history_content_list:
                 entry.config(bg=ACCENT, fg=FONT_COLOR)
