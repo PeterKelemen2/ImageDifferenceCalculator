@@ -151,10 +151,9 @@ class Interface:
         self.win.mainloop()
 
     def run_p_bar(self):
-
         for i in range(0, 100 + 1):
             self.custom_progress_bar.set_percentage(i)
-            time.sleep(0.064)
+            time.sleep(0.016)
 
     def create_font(self):
         global FONT

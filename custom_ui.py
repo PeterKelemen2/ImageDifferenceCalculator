@@ -70,8 +70,6 @@ class CustomLabelFrame:
         self.rect_im = Image.open(rect).convert("RGBA")
 
     def create_images(self):
-        # Overlay fill color on images
-
         self.load_images()
 
         self.overlay = Image.new("RGBA", self.circle_im.size, self.fill)
