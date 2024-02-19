@@ -822,10 +822,9 @@ class Interface:
             self.settings_window.configure(bg=BGCOLOR)
             self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, buttons=[self.save_button],
                                                labels=[self.label, self.lang_label, self.theme_label])
-            self.theme_option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
-                                          activeforeground=FONT_COLOR, highlightbackground=ACCENT)
-            self.lang_option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
-                                         activeforeground=FONT_COLOR, highlightbackground=ACCENT)
+            for option_menu in [self.theme_option_menu, self.lang_option_menu]:
+                option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
+                                   activeforeground=FONT_COLOR, highlightbackground=ACCENT)
 
         if self.history_window_opened:
             self.history_title.config(bg=ACCENT, fg=FONT_COLOR)
@@ -836,7 +835,8 @@ class Interface:
             self.history_window.configure(bg=BGCOLOR)
             self.history_exit_button.config(bg=BGCOLOR)
         else:
-            self.history_window.destroy()
+            if self.history_window is not None:
+                self.history_window.destroy()
 
         # Set colors for history content list items
         # if self.history_content_list is not None and len(self.history_content_list) > 0:
