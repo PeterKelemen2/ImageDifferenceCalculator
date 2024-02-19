@@ -620,13 +620,22 @@ class Interface:
                                         bg=ACCENT,
                                         width=HIS_WIN_WIDTH - 30,
                                         height=HIS_WIN_HEIGHT - 155)
-        self.outline_frame.place(x=15, y=70)
+        # self.outline_frame.place(x=15, y=70)
+
+        self.history_outline_frame = custom_ui.CustomLabelFrame(self.history_window,
+                                                                width=HIS_WIN_WIDTH - 30,
+                                                                height=HIS_WIN_HEIGHT - 155,
+                                                                radius=15,
+                                                                fill=ACCENT,
+                                                                bg=BGCOLOR)
+        self.history_outline_frame.canvas.place(x=20, y=70)
+
         self.history_content_list = list()
         y_pos = 10
         y_offset = 40
         for line in history_list:
             new_line = line.split(";")
-            self.history_content_list.append(Label(self.outline_frame,
+            self.history_content_list.append(Label(self.history_outline_frame.canvas,
                                                    text=new_line[0],
                                                    font=FONT,
                                                    wraplength=HIS_WIN_WIDTH - 40,
@@ -635,7 +644,7 @@ class Interface:
             self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
 
             y_pos += 25
-            self.history_content_list.append(Label(self.outline_frame,
+            self.history_content_list.append(Label(self.history_outline_frame.canvas,
                                                    text=new_line[1],
                                                    fg=FONT_COLOR,
                                                    bg=ACCENT,
@@ -800,7 +809,7 @@ class Interface:
 
         if self.history_window_opened:
             self.history_title.config(bg=BGCOLOR, fg=FONT_COLOR)
-            self.outline_frame.config(bg=ACCENT)
+            self.history_outline_frame.config(fill=ACCENT, bg=BGCOLOR)
             for entry in self.history_content_list:
                 entry.config(bg=ACCENT, fg=FONT_COLOR)
             self.history_window.configure(bg=BGCOLOR)
