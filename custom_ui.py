@@ -180,6 +180,8 @@ class CustomLabelFrame:
 
 
 bar_height = 0
+pg_bar_width = 0
+pg_bar_height = 0
 
 
 class CustomProgressBar:
@@ -187,8 +189,7 @@ class CustomProgressBar:
     def __init__(self, master, width, height,
                  bg=BLACK, pr_bar=BLACK, pr_bar_bg=WHITE, bar_bg=WHITE, bar_bg_accent=BGCOLOR,
                  radius=10, padding=4):
-        global bar_height
-        bar_height = height
+        global bar_height, pg_bar_width, pg_bar_height
 
         self.bg = bg
         self.bar_bg_accent = bar_bg_accent
@@ -201,6 +202,10 @@ class CustomProgressBar:
         self.radius = radius
         self.padding = padding
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
+
+        bar_height = self.height - self.padding * 2
+        pg_bar_width = self.width - self.padding * 2
+        pg_bar_height = self.height - self.padding * 2
         self.canvas.pack()
 
         self.progress_bar_fg = None
@@ -211,11 +216,12 @@ class CustomProgressBar:
                                                 radius=self.radius,
                                                 fill=self.bar_bg_accent,
                                                 bg=self.bg)
-        self.create_pbar_fg(width=self.width - self.padding * 2, height=self.height - self.padding * 2)
+        # Setting starting minimum width
+        self.create_pbar_fg(width=self.radius + 1, height=pg_bar_height)
 
     def create_pbar_fg(self, width, height=30):
         global bar_height
-        self.progress_bar_fg = None
+        # self.progress_bar_fg = None
         self.progress_bar_fg = CustomLabelFrame(self.canvas,
                                                 width=width,
                                                 height=height,
@@ -225,6 +231,6 @@ class CustomProgressBar:
         self.progress_bar_fg.canvas.place(x=self.padding, y=self.padding)
 
     def set_percentage(self, percentage):
-        new_width = int(round(self.progress_bar_bg.width * (percentage / 100)))
+        new_width = int(round(pg_bar_width * (percentage / 100)))
         debug.log(f"Setting progress bar width from {self.width}px to {new_width}px ({percentage}%)", text_color="cyan")
         self.create_pbar_fg(width=new_width, height=self.height - self.padding * 2)
