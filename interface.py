@@ -651,7 +651,7 @@ class Interface:
                                                    font=BOLD_FONT))
             self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
             y_pos += y_offset
-        self.history_title.place(x=10, y=10)
+        self.history_title.place(x=HIS_WIN_WIDTH // 2 - self.history_title.winfo_reqwidth() // 2, y=10)
 
         self.history_exit_button = custom_button.CustomButton(self.history_window,
                                                               text=self.lang["exit"],
@@ -659,7 +659,7 @@ class Interface:
                                                               button_type=custom_button.button,
                                                               bg=BGCOLOR)
         self.history_exit_button.canvas.place(
-            x=50,
+            x=HIS_WIN_WIDTH // 2 - self.history_exit_button.winfo_reqwidth() // 2,
             y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
 
         self.history_window.update_idletasks()
