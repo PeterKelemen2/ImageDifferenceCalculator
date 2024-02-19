@@ -125,14 +125,12 @@ class Interface:
 
         debug.log("[1/1] Creating interface...", text_color="blue")
 
-        # self.lang = lang.load_lang("hungarian")
         self.lang = lang.load_lang(self.curr_lang)
 
         self.set_properties()
         self.create_buttons_wrapper()
         self.create_settings_button()
         self.create_history_button()
-        # self.create_time_frame()
         self.create_browser()
 
         debug.log("[1/2] Interface created", text_color="blue")
@@ -148,12 +146,10 @@ class Interface:
         if self.curr_theme == "dark":
             BGCOLOR = DARK_BG
             FONT_COLOR = DARK_FONT_COLOR
-            DARKER_BG = "#292929"
             ACCENT = DARK_ACCENT
         elif self.curr_theme == "light":
             BGCOLOR = LIGHT_BG
             FONT_COLOR = LIGHT_FONT_COLOR
-            DARKER_BG = "#e6e6e6"
             ACCENT = LIGHT_ACCENT
 
     def set_properties(self):
@@ -339,7 +335,6 @@ class Interface:
             frame_label.image = image_file
             debug.log("[5/10] Image configured!", text_color="yellow")
 
-        # media_player_button = Button(frame_wrapper, text="Open Media Player")
         self.media_player_button = custom_button.CustomButton(self.frame_wrapper.canvas,
                                                               text=self.lang["open_vlc"],
                                                               bg=ACCENT,
@@ -384,7 +379,6 @@ class Interface:
             self.process_video_button.disable()
             self.browse_button.disable()
             self.create_progress_bar()
-            # processing.process_video(video_file_path, self.update_progress_bar)
             processing.set_progress_callback(self.update_progress)
             processing.process_video_thread(video_file_path)
 
@@ -415,7 +409,6 @@ class Interface:
         call_nr += 1
         self.progress_bar['value'] = value
         self.progress_label['text'] = str(value + "%")
-        # debug.log(f"Nr of calls: {call_nr}")
         if processing.finished:
             debug.log(f"{self.lang["diff"]}: {processing.total_difference}", text_color="blue")
             self.create_finished_window()
@@ -485,7 +478,6 @@ class Interface:
             return
 
         # Create the settings window
-
         self.settings_window = Toplevel(self.win)
         self.settings_window.title(self.lang["settings"])
         self.settings_window.geometry(f"{SET_WIN_WIDTH}x{SET_WIN_HEIGHT}")
@@ -602,7 +594,6 @@ class Interface:
             # Save selected options to configuration file
             debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
             config.save_settings([chosen_lang_option, chosen_theme_option])
-            # self.update_text()
 
         # Add a button to save the selected options
         self.save_button = custom_button.CustomButton(self.settings_wrapper.canvas,
@@ -796,10 +787,7 @@ class Interface:
         including the main window, history window, outline frame, and history content list.
 
         """
-        # Set color for main window and history window
         self.set_color()
-        # self.change_colors(self.win)
-        # self.change_colors(self.history_label)
 
         if self.buttons_wrapper is not None:
             self.buttons_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
@@ -838,13 +826,7 @@ class Interface:
             if self.history_window is not None:
                 self.history_window.destroy()
 
-        # Set colors for history content list items
-        # if self.history_content_list is not None and len(self.history_content_list) > 0:
-        #     for elem in self.history_content_list:
-        #         if elem is not None:
-        #             elem.config(fg=FONT_COLOR, bg=DARKER_BG)
-
-        # # Set background color for the main window
+        # Set background color for the main window
         self.win["bg"] = BGCOLOR
 
     def change_colors(self, widget):
