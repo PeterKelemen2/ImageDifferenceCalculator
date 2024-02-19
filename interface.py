@@ -27,6 +27,9 @@ DARK_BG = "#262626"
 DARK_ACCENT = "#545454"
 DARK_FONT_COLOR = "#ffffff"
 
+PALENIGHT_BG = "#202331"
+PALENIGHT_ACCENT = "#303754"
+
 BGCOLOR = "#262626"
 DARKER_BG = "#292929"
 WHITE = "#ffffff"
@@ -152,7 +155,7 @@ class Interface:
         FONT = font.Font(family="Ubuntu", file=font_file, size=10)
 
     def set_color(self):
-        global BGCOLOR, FONT_COLOR, DARKER_BG, ACCENT
+        global BGCOLOR, FONT_COLOR, DARKER_BG, ACCENT, PALENIGHT_ACCENT, PALENIGHT_ACCENT
         if self.curr_theme == "dark":
             BGCOLOR = DARK_BG
             FONT_COLOR = DARK_FONT_COLOR
@@ -161,6 +164,10 @@ class Interface:
             BGCOLOR = LIGHT_BG
             FONT_COLOR = LIGHT_FONT_COLOR
             ACCENT = LIGHT_ACCENT
+        elif self.curr_theme == "palenight":
+            BGCOLOR = PALENIGHT_BG
+            FONT_COLOR = DARK_FONT_COLOR
+            ACCENT = PALENIGHT_ACCENT
 
     def set_properties(self):
         # Set windows properties
