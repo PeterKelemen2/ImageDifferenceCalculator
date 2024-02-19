@@ -62,6 +62,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.settings_window_opened = False
         self.history_window_opened = False
         self.history_outline_frame = None
         self.theme_options = None
@@ -476,12 +477,18 @@ class Interface:
             None
         """
 
+        if self.settings_window_opened is True:
+            self.settings_window.focus_set()
+            return
+
         # Create the settings window
+
         self.settings_window = Toplevel(self.win)
         self.settings_window.title(self.lang["settings"])
         self.settings_window.geometry(f"{SET_WIN_WIDTH}x{SET_WIN_HEIGHT}")
         self.settings_window.configure(background=BGCOLOR)
         self.settings_window.resizable(False, False)
+        self.settings_window.bind("<Destroy>", lambda e: self.close_settings_window())
 
         # Add a label for the settings window title
         self.settings_wrapper = custom_ui.CustomLabelFrame(self.settings_window,
@@ -555,6 +562,8 @@ class Interface:
         self.theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
                                      y=self.lang_label.winfo_reqheight() * 4)
 
+        self.settings_window_opened = True
+
         def save_option():
             """
             Saves the selected language and theme options.
@@ -601,7 +610,14 @@ class Interface:
         self.save_button.canvas.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2,
                                       y=200)
 
+    def close_settings_window(self):
+        self.settings_window_opened = False
+        self.settings_window.destroy()
+
     def create_history_window(self):
+        if self.history_window_opened is True:
+            self.history_window.focus_set()
+            return
         self.history_window_opened = True
         history_list = processing.read_from_history()
         self.history_window = Toplevel(self.win)
