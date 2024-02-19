@@ -145,15 +145,16 @@ class Interface:
         # self.custom_progress_bar.set_percentage(50)
 
         progress_bar_thread = threading.Thread(target=self.run_p_bar)
-        # progress_bar_thread.start()
+        progress_bar_thread.start()
 
         debug.log("[1/2] Interface created", text_color="blue")
         self.win.mainloop()
 
     def run_p_bar(self):
-        for i in range(10, 100 + 1):
+
+        for i in range(0, 100 + 1):
             self.custom_progress_bar.set_percentage(i)
-            time.sleep(0.032)
+            time.sleep(0.064)
 
     def create_font(self):
         global FONT
