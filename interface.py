@@ -774,6 +774,8 @@ class Interface:
         if self.finished_window is not None:
             if self.finished_window.winfo_exists():
                 self.finished_window.title(self.lang["proc_finished"])
+                self.finished_title_label.config(text=self.lang["proc_finished"])
+                self.result_label.config(text=f"{self.lang["diff"]}: {processing.total_difference}")
 
         self.lang_options = [self.lang["english"], self.lang["hungarian"]]
         if self.curr_lang == "english":
@@ -804,6 +806,8 @@ class Interface:
         if self.image_details is not None:
             self.image_details.config(text=self.im_det)
 
+        if self.settings_window is not None:
+            self.settings_window.title(self.lang["settings"])
         if self.settings_label is not None:
             self.settings_label.place(
                 x=self.settings_wrapper.get_width() // 2 - self.settings_label.winfo_reqwidth() // 2,
