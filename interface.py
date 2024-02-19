@@ -63,6 +63,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.pbar_overlay = None
         self.custom_progress_bar = None
         self.history_title_frame = None
         self.settings_window_opened = False
@@ -405,6 +406,7 @@ class Interface:
                                         orient="horizontal",
                                         length=self.new_progress_wrapper.get_width() - 75,
                                         mode="determinate",
+
                                         maximum=100)
         # self.progress_bar.place(x=10, y=self.new_progress_wrapper.get_height() // 2)
 
@@ -414,23 +416,23 @@ class Interface:
                                                                padding=6,
                                                                bg=ACCENT,
                                                                bar_bg_accent="#b3b3b3",
-                                                               pr_bar="#59ff6f")
+                                                               pr_bar="#73ff7b")
         self.custom_progress_bar.canvas.place(x=10, y=self.new_progress_wrapper.get_height() // 2 - 5)
-
-        # progress_bar_thread = threading.Thread(target=self.run_p_bar)
-        # progress_bar_thread.start()
 
         self.progress_label = Label(self.new_progress_wrapper.canvas, text="100.00%", fg=FONT_COLOR, bg=ACCENT,
                                     font=("Ubuntu", 10))
         self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 13,
                                   y=self.progress_bar.winfo_reqheight() * 1.5)
+        self.pbar_overlay = custom_ui.CustomLabelFrame(self.new_progress_wrapper.canvas, width=705, height=30,
+                                                       bg=ACCENT, fill=ACCENT)
+        self.pbar_overlay.canvas.place(x=10, y=self.custom_progress_bar.get_height() * 2)
 
     def update_progress(self, value):
         global call_nr
         call_nr += 1
         # self.progress_bar['value'] = value
         self.custom_progress_bar.set_percentage(value)
-        self.progress_label['text'] = str(str(value) + "%")
+        self.progress_label['text'] = f"{value} %"
         if processing.finished:
             debug.log(f"{self.lang["diff"]}: {processing.total_difference}", text_color="blue")
             self.create_finished_window()
@@ -827,6 +829,7 @@ class Interface:
 
         if self.new_progress_wrapper is not None:
             self.new_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.progress_label])
+
 
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)

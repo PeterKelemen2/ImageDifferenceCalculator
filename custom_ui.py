@@ -44,16 +44,7 @@ class CustomLabelFrame:
         self.rect_im_hor = None
         self.overlay = None
         self.rect_im_ver = None
-        self.rect_im_center = None
         self.text_item = None
-        self.cir1 = None
-        self.cir2 = None
-        self.cir3 = None
-        self.cir4 = None
-        self.rec1 = None
-        self.rec2 = None
-        self.rec3 = None
-        self.rec4 = None
         self.center = None
         self.cir_im = None
         self.rec_im_hor = None
@@ -80,17 +71,13 @@ class CustomLabelFrame:
         # Resize the image (width, height)
         self.circle_im = self.circle_im.resize((self.radius * 2, self.radius * 2))
         self.rect_im_hor = self.rect_im.resize((self.width, self.height - self.radius * 2))
-        # self.rect_im_hor = self.rect_im.resize((self.width - self.radius * 2, self.radius * 2))
-        # self.rect_im_ver = self.rect_im.resize((self.radius * 2, self.height - self.radius * 2))
         self.rect_im_ver = self.rect_im.resize((self.width - self.radius * 2, self.height))
-        self.rect_im_center = self.rect_im.resize((self.width - 2 * self.radius, self.height - 2 * self.radius))
 
     def create_labelframe(self):
         self.item_list = list()
         self.cir_im = ImageTk.PhotoImage(self.circle_im)
         self.rec_im_hor = ImageTk.PhotoImage(self.rect_im_hor)
         self.rec_im_ver = ImageTk.PhotoImage(self.rect_im_ver)
-        self.center_rec = ImageTk.PhotoImage(self.rect_im_center)
 
         # Create circles (x,y)
         self.item_list.append(self.canvas.create_image(self.radius, self.radius, anchor="center", image=self.cir_im))
@@ -101,18 +88,10 @@ class CustomLabelFrame:
         self.item_list.append(
             self.canvas.create_image(self.width - self.radius, self.height - self.radius, anchor="center",
                                      image=self.cir_im))
-        # self.item_list.append(self.cir1, self.cir2, self.cir3, self.cir4)
 
-        #
         self.item_list.append(self.canvas.create_image(self.width // 2, self.height // 2, image=self.rec_im_hor))
         self.item_list.append(
             self.canvas.create_image(self.radius, self.height // 2, anchor="w", image=self.rec_im_ver))
-        # self.item_list.append(
-        #     self.canvas.create_image(self.radius, self.height - self.radius, anchor="s", image=self.rec_im_ver))
-        # self.item_list.append(self.canvas.create_image(self.width - self.radius, self.height - self.radius, anchor="s",
-        #                                                image=self.rec_im_ver))
-        #
-        # self.item_list.append(self.canvas.create_image(self.radius, self.radius, anchor="nw", image=self.center_rec))
 
         self.text_item = self.canvas.create_text(self.radius, self.radius, text=self.text, fill=self.fg, anchor="w",
                                                  font=BOLD_FONT)
@@ -129,6 +108,9 @@ class CustomLabelFrame:
             self.canvas.config(bg=self.bg)
         if fill is not None:
             self.change_fill_color(fill)
+
+    def change_width(self, new_width):
+        pass
 
     def switch_theme(self, new_fill=None, new_text_color=None, new_bg=None, buttons=None, labels=None):
         if new_fill is not None: self.change_fill_color(new_fill)
@@ -241,3 +223,9 @@ class CustomProgressBar:
         new_width = int(round(pg_bar_width * (percentage / 100)))
         debug.log(f"Setting progress bar width from {self.width}px to {new_width}px ({percentage}%)", text_color="cyan")
         self.create_pbar_fg(width=new_width, height=self.height - self.padding * 2)
+
+    def get_height(self):
+        return self.height
+
+    def get_width(self):
+        return self.width
