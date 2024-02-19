@@ -1,3 +1,4 @@
+import time
 from tkinter import PhotoImage, Canvas
 
 import PIL.ImageOps
@@ -179,6 +180,9 @@ class CustomLabelFrame:
     def get_height(self):
         return self.height
 
+    def destroy(self):
+        self.canvas.destroy()
+
 
 bar_height = 0
 pg_bar_width = 0
@@ -223,17 +227,15 @@ class CustomProgressBar:
 
     def create_pbar_fg(self, width, height=30):
         global bar_height
-        # self.progress_bar_fg = None
         if width < self.radius + 1:
             return
-        self.new_progress_bar_fg = CustomLabelFrame(self.canvas,
-                                                    width=width,
-                                                    height=height,
-                                                    radius=self.radius // 2,
-                                                    fill=self.pr_bar,
-                                                    bg=self.bar_bg_accent)
-        self.new_progress_bar_fg.canvas.place(x=self.padding, y=self.padding)
-        # self.progress_bar_fg = None
+        self.progress_bar_fg = CustomLabelFrame(self.canvas,
+                                                width=width,
+                                                height=height,
+                                                radius=self.radius // 2,
+                                                fill=self.pr_bar,
+                                                bg=self.bar_bg_accent)
+        self.progress_bar_fg.canvas.place(x=self.padding, y=self.padding)
 
     def set_percentage(self, percentage):
         new_width = int(round(pg_bar_width * (percentage / 100)))

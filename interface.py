@@ -63,6 +63,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.custom_progress_bar = None
         self.history_title_frame = None
         self.settings_window_opened = False
         self.history_window_opened = False
@@ -134,18 +135,7 @@ class Interface:
         self.create_history_button()
         self.create_browser()
 
-        self.custom_progress_bar = custom_ui.CustomProgressBar(self.win,
-                                                               width=600,
-                                                               height=40,
-                                                               padding=6,
-                                                               bg=BGCOLOR,
-                                                               bar_bg_accent=ACCENT,
-                                                               pr_bar="#59ff6f")
-        self.custom_progress_bar.canvas.place(x=100, y=200)
         # self.custom_progress_bar.set_percentage(50)
-
-        progress_bar_thread = threading.Thread(target=self.run_p_bar)
-        progress_bar_thread.start()
 
         debug.log("[1/2] Interface created", text_color="blue")
         self.win.mainloop()
@@ -416,7 +406,19 @@ class Interface:
                                         length=self.new_progress_wrapper.get_width() - 75,
                                         mode="determinate",
                                         maximum=100)
-        self.progress_bar.place(x=10, y=self.new_progress_wrapper.get_height() // 2)
+        # self.progress_bar.place(x=10, y=self.new_progress_wrapper.get_height() // 2)
+
+        self.custom_progress_bar = custom_ui.CustomProgressBar(self.new_progress_wrapper.canvas,
+                                                               width=705,
+                                                               height=30,
+                                                               padding=6,
+                                                               bg=ACCENT,
+                                                               bar_bg_accent="#b3b3b3",
+                                                               pr_bar="#59ff6f")
+        self.custom_progress_bar.canvas.place(x=10, y=self.new_progress_wrapper.get_height() // 2 - 5)
+
+        # progress_bar_thread = threading.Thread(target=self.run_p_bar)
+        # progress_bar_thread.start()
 
         self.progress_label = Label(self.new_progress_wrapper.canvas, text="100.00%", fg=FONT_COLOR, bg=ACCENT,
                                     font=("Ubuntu", 10))
@@ -426,8 +428,9 @@ class Interface:
     def update_progress(self, value):
         global call_nr
         call_nr += 1
-        self.progress_bar['value'] = value
-        self.progress_label['text'] = str(value + "%")
+        # self.progress_bar['value'] = value
+        self.custom_progress_bar.set_percentage(value)
+        self.progress_label['text'] = str(str(value) + "%")
         if processing.finished:
             debug.log(f"{self.lang["diff"]}: {processing.total_difference}", text_color="blue")
             self.create_finished_window()

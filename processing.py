@@ -51,8 +51,8 @@ def process_video(path, progress_callback):
                 total_difference += abs_diff.mean()
 
                 if frames_since_last_callback == 5:
-                    progress_percentage = "{:.2f}".format((current_frame_index * 100) / total_frames)
-                    progress_callback(progress_percentage)
+                    progress_percentage = "{:.0f}".format((current_frame_index * 100) / total_frames)
+                    progress_callback(int(progress_percentage))
                     frames_since_last_callback = 0
 
                 prev_frame = frame
@@ -62,7 +62,7 @@ def process_video(path, progress_callback):
             write_to_history(path, total_difference)
             read_from_history()
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
-            progress_callback("100.00")
+            progress_callback(100)
 
     cap.release()
     cv2.destroyAllWindows()
