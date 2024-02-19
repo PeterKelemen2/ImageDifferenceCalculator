@@ -420,6 +420,8 @@ class Interface:
             self.create_finished_window()
 
     def create_finished_window(self):
+        if self.finished_window is not None:
+            self.close_finished_windows()
         self.finished_window = Toplevel(self.win)
         self.finished_window.title(self.lang["result_win_title"])
         self.finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
