@@ -829,7 +829,9 @@ class Interface:
 
         if self.new_progress_wrapper is not None:
             self.new_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.progress_label])
-
+            self.custom_progress_bar.config(bg=ACCENT)
+            self.pbar_overlay.change_fill_color(ACCENT)
+            self.pbar_overlay.change_bg_color(ACCENT)
 
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)

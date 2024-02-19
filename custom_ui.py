@@ -138,6 +138,9 @@ class CustomLabelFrame:
         self.fg = new_color
         self.canvas.itemconfig(self.text_item, fill=self.fg)
 
+    def change_bg_color(self, new_bg):
+        self.canvas.config(bg=new_bg)
+
     def get_label_width(self):
         bbox = self.canvas.bbox(self.text_item)
         width = bbox[2] - bbox[0]
@@ -198,13 +201,24 @@ class CustomProgressBar:
 
         self.progress_bar_fg = None
         self.progress_bar_bg = None
+
+        self.create_pbar()
+        # self.progress_bar_bg = CustomLabelFrame(self.canvas,
+        #                                         width=self.width,
+        #                                         height=self.height,
+        #                                         radius=self.radius,
+        #                                         fill=self.bar_bg_accent,
+        #                                         bg=self.bg)
+        # # Setting starting minimum width
+        # self.create_pbar_fg(width=self.radius + 1, height=pg_bar_height)
+
+    def create_pbar(self):
         self.progress_bar_bg = CustomLabelFrame(self.canvas,
                                                 width=self.width,
                                                 height=self.height,
                                                 radius=self.radius,
                                                 fill=self.bar_bg_accent,
                                                 bg=self.bg)
-        # Setting starting minimum width
         self.create_pbar_fg(width=self.radius + 1, height=pg_bar_height)
 
     def create_pbar_fg(self, width, height=30):
@@ -221,8 +235,12 @@ class CustomProgressBar:
 
     def set_percentage(self, percentage):
         new_width = int(round(pg_bar_width * (percentage / 100)))
-        debug.log(f"Setting progress bar width from {self.width}px to {new_width}px ({percentage}%)", text_color="cyan")
         self.create_pbar_fg(width=new_width, height=self.height - self.padding * 2)
+
+    def config(self, bg):
+        self.bg = bg
+        self.canvas.config(bg=bg)
+        self.progress_bar_bg.change_bg_color(bg)
 
     def get_height(self):
         return self.height
