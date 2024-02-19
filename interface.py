@@ -621,27 +621,27 @@ class Interface:
                                         width=HIS_WIN_WIDTH - 30,
                                         height=HIS_WIN_HEIGHT - 155)
         self.outline_frame.place(x=15, y=70)
-        # self.history_content_list = list()
-        # y_pos = 10
-        # y_offset = 40
-        # for line in history_list:
-        #     new_line = line.split(";")
-        #     self.history_content_list.append(Label(self.outline_frame,
-        #                                            text=new_line[0],
-        #                                            font=FONT,
-        #                                            wraplength=HIS_WIN_WIDTH - 40,
-        #                                            fg=FONT_COLOR,
-        #                                            bg=ACCENT))
-        #     self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
-        #
-        #     y_pos += 25
-        #     self.history_content_list.append(Label(self.outline_frame,
-        #                                            text=new_line[1],
-        #                                            fg=FONT_COLOR,
-        #                                            bg=ACCENT,
-        #                                            font=BOLD_FONT))
-        #     self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
-        #     y_pos += y_offset
+        self.history_content_list = list()
+        y_pos = 10
+        y_offset = 40
+        for line in history_list:
+            new_line = line.split(";")
+            self.history_content_list.append(Label(self.outline_frame,
+                                                   text=new_line[0],
+                                                   font=FONT,
+                                                   wraplength=HIS_WIN_WIDTH - 40,
+                                                   fg=FONT_COLOR,
+                                                   bg=ACCENT))
+            self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
+
+            y_pos += 25
+            self.history_content_list.append(Label(self.outline_frame,
+                                                   text=new_line[1],
+                                                   fg=FONT_COLOR,
+                                                   bg=ACCENT,
+                                                   font=BOLD_FONT))
+            self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
+            y_pos += y_offset
         self.history_title.place(x=10, y=10)
 
         self.history_exit_button = custom_button.CustomButton(self.history_window,
@@ -658,6 +658,7 @@ class Interface:
 
     def close_history_window(self):
         self.history_window_opened = False
+        self.history_content_list = None
         self.history_exit_button.destroy()
         self.history_window.destroy()
 
@@ -798,7 +799,12 @@ class Interface:
                                          activeforeground=FONT_COLOR, highlightbackground=ACCENT)
 
         if self.history_window_opened:
+            self.history_title.config(bg=BGCOLOR, fg=FONT_COLOR)
+            self.outline_frame.config(bg=ACCENT)
+            for entry in self.history_content_list:
+                entry.config(bg=ACCENT, fg=FONT_COLOR)
             self.history_window.configure(bg=BGCOLOR)
+            self.history_exit_button.config(bg=BGCOLOR)
         else:
             self.history_window.destroy()
 
