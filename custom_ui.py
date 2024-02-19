@@ -172,3 +172,38 @@ class CustomLabelFrame:
 
     def get_height(self):
         return self.height
+
+
+class CustomProgressBar:
+    def __init__(self, master, width, height,
+                 bg=BLACK, pr_bar=BLACK, pr_bar_bg=WHITE, bar_bg=WHITE, bar_bg_accent=BGCOLOR,
+                 radius=10, padding=5):
+        self.bg = bg
+        self.bar_bg_accent = bar_bg_accent
+        self.bar_bg = bar_bg
+        self.pr_bar_bg = pr_bar_bg
+        self.pr_bar = pr_bar
+        self.width = width
+        self.height = height
+        self.fg = interface.FONT_COLOR
+        self.radius = radius
+        self.padding = padding
+        self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
+        self.canvas.pack()
+
+        self.progress_bar_bg = None
+        self.progress_bar_bg = CustomLabelFrame(self.canvas,
+                                                width=self.width,
+                                                height=self.height,
+                                                radius=self.radius,
+                                                fill=self.bar_bg_accent,
+                                                bg=self.bg)
+        self.progress_bar_fg = None
+        self.progress_bar_fg = CustomLabelFrame(self.canvas,
+                                                width=self.width - self.padding,
+                                                height=self.height - self.padding,
+                                                radius=self.radius,
+                                                fill=self.pr_bar,
+                                                bg=self.bar_bg_accent)
+        self.progress_bar_bg.canvas.place(x=0, y=0)
+        self.progress_bar_fg.canvas.place(x=padding // 2, y=padding // 2)

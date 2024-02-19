@@ -133,6 +133,15 @@ class Interface:
         self.create_history_button()
         self.create_browser()
 
+        self.custom_progress_bar = custom_ui.CustomProgressBar(self.win,
+                                                               width=200,
+                                                               height=30,
+                                                               padding=5,
+                                                               bg="#fcba03",  # Accent
+                                                               bar_bg_accent="#27c250",
+                                                               pr_bar="#ff1100")
+        self.custom_progress_bar.canvas.place(x=100, y=200)
+
         debug.log("[1/2] Interface created", text_color="blue")
         self.win.mainloop()
 
