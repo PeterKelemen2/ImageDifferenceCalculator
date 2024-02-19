@@ -100,7 +100,7 @@ class Interface:
         self.theme_label = None
         self.lang_selected_option = None
         self.lang_options = None
-        self.label = None
+        self.settings_label = None
         self.settings_window = None
         self.progress_wrapper = None
         self.media_player_button = None
@@ -530,13 +530,14 @@ class Interface:
                                                            fill=ACCENT,
                                                            bg=BGCOLOR)
         self.settings_wrapper.canvas.place(x=10, y=10)
-        self.label = Label(self.settings_wrapper.canvas,
-                           text=self.lang["settings"],
-                           fg=FONT_COLOR,
-                           bg=ACCENT,
-                           font=BOLD_FONT,
-                           anchor="center")
-        self.label.place(x=self.settings_wrapper.get_width() // 2 - self.label.winfo_reqwidth() // 2, y=10)
+        self.settings_label = Label(self.settings_wrapper.canvas,
+                                    text=self.lang["settings"],
+                                    fg=FONT_COLOR,
+                                    bg=ACCENT,
+                                    font=BOLD_FONT,
+                                    anchor="center")
+        self.settings_label.place(x=self.settings_wrapper.get_width() // 2 - self.settings_label.winfo_reqwidth() // 2,
+                                  y=10)
 
         # Add a label for the language selection
         self.lang_label = Label(self.settings_wrapper.canvas,
@@ -545,7 +546,7 @@ class Interface:
                                 bg=ACCENT,
                                 font=FONT, )
         self.lang_label.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 - 60,
-                              y=self.label.winfo_y() + 50)
+                              y=self.settings_label.winfo_y() + 50)
 
         # Define language options
         self.lang_options = [self.lang["english"], self.lang["hungarian"]]
@@ -659,9 +660,10 @@ class Interface:
         self.settings_window.destroy()
 
     def create_history_window(self):
-        if self.history_window_opened is True:
-            self.history_window.focus_set()
-            return
+        if self.history_window is not None:
+            if self.history_window.winfo_exists():
+                self.history_window.focus_set()
+                return
         self.history_window_opened = True
         history_list = processing.read_from_history()
         self.history_window = Toplevel(self.win)
@@ -669,6 +671,7 @@ class Interface:
         self.history_window.configure(background=BGCOLOR)
         self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
         self.history_window.resizable(False, False)
+        # self.history_window.bind("<Destroy>", lambda e: self.history_window.destroy())
 
         self.history_title_frame = custom_ui.CustomLabelFrame(self.history_window,
                                                               width=200,
@@ -727,10 +730,18 @@ class Interface:
         self.history_window.geometry(f"{self.history_outline_frame.get_width() + 40}x{HIS_WIN_HEIGHT}")
 
     def close_history_window(self):
-        self.history_window_opened = False
-        self.history_content_list = None
-        self.history_exit_button.destroy()
-        self.history_window.destroy()
+        if self.history_window is not None:
+            self.history_window_opened = False
+            self.history_content_list = None
+            self.history_exit_button.destroy()
+            self.history_window.destroy()
+            debug.log(f"History window opened status: {self.history_window_opened}")
+
+            # Check if the window still exists
+            if self.history_window.winfo_exists():
+                debug.log("History window still exists.")
+            else:
+                debug.log("History window has been destroyed.")
 
     def change_language(self):
         """
@@ -740,33 +751,47 @@ class Interface:
 
         """
         # Update text for labels
-
+        debug.log("Changing browser wrapper...")
         if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
+        debug.log("Changing frame wrapper...")
         if self.frame_wrapper is not None: self.frame_wrapper.set_label_text(self.lang["video_data"])
+        debug.log("Changing progress wrapper...")
         if self.new_progress_wrapper is not None: self.new_progress_wrapper.set_label_text(self.lang["progress"])
 
-        for label in [self.settings_window, self.history_window, self.button_wrapper, self.frame_wrapper,
-                      self.progress_wrapper, self.finished_window, self.label, self.lang_label, self.theme_label]:
+        debug.log("Changing labels...")
+        for label in [self.settings_window, self.button_wrapper, self.history_title, self.finished_window,
+                      self.frame_wrapper, self.progress_wrapper, self.settings_label, self.lang_label,
+                      self.theme_label]:
             self.change_text(label)
+        if self.history_window is not None:
+            if self.history_window.winfo_exists():
+                self.history_title.place(
+                    x=self.history_title_frame.get_width() // 2 - self.history_title.winfo_reqwidth() // 2,
+                    y=self.history_title_frame.get_height() // 2 - self.history_title.winfo_reqheight() // 2)
+
+        debug.log("Changed labels!")
+
+        if self.finished_window is not None:
+            if self.finished_window.winfo_exists():
+                self.finished_window.title(self.lang["proc_finished"])
 
         self.lang_options = [self.lang["english"], self.lang["hungarian"]]
         if self.curr_lang == "english":
             self.lang_selected_option.set(self.lang_options[0])
         else:
             self.lang_selected_option.set(self.lang_options[1])
-        self.lang_option_menu = OptionMenu(self.settings_wrapper.canvas, self.lang_selected_option, *self.lang_options)
 
-        self.theme_options = [self.lang["dark"], self.lang["light"]]
+        self.theme_options = [self.lang["dark"], self.lang["light"], self.lang["palenight"]]
         if self.curr_theme == "dark":
             self.theme_selected_option.set(self.theme_options[0])
-        else:
+        elif self.curr_theme == "light":
             self.theme_selected_option.set(self.theme_options[1])
-        self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, self.theme_selected_option,
-                                            *self.theme_options)
+        elif self.curr_theme == "palenight":
+            self.theme_selected_option.set(self.theme_options[2])
 
         # Update text for buttons
-        for button in [self.save_button, self.history_exit_button, self.browse_button, self.browse_button,
-                       self.process_video_button, self.media_player_button]:
+        for button in [self.save_button, self.browse_button, self.browse_button, self.process_video_button,
+                       self.media_player_button]:
             self.change_button_text(button)
 
         if self.frame_details_header is not None:
@@ -779,9 +804,10 @@ class Interface:
         if self.image_details is not None:
             self.image_details.config(text=self.im_det)
 
-        # Update result label with total difference
-        if self.result_label is not None:
-            self.result_label.config(text=f"{self.lang['diff']}: {processing.total_difference}")
+        if self.settings_label is not None:
+            self.settings_label.place(
+                x=self.settings_wrapper.get_width() // 2 - self.settings_label.winfo_reqwidth() // 2,
+                y=10)
 
     def change_button_text(self, button: custom_button.CustomButton):
         """
@@ -801,6 +827,11 @@ class Interface:
         :type widget: tkinter.Widget or None
         """
         if widget is not None:
+            if not hasattr(widget, "keys") or not widget.keys:
+                return
+            if hasattr(widget, "winfo_exists"):
+                if not widget.winfo_exists():
+                    return
             # Update text for the parent widget
             if "text" in widget.keys():
                 # Check if the current text has a translation available
@@ -837,6 +868,7 @@ class Interface:
         including the main window, history window, outline frame, and history content list.
 
         """
+        global BGCOLOR, ACCENT, FONT_COLOR
         self.set_color()
 
         if self.buttons_wrapper is not None:
@@ -863,7 +895,7 @@ class Interface:
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)
             self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, buttons=[self.save_button],
-                                               labels=[self.label, self.lang_label, self.theme_label])
+                                               labels=[self.settings_label, self.lang_label, self.theme_label])
             for option_menu in [self.theme_option_menu, self.lang_option_menu]:
                 option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
                                    activeforeground=FONT_COLOR, highlightbackground=ACCENT)
