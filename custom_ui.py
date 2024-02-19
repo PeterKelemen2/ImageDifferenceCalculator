@@ -4,6 +4,7 @@ import PIL.ImageOps
 from PIL import Image, ImageTk
 
 import custom_button
+import debug
 import interface
 
 bg_path = "assets/rounded_frame.png"
@@ -212,27 +213,18 @@ class CustomProgressBar:
                                                 bg=self.bg)
         self.create_pbar_fg(width=self.width - self.padding * 2, height=self.height - self.padding * 2)
 
-        # self.progress_bar_fg = CustomLabelFrame(self.canvas,
-        #                                         width=self.width - self.padding * 2,
-        #                                         height=self.height - self.padding * 2,
-        #                                         radius=self.radius,
-        #                                         fill=self.pr_bar,
-        #                                         bg=self.bar_bg_accent)
-        # self.progress_bar_bg.canvas.place(x=0, y=0)
-        # self.progress_bar_fg.canvas.place(x=padding, y=padding)
-
-    def create_pbar_fg(self, width, height=30, padding=4):
+    def create_pbar_fg(self, width, height=30):
         global bar_height
         self.progress_bar_fg = None
         self.progress_bar_fg = CustomLabelFrame(self.canvas,
                                                 width=width,
-                                                height=bar_height - padding * 2,
-                                                radius=self.radius,
+                                                height=height,
+                                                radius=self.radius // 2,
                                                 fill=self.pr_bar,
                                                 bg=self.bar_bg_accent)
         self.progress_bar_fg.canvas.place(x=self.padding, y=self.padding)
 
     def set_percentage(self, percentage):
         new_width = int(round(self.progress_bar_bg.width * (percentage / 100)))
-        print("new_width:", new_width)
-        self.create_pbar_fg(width=percentage * 2)
+        debug.log(f"Setting progress bar width from {self.width}px to {new_width}px ({percentage}%)", text_color="cyan")
+        self.create_pbar_fg(width=new_width, height=self.height - self.padding * 2)

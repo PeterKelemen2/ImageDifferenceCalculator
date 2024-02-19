@@ -1,4 +1,5 @@
 import threading
+import time
 from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button
 from tkinter.ttk import Progressbar
 
@@ -134,17 +135,25 @@ class Interface:
         self.create_browser()
 
         self.custom_progress_bar = custom_ui.CustomProgressBar(self.win,
-                                                               width=400,
-                                                               height=100,
-                                                               padding=4,
+                                                               width=600,
+                                                               height=40,
+                                                               padding=6,
                                                                bg=BGCOLOR,
                                                                bar_bg_accent=ACCENT,
                                                                pr_bar="#59ff6f")
         self.custom_progress_bar.canvas.place(x=100, y=200)
         # self.custom_progress_bar.set_percentage(50)
 
+        progress_bar_thread = threading.Thread(target=self.run_p_bar)
+        progress_bar_thread.start()
+
         debug.log("[1/2] Interface created", text_color="blue")
         self.win.mainloop()
+
+    def run_p_bar(self):
+        for i in range(10, 100):
+            self.custom_progress_bar.set_percentage(i)
+            time.sleep(0.016)
 
     def create_font(self):
         global FONT
