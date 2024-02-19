@@ -62,6 +62,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.history_window_opened = False
         self.history_outline_frame = None
         self.theme_options = None
         self.theme_selected_option = None
@@ -601,6 +602,7 @@ class Interface:
                                       y=200)
 
     def create_history_window(self):
+        self.history_window_opened = True
         history_list = processing.read_from_history()
         self.history_window = Toplevel(self.win)
         self.history_window.title(self.lang["history"])
@@ -619,27 +621,27 @@ class Interface:
                                         width=HIS_WIN_WIDTH - 30,
                                         height=HIS_WIN_HEIGHT - 155)
         self.outline_frame.place(x=15, y=70)
-        self.history_content_list = list()
-        y_pos = 10
-        y_offset = 40
-        for line in history_list:
-            new_line = line.split(";")
-            self.history_content_list.append(Label(self.outline_frame,
-                                                   text=new_line[0],
-                                                   font=FONT,
-                                                   wraplength=HIS_WIN_WIDTH - 40,
-                                                   fg=FONT_COLOR,
-                                                   bg=ACCENT))
-            self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
-
-            y_pos += 25
-            self.history_content_list.append(Label(self.outline_frame,
-                                                   text=new_line[1],
-                                                   fg=FONT_COLOR,
-                                                   bg=ACCENT,
-                                                   font=BOLD_FONT))
-            self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
-            y_pos += y_offset
+        # self.history_content_list = list()
+        # y_pos = 10
+        # y_offset = 40
+        # for line in history_list:
+        #     new_line = line.split(";")
+        #     self.history_content_list.append(Label(self.outline_frame,
+        #                                            text=new_line[0],
+        #                                            font=FONT,
+        #                                            wraplength=HIS_WIN_WIDTH - 40,
+        #                                            fg=FONT_COLOR,
+        #                                            bg=ACCENT))
+        #     self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
+        #
+        #     y_pos += 25
+        #     self.history_content_list.append(Label(self.outline_frame,
+        #                                            text=new_line[1],
+        #                                            fg=FONT_COLOR,
+        #                                            bg=ACCENT,
+        #                                            font=BOLD_FONT))
+        #     self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
+        #     y_pos += y_offset
         self.history_title.place(x=10, y=10)
 
         self.history_exit_button = custom_button.CustomButton(self.history_window,
@@ -655,23 +657,9 @@ class Interface:
         self.history_window.geometry(f"{self.outline_frame.winfo_reqwidth() + 40}x{HIS_WIN_HEIGHT}")
 
     def close_history_window(self):
-        # history_object_list = [self.history_window, self.history_title, self.outline_frame, self.history_exit_button]
-        # for obj in history_object_list:
-        #     if obj is not None:
-        #         obj.destroy()
-        # for label in self.history_content_list:
-        #     label.destroy()
+        self.history_window_opened = False
+        self.history_exit_button.destroy()
         self.history_window.destroy()
-
-        # if self.history_window is not None:
-        #     self.history_exit_button.destroy()
-        #     self.history_exit_button = None
-        #     self.history_label = None
-        #     self.history_content_list = None
-        #     self.outline_frame = None
-        #
-        #     self.history_window.destroy()
-        #     self.history_window = None
 
     def change_language(self):
         """
@@ -809,8 +797,10 @@ class Interface:
             self.lang_option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
                                          activeforeground=FONT_COLOR, highlightbackground=ACCENT)
 
-        if self.history_window is not None:
+        if self.history_window_opened:
             self.history_window.configure(bg=BGCOLOR)
+        else:
+            self.history_window.destroy()
 
         # Set colors for history content list items
         # if self.history_content_list is not None and len(self.history_content_list) > 0:
