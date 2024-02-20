@@ -62,6 +62,17 @@ class CustomLabelFrame:
         self.rect_im = Image.open(rect).convert("RGBA")
 
     def create_images(self):
+        """
+        Creates images for circle and rectangle shapes.
+
+        This method loads the images for circle and rectangle shapes, composites them with a specified overlay color,
+        and resizes them to the desired dimensions. The circle image is resized to twice the radius for both width and
+        height. The rectangle images are resized to match the canvas dimensions, with adjustments made for the circle's
+        presence.
+
+        Returns:
+            None
+        """
         self.load_images()
 
         self.overlay = Image.new("RGBA", self.circle_im.size, self.fill)
@@ -74,12 +85,27 @@ class CustomLabelFrame:
         self.rect_im_ver = self.rect_im.resize((self.width - self.radius * 2, self.height))
 
     def create_labelframe(self):
+        """
+        Creates a label frame on the canvas with circle and rectangle images along with text.
+
+        This method creates a label frame on the canvas and populates it with circle and rectangle images
+        along with text. The circle images are positioned at four corners of the canvas, while the rectangle
+        images are positioned at the center of the canvas. Text is added at a specified position
+        with the given fill color, anchor point, and font.
+
+        Note:
+            Ensure that the `circle_im`, `rect_im_hor`, and `rect_im_ver` attributes are set with the appropriate
+            image files before calling this method.
+
+        Returns:
+            None
+        """
         self.item_list = list()
         self.cir_im = ImageTk.PhotoImage(self.circle_im)
         self.rec_im_hor = ImageTk.PhotoImage(self.rect_im_hor)
         self.rec_im_ver = ImageTk.PhotoImage(self.rect_im_ver)
 
-        # Create circles (x,y)
+        # Creating circles (x,y)
         self.item_list.append(self.canvas.create_image(self.radius, self.radius, anchor="center", image=self.cir_im))
         self.item_list.append(
             self.canvas.create_image(self.width - self.radius, self.radius, anchor="center", image=self.cir_im))
@@ -89,6 +115,7 @@ class CustomLabelFrame:
             self.canvas.create_image(self.width - self.radius, self.height - self.radius, anchor="center",
                                      image=self.cir_im))
 
+        # Creating rectangles
         self.item_list.append(self.canvas.create_image(self.width // 2, self.height // 2, image=self.rec_im_hor))
         self.item_list.append(
             self.canvas.create_image(self.radius, self.height // 2, anchor="w", image=self.rec_im_ver))
@@ -113,6 +140,16 @@ class CustomLabelFrame:
         pass
 
     def switch_theme(self, new_fill=None, new_text_color=None, new_bg=None, buttons=None, labels=None):
+        """
+        Switches the theme of the user interface.
+
+        Args:
+            new_fill (str): The new fill color for elements like buttons.
+            new_text_color (str): The new text color for elements like buttons and labels.
+            new_bg (str): The new background color for the canvas.
+            buttons (list): A list of button widgets to apply the new fill color.
+            labels (list): A list of label widgets to apply the new fill and text colors.
+        """
         if new_fill is not None: self.change_fill_color(new_fill)
         if new_text_color is not None: self.change_text_color(new_text_color)
         if new_bg is not None: self.canvas.config(bg=new_bg)
@@ -194,6 +231,7 @@ class CustomProgressBar:
         self.padding = padding
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)
 
+        # Calculating progress bar foreground dimensions
         bar_height = self.height - self.padding * 2
         pg_bar_width = self.width - self.padding * 2
         pg_bar_height = self.height - self.padding * 2
@@ -203,16 +241,9 @@ class CustomProgressBar:
         self.progress_bar_bg = None
 
         self.create_pbar()
-        # self.progress_bar_bg = CustomLabelFrame(self.canvas,
-        #                                         width=self.width,
-        #                                         height=self.height,
-        #                                         radius=self.radius,
-        #                                         fill=self.bar_bg_accent,
-        #                                         bg=self.bg)
-        # # Setting starting minimum width
-        # self.create_pbar_fg(width=self.radius + 1, height=pg_bar_height)
 
     def create_pbar(self):
+        # Creating progress bar foreground
         self.progress_bar_bg = CustomLabelFrame(self.canvas,
                                                 width=self.width,
                                                 height=self.height,
@@ -222,9 +253,8 @@ class CustomProgressBar:
         self.create_pbar_fg(width=self.radius + 1, height=pg_bar_height)
 
     def create_pbar_fg(self, width, height=30):
+        # Creating progress bar background
         global bar_height
-        if width < self.radius + 1:
-            return
         self.progress_bar_fg = CustomLabelFrame(self.canvas,
                                                 width=width,
                                                 height=height,
@@ -234,6 +264,7 @@ class CustomProgressBar:
         self.progress_bar_fg.canvas.place(x=self.padding, y=self.padding)
 
     def set_percentage(self, percentage):
+        # Settings progress bar width based on percentage
         new_width = int(round(pg_bar_width * (percentage / 100)))
         self.create_pbar_fg(width=new_width, height=self.height - self.padding * 2)
 
@@ -243,9 +274,11 @@ class CustomProgressBar:
         self.progress_bar_bg.change_bg_color(bg)
 
     def change_pb_color(self, new_color):
+        # Changing progress bar fill color
         self.progress_bar_fg.change_fill_color(new_color)
 
     def change_pb_bg_color(self, new_color):
+        # Changing progress bar background fill color
         self.progress_bar_bg.change_fill_color(new_color)
 
     def get_height(self):
