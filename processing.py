@@ -14,11 +14,30 @@ HISTORY_PATH = "processing_history.txt"
 
 
 def set_progress_callback(callback):
+    """
+    Sets the progress callback function.
+
+    This function sets the callback function that will be called during video processing
+    to report progress.
+
+    Parameters:
+        callback (function): The callback function to report progress.
+    """
     global progress_callback
     progress_callback = callback
 
 
 def process_video(path, progress_callback):
+    """
+    Processes the video file.
+
+    This function reads frames from the video file specified by `path`, calculates the difference
+    between consecutive frames, and reports progress through the callback function.
+
+    Parameters:
+        path (str): The path to the video file.
+        progress_callback (function): The callback function to report progress.
+    """
     start_time = time.time()
     current_frame_index = 0
     frames_since_last_callback = 0
@@ -69,6 +88,14 @@ def process_video(path, progress_callback):
 
 
 def process_video_thread(path):
+    """
+    Creates a thread for video processing.
+
+    This function creates a separate thread to process the video specified by `path`.
+
+    Parameters:
+        path (str): The path to the video file.
+    """
     global progress_callback
     if progress_callback is None:
         debug.log("Progress callback not set. Aborting video processing.", text_color="red")
@@ -78,6 +105,11 @@ def process_video_thread(path):
 
 
 def init_history():
+    """
+    Initializes the processing history file.
+
+    This function creates a new processing history file if it doesn't exist.
+    """
     if not os.path.exists(HISTORY_PATH):
         try:
             with open(HISTORY_PATH, "w"):
@@ -87,18 +119,35 @@ def init_history():
 
 
 def write_to_history(video_file: str, result):
+    """
+    Writes processing result to the history file.
+
+    This function writes the processing result for a video file to the history file.
+
+    Parameters:
+        video_file (str): The path to the video file.
+        result: The processing result.
+    """
     file_name = video_file.split("/")
     with open(HISTORY_PATH, "a") as history_file:
         history_file.write(f"File: {file_name[len(file_name) - 1]};Result: {result}\n")
 
 
 def read_from_history():
+    """
+    Reads processing history from the history file.
+
+    This function reads the processing history from the history file and prints the last 7 entries.
+
+    Returns:
+        list: A list containing the last 7 entries from the history file.
+    """
     res_list = list()
     with open(HISTORY_PATH, "r") as history_file:
         for line in history_file:
             res_list.append(line)
 
-    # Show last 10 lines
+    # Show last 7 lines
     while len(res_list) > 7:
         res_list.pop(0)
 

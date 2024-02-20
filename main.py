@@ -16,12 +16,12 @@ import debug
 import interface
 
 
+# pyinstaller --onefile --add-data "assets;assets" main.py
+
 def main():
     debug.log("Session started!", text_color="cyan")
     my_interface = interface.Interface()
 
-
-# pyinstaller --onefile --add-data "assets;assets" main.py
 
 if __name__ == "__main__":
     # Starting program
