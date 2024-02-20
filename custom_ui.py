@@ -245,6 +245,9 @@ class CustomProgressBar:
     def change_pb_color(self, new_color):
         self.progress_bar_fg.change_fill_color(new_color)
 
+    def change_pb_bg_color(self, new_color):
+        self.progress_bar_bg.change_fill_color(new_color)
+
     def get_height(self):
         return self.height
 

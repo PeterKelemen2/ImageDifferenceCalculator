@@ -31,6 +31,15 @@ PALENIGHT_BG = "#202331"
 PALENIGHT_ACCENT = "#303754"
 PALENIGHT_PB = "#78408f"
 
+CHERRY_WHITE_BG = "#990011"
+CHERRY_WHITE_ACCENT = "#fcebd4"
+CHERRY_WHITE_PB = CHERRY_WHITE_BG
+
+DARK_ORANGE_BG = "#46211A"
+DARK_ORANGE_ACCENT = "#A43820"
+DARK_ORANGE_PB = DARK_ORANGE_BG
+
+BAR_BG_ACCENT = "#6AB187"
 BASIC_PB_COLOR = "#73ff7b"
 BGCOLOR = "#262626"
 DARKER_BG = "#292929"
@@ -174,6 +183,16 @@ class Interface:
             FONT_COLOR = DARK_FONT_COLOR
             ACCENT = PALENIGHT_ACCENT
             PB_COLOR = PALENIGHT_PB
+        elif self.curr_theme == "cherrywhite":
+            BGCOLOR = CHERRY_WHITE_BG
+            FONT_COLOR = LIGHT_FONT_COLOR
+            ACCENT = CHERRY_WHITE_ACCENT
+            PB_COLOR = CHERRY_WHITE_PB
+        elif self.curr_theme == "brownorange":
+            BGCOLOR = DARK_ORANGE_BG
+            FONT_COLOR = DARK_FONT_COLOR
+            ACCENT = DARK_ORANGE_ACCENT
+            PB_COLOR = DARK_ORANGE_PB
 
     def set_properties(self):
         # Set windows properties
@@ -428,7 +447,7 @@ class Interface:
                                                                height=30,
                                                                padding=6,
                                                                bg=ACCENT,
-                                                               bar_bg_accent="#b3b3b3",
+                                                               bar_bg_accent=BAR_BG_ACCENT,
                                                                pr_bar=PB_COLOR)
         self.custom_progress_bar.canvas.place(x=10, y=self.new_progress_wrapper.get_height() // 2 - 5)
 
@@ -456,7 +475,7 @@ class Interface:
         self.finished_window = Toplevel(self.win)
         self.finished_window.title(self.lang["result_win_title"])
         self.finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
-        self.finished_window.configure(background=BGCOLOR)
+        self.finished_window.configure(background=ACCENT)
         self.finished_window.resizable(False, False)
 
         # Centering finished window on screen
@@ -469,21 +488,21 @@ class Interface:
         self.finished_title_label = Label(self.finished_window,
                                           text=self.lang["proc_finished"],
                                           fg=FONT_COLOR,
-                                          bg=BGCOLOR,
+                                          bg=ACCENT,
                                           font=BOLD_FONT)
         self.finished_title_label.pack(pady=20)
 
         self.result_label = Label(self.finished_window,
                                   text=f"{self.lang["diff"]}: {processing.total_difference}",
                                   fg=FONT_COLOR,
-                                  bg=BGCOLOR,
+                                  bg=ACCENT,
                                   font=FONT)
         self.result_label.pack(pady=0)
 
         # This gives error when clicked
         self.ok_button = custom_button.CustomButton(self.finished_window,
                                                     text=self.lang["ok"],
-                                                    bg=BGCOLOR,
+                                                    bg=ACCENT,
                                                     command=self.close_finished_windows,
                                                     button_type=custom_button.button)
         self.ok_button.canvas.pack(pady=20)
@@ -545,7 +564,7 @@ class Interface:
                                 fg=FONT_COLOR,
                                 bg=ACCENT,
                                 font=FONT, )
-        self.lang_label.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 - 60,
+        self.lang_label.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 - 40,
                               y=self.settings_label.winfo_y() + 50)
 
         # Define language options
@@ -563,7 +582,7 @@ class Interface:
                                      activebackground=ACCENT,
                                      activeforeground=FONT_COLOR,
                                      highlightbackground=ACCENT)
-        self.lang_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
+        self.lang_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                     y=self.lang_label.winfo_reqheight() * 2)
 
         # Add a label for the theme selection
@@ -573,11 +592,12 @@ class Interface:
                                  bg=ACCENT,
                                  font=FONT,
                                  anchor="center")
-        self.theme_label.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 - 60,
+        self.theme_label.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 - 40,
                                y=self.lang_label.winfo_reqheight() * 4)
 
         # Define theme options
-        self.theme_options = [self.lang["dark"], self.lang["light"], self.lang["palenight"]]
+        self.theme_options = [self.lang["dark"], self.lang["light"], self.lang["palenight"], self.lang["cherrywhite"],
+                              self.lang["brownorange"]]
 
         # Set default theme option based on current theme setting
         self.theme_selected_option = StringVar(self.settings_wrapper.canvas)
@@ -589,6 +609,10 @@ class Interface:
             self.theme_selected_option.set(self.theme_options[1])
         elif self.curr_theme == "palenight":
             self.theme_selected_option.set(self.theme_options[2])
+        elif self.curr_theme == "cherrywhite":
+            self.theme_selected_option.set(self.theme_options[3])
+        elif self.curr_theme == "brownorange":
+            self.theme_selected_option.set(self.theme_options[4])
 
         # Add theme OptionMenu
         self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, self.theme_selected_option,
@@ -599,7 +623,7 @@ class Interface:
                                       activebackground=ACCENT,
                                       activeforeground=FONT_COLOR,
                                       highlightbackground=ACCENT)
-        self.theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 60,
+        self.theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                      y=self.lang_label.winfo_reqheight() * 4)
 
         self.settings_window_opened = True
@@ -627,6 +651,10 @@ class Interface:
                 chosen_theme_option = "light"
             elif chosen_theme_option == "Palenight":
                 chosen_theme_option = "palenight"
+            elif chosen_theme_option == "Cherry White":
+                chosen_theme_option = "cherrywhite"
+            elif chosen_theme_option == "Brown Orange":
+                chosen_theme_option = "brownorange"
 
             if chosen_lang_option != self.curr_lang:
                 print(self.curr_lang, chosen_lang_option)
@@ -901,10 +929,10 @@ class Interface:
             self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, buttons=[self.save_button],
                                                labels=[self.settings_label, self.lang_label, self.theme_label])
             for option_menu in [self.theme_option_menu, self.lang_option_menu]:
-                option_menu.config(anchor="center", bg=BGCOLOR, fg=FONT_COLOR, activebackground=ACCENT,
-                                   activeforeground=FONT_COLOR, highlightbackground=ACCENT)
+                option_menu.config(anchor="center", bg=ACCENT, fg=FONT_COLOR, activebackground=ACCENT,
+                                   activeforeground=FONT_COLOR, highlightbackground=BGCOLOR)
 
-        if self.history_window_opened:
+        if self.history_window is not None and self.history_window.winfo_exists():
             self.history_title.config(bg=ACCENT, fg=FONT_COLOR)
             self.history_title_frame.config(fill=ACCENT, bg=BGCOLOR)
             self.history_outline_frame.config(fill=ACCENT, bg=BGCOLOR)
@@ -915,6 +943,12 @@ class Interface:
         else:
             if self.history_window is not None:
                 self.history_window.destroy()
+
+        if self.finished_window is not None and self.finished_window.winfo_exists():
+            self.finished_window.config(bg=ACCENT)
+            self.finished_title_label.config(bg=ACCENT, fg=FONT_COLOR)
+            self.result_label.config(bg=ACCENT, fg=FONT_COLOR)
+            self.ok_button.config(bg=ACCENT)
 
         # Set background color for the main window
         self.win["bg"] = BGCOLOR
