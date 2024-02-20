@@ -1,6 +1,19 @@
+import os
+
 import debug
 
 config_path = "settings.config"
+
+
+def init_settings():
+    global config_path
+    if not os.path.exists(config_path):
+        try:
+            with open(config_path, "w") as f:
+                print("Created")
+                f.write("lang=english\ntheme=palenight")
+        except Exception as e:
+            debug.log(str(e), text_color="red")
 
 
 def save_settings(settings):

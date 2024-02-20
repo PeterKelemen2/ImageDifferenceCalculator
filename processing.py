@@ -77,6 +77,15 @@ def process_video_thread(path):
     thread.start()
 
 
+def init_history():
+    if not os.path.exists(HISTORY_PATH):
+        try:
+            with open(HISTORY_PATH, "w"):
+                debug.log("History file created", text_color="blue")
+        except Exception as e:
+            debug.log(str(e), text_color="red")
+
+
 def write_to_history(video_file: str, result):
     file_name = video_file.split("/")
     with open(HISTORY_PATH, "a") as history_file:
