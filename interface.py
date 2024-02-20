@@ -89,7 +89,7 @@ class Interface:
         self.lang_option_menu = None
         self.theme_option_menu = None
         self.buttons_wrapper = None
-        self.new_progress_wrapper = None
+        self.progress_wrapper = None
         self.frame_wrapper = None
         self.next_lang = None
         self.previous_language = None
@@ -151,15 +151,8 @@ class Interface:
         self.create_history_button()
         self.create_browser()
 
-        # self.custom_progress_bar.set_percentage(50)
-
         debug.log("[1/2] Interface created", text_color="blue")
         self.win.mainloop()
-
-    def run_p_bar(self):
-        for i in range(0, 100 + 1):
-            self.custom_progress_bar.set_percentage(i)
-            # time.sleep(0.016)
 
     def create_font(self):
         global FONT
@@ -167,32 +160,32 @@ class Interface:
         FONT = font.Font(family="Ubuntu", file=font_file, size=10)
 
     def set_color(self):
-        global BGCOLOR, FONT_COLOR, DARKER_BG, ACCENT, PALENIGHT_ACCENT, PALENIGHT_ACCENT, PB_COLOR
-        if self.curr_theme == "dark":
-            BGCOLOR = DARK_BG
-            FONT_COLOR = DARK_FONT_COLOR
-            ACCENT = DARK_ACCENT
-            PB_COLOR = BASIC_PB_COLOR
-        elif self.curr_theme == "light":
-            BGCOLOR = LIGHT_BG
-            FONT_COLOR = LIGHT_FONT_COLOR
-            ACCENT = LIGHT_ACCENT
-            PB_COLOR = BASIC_PB_COLOR
-        elif self.curr_theme == "palenight":
-            BGCOLOR = PALENIGHT_BG
-            FONT_COLOR = DARK_FONT_COLOR
-            ACCENT = PALENIGHT_ACCENT
-            PB_COLOR = PALENIGHT_PB
-        elif self.curr_theme == "cherrywhite":
-            BGCOLOR = CHERRY_WHITE_BG
-            FONT_COLOR = LIGHT_FONT_COLOR
-            ACCENT = CHERRY_WHITE_ACCENT
-            PB_COLOR = CHERRY_WHITE_PB
-        elif self.curr_theme == "brownorange":
-            BGCOLOR = DARK_ORANGE_BG
-            FONT_COLOR = DARK_FONT_COLOR
-            ACCENT = DARK_ORANGE_ACCENT
-            PB_COLOR = DARK_ORANGE_PB
+        """
+        Sets global color variables based on the current theme.
+
+        This function updates the global variables BGCOLOR, FONT_COLOR, ACCENT, and PB_COLOR
+        based on the current theme specified in `self.curr_theme`.
+
+        Global Variables:
+            BGCOLOR (str): Background color.
+            FONT_COLOR (str): Font color.
+            ACCENT (str): Accent color.
+            PB_COLOR (str): Progress bar color.
+        """
+        global BGCOLOR, FONT_COLOR, ACCENT, PB_COLOR
+
+        # Dictionary mapping theme names to corresponding color tuples
+        theme_colors = {
+            "dark": (DARK_BG, DARK_FONT_COLOR, DARK_ACCENT, BASIC_PB_COLOR),
+            "light": (LIGHT_BG, LIGHT_FONT_COLOR, LIGHT_ACCENT, BASIC_PB_COLOR),
+            "palenight": (PALENIGHT_BG, DARK_FONT_COLOR, PALENIGHT_ACCENT, PALENIGHT_PB),
+            "cherrywhite": (CHERRY_WHITE_BG, LIGHT_FONT_COLOR, CHERRY_WHITE_ACCENT, CHERRY_WHITE_PB),
+            "brownorange": (DARK_ORANGE_BG, DARK_FONT_COLOR, DARK_ORANGE_ACCENT, DARK_ORANGE_PB)
+        }
+
+        # Set global color variables based on the current theme
+        if self.curr_theme in theme_colors:
+            BGCOLOR, FONT_COLOR, ACCENT, PB_COLOR = theme_colors[self.curr_theme]
 
     def set_properties(self):
         # Set windows properties
@@ -209,6 +202,7 @@ class Interface:
         debug.log("[2/2] Properties set!", text_color="magenta")
 
     def create_buttons_wrapper(self):
+        # Create wrapper for settings and history buttons
         self.buttons_wrapper = custom_ui.CustomLabelFrame(self.win, text="",
                                                           fill=ACCENT,
                                                           fg=WHITE,
@@ -219,6 +213,7 @@ class Interface:
         self.buttons_wrapper.canvas.place(x=10, y=10)
 
     def create_settings_button(self):
+        # Create button to open settings window
         self.settings_button = custom_button.CustomButton(self.buttons_wrapper.canvas,
                                                           command=self.create_settings_window,
                                                           button_type=custom_button.settings_button,
@@ -226,6 +221,7 @@ class Interface:
         self.settings_button.canvas.place(x=10, y=self.buttons_wrapper.get_height() // 8)
 
     def create_history_button(self):
+        # Create button to open window containing processing history
         self.history_button = custom_button.CustomButton(self.buttons_wrapper.canvas,
                                                          command=lambda: self.create_history_window(),
                                                          button_type=custom_button.history_button,
@@ -377,6 +373,7 @@ class Interface:
             frame_label.image = image_file
             debug.log("[5/10] Image configured!", text_color="yellow")
 
+        # Creating button to open the video with VLC
         self.media_player_button = custom_button.CustomButton(self.frame_wrapper.canvas,
                                                               text=self.lang["open_vlc"],
                                                               bg=ACCENT,
@@ -387,6 +384,7 @@ class Interface:
         self.media_player_button.canvas.place(x=10,
                                               y=new_height + 40)
 
+        # Creating button to start processing
         self.process_video_button = custom_button.CustomButton(self.frame_wrapper.canvas,
                                                                text=self.lang["process"],
                                                                bg=ACCENT,
@@ -417,74 +415,112 @@ class Interface:
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
     def process_video(self):
+        """
+        Initiates the video processing task.
+
+        Disables relevant buttons, creates a progress bar, sets the progress callback,
+        and starts a separate thread for video processing.
+        """
         if video_file_path:
+            # Disable buttons to prevent multiple processing requests
             self.process_video_button.disable()
             self.browse_button.disable()
+
+            # Create and display a progress bar
             self.create_progress_bar()
+
+            # Set the progress callback function
             processing.set_progress_callback(self.update_progress)
+
+            # Start video processing in a separate thread
             processing.process_video_thread(video_file_path)
 
     def create_progress_bar(self):
-        self.new_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
-                                                               text=self.lang["progress"],
-                                                               width=780,
-                                                               height=70,
-                                                               fill=ACCENT,
-                                                               radius=15,
-                                                               bg=BGCOLOR)
-        self.new_progress_wrapper.canvas.place(x=10, y=430)
+        """
+        Creates and displays a custom progress bar with a progress label.
+        """
+        debug.log("[6/1] Creating progress wrapper...", text_color="magenta")
+        # Create a wrapper frame for the progress bar
+        self.progress_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                           text=self.lang["progress"],
+                                                           width=780,
+                                                           height=70,
+                                                           fill=ACCENT,
+                                                           radius=15,
+                                                           bg=BGCOLOR)
+        self.progress_wrapper.canvas.place(x=10, y=430)
+        debug.log("[6/2] Progress wrapper created!", text_color="magenta")
 
-        self.progress_bar = Progressbar(self.new_progress_wrapper.canvas,
-                                        orient="horizontal",
-                                        length=self.new_progress_wrapper.get_width() - 75,
-                                        mode="determinate",
-
-                                        maximum=100)
-        # self.progress_bar.place(x=10, y=self.new_progress_wrapper.get_height() // 2)
-
-        self.custom_progress_bar = custom_ui.CustomProgressBar(self.new_progress_wrapper.canvas,
+        # Create the custom progress bar
+        debug.log("[6/3] Creating custom progress bar...", text_color="magenta")
+        self.custom_progress_bar = custom_ui.CustomProgressBar(self.progress_wrapper.canvas,
                                                                width=705,
                                                                height=30,
                                                                padding=6,
                                                                bg=ACCENT,
                                                                bar_bg_accent=BAR_BG_ACCENT,
                                                                pr_bar=PB_COLOR)
-        self.custom_progress_bar.canvas.place(x=10, y=self.new_progress_wrapper.get_height() // 2 - 5)
+        self.custom_progress_bar.canvas.place(x=10, y=self.progress_wrapper.get_height() // 2 - 5)
+        debug.log("[6/4] Custom progress bar created!", text_color="magenta")
 
-        self.progress_label = Label(self.new_progress_wrapper.canvas, text="100.00%", fg=FONT_COLOR, bg=ACCENT,
-                                    font=("Ubuntu", 10))
-        self.progress_label.place(x=self.progress_bar.winfo_reqwidth() + 13,
-                                  y=self.progress_bar.winfo_reqheight() * 1.5)
-        self.pbar_overlay = custom_ui.CustomLabelFrame(self.new_progress_wrapper.canvas, width=705, height=30,
+        # Create and place the progress label
+        debug.log("[6/5] Creating progress label...", text_color="magenta")
+        self.progress_label = Label(self.progress_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT,
+                                    font=BOLD_FONT)
+        self.progress_label.place(x=720, y=30)
+        debug.log("[6/6] Progress label created!", text_color="magenta")
+
+        # Create an overlay frame for the progress bar to hide flickering bug
+        self.pbar_overlay = custom_ui.CustomLabelFrame(self.progress_wrapper.canvas, width=705, height=30,
                                                        bg=ACCENT, fill=ACCENT)
         self.pbar_overlay.canvas.place(x=10, y=self.custom_progress_bar.get_height() * 2)
 
-    def update_progress(self, value):
-        global call_nr
-        call_nr += 1
-        # self.progress_bar['value'] = value
+    def update_progress(self, value: int):
+        """
+        Updates the progress bar and label with the given value.
+
+        Parameters:
+            value (int): The progress value to be displayed.
+        """
+        # Set the progress bar percentage
         self.custom_progress_bar.set_percentage(value)
+
+        # Update the progress label with the current value
         self.progress_label['text'] = f"{value} %"
+
+        # Check if processing has finished
         if processing.finished:
-            debug.log(f"{self.lang["diff"]}: {processing.total_difference}", text_color="blue")
+            # Log the processing difference in the debug console
+            debug.log(f"{self.lang['diff']}: {processing.total_difference}", text_color="blue")
+
+            # Create and display the finished window
             self.create_finished_window()
 
     def create_finished_window(self):
+        """
+        Creates and displays the window to show processing result.
+
+        If the window already exists, it will be closed before creating a new one.
+        """
+        # Close existing finished window if it exists
         if self.finished_window is not None:
             self.close_finished_windows()
+
+        # Create a new Toplevel window for displaying processing result
         self.finished_window = Toplevel(self.win)
         self.finished_window.title(self.lang["result_win_title"])
         self.finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
         self.finished_window.configure(background=ACCENT)
         self.finished_window.resizable(False, False)
 
-        # Centering finished window on screen
+        # Center the finished window on the screen
         screen_width = self.finished_window.winfo_screenwidth()
         screen_height = self.finished_window.winfo_screenheight()
         x = (screen_width - FIN_WIN_WIDTH) // 2
         y = (screen_height - FIN_WIN_HEIGHT) // 2
         self.finished_window.geometry(f"+{x}+{y}")
 
+        # Add labels and buttons to the finished window
         self.finished_title_label = Label(self.finished_window,
                                           text=self.lang["proc_finished"],
                                           fg=FONT_COLOR,
@@ -493,19 +529,20 @@ class Interface:
         self.finished_title_label.pack(pady=20)
 
         self.result_label = Label(self.finished_window,
-                                  text=f"{self.lang["diff"]}: {processing.total_difference}",
+                                  text=f"{self.lang['diff']}: {processing.total_difference}",
                                   fg=FONT_COLOR,
                                   bg=ACCENT,
                                   font=FONT)
         self.result_label.pack(pady=0)
 
-        # This gives error when clicked
         self.ok_button = custom_button.CustomButton(self.finished_window,
                                                     text=self.lang["ok"],
                                                     bg=ACCENT,
                                                     command=self.close_finished_windows,
                                                     button_type=custom_button.button)
         self.ok_button.canvas.pack(pady=20)
+
+        # Enable buttons in the main window
         self.process_video_button.enable()
         self.browse_button.enable()
 
@@ -601,18 +638,16 @@ class Interface:
 
         # Set default theme option based on current theme setting
         self.theme_selected_option = StringVar(self.settings_wrapper.canvas)
-        # self.theme_selected_option.set(self.theme_options[0] if self.curr_theme == "dark" else self.theme_options[1])
 
-        if self.curr_theme == "dark":
-            self.theme_selected_option.set(self.theme_options[0])
-        elif self.curr_theme == "light":
-            self.theme_selected_option.set(self.theme_options[1])
-        elif self.curr_theme == "palenight":
-            self.theme_selected_option.set(self.theme_options[2])
-        elif self.curr_theme == "cherrywhite":
-            self.theme_selected_option.set(self.theme_options[3])
-        elif self.curr_theme == "brownorange":
-            self.theme_selected_option.set(self.theme_options[4])
+        # Map theme index
+        theme_index_mapping = {
+            "dark": 0,
+            "light": 1,
+            "palenight": 2,
+            "cherrywhite": 3,
+            "brownorange": 4
+        }
+        self.theme_selected_option.set(self.theme_options[theme_index_mapping.get(self.curr_theme, 0)])
 
         # Add theme OptionMenu
         self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, self.theme_selected_option,
@@ -643,21 +678,17 @@ class Interface:
 
             # Map language options to standard format
             chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
-            # Map theme options to standard format
-            # chosen_theme_option = "dark" if chosen_theme_option in ("Sötét", "Dark") else "light"
-            if chosen_theme_option in ["Sötét", "Dark"]:
-                chosen_theme_option = "dark"
-            elif chosen_theme_option in ["Világos", "Light"]:
-                chosen_theme_option = "light"
-            elif chosen_theme_option == "Palenight":
-                chosen_theme_option = "palenight"
-            elif chosen_theme_option == "Cherry White":
-                chosen_theme_option = "cherrywhite"
-            elif chosen_theme_option == "Brown Orange":
-                chosen_theme_option = "brownorange"
+            # Map theme options
+            theme_options_mapping = {
+                "Dark": "dark",
+                "Light": "light",
+                "Palenight": "palenight",
+                "Cherry White": "cherrywhite",
+                "Brown Orange": "brownorange"
+            }
+            chosen_theme_option = theme_options_mapping.get(chosen_theme_option, chosen_theme_option.lower())
 
             if chosen_lang_option != self.curr_lang:
-                print(self.curr_lang, chosen_lang_option)
                 self.prev_lang_dict = lang.load_lang(self.curr_lang)
                 self.next_lang = lang.load_lang(chosen_lang_option)
 
@@ -667,11 +698,10 @@ class Interface:
 
             if chosen_theme_option != self.curr_theme:
                 self.curr_theme = chosen_theme_option
-                print(self.curr_theme)
                 self.update_colors()
 
             # Save selected options to configuration file
-            debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}")
+            debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}", text_color="yellow")
             config.save_settings([chosen_lang_option, chosen_theme_option])
 
         # Add a button to save the selected options
@@ -688,12 +718,26 @@ class Interface:
         self.settings_window.destroy()
 
     def create_history_window(self):
-        if self.history_window is not None:
-            if self.history_window.winfo_exists():
-                self.history_window.focus_set()
+        """
+        Creates or focuses on an existing history window.
+
+        If a history window already exists and is open, it brings it to focus.
+        Otherwise, it creates a new history window.
+
+        The history window displays previous processing data and provides an option to exit.
+        """
+        if self.history_window is not None:  # Check if history window already exists
+            if self.history_window.winfo_exists():  # Check if the window is open
+                self.history_window.focus_set()  # Bring existing window to focus
                 return
+
+        # Set flag indicating a new history window is opened
         self.history_window_opened = True
+
+        # Retrieve previous processing data
         history_list = processing.read_from_history()
+
+        # Create a new history window
         self.history_window = Toplevel(self.win)
         self.history_window.title(self.lang["history"])
         self.history_window.configure(background=BGCOLOR)
@@ -701,6 +745,7 @@ class Interface:
         self.history_window.resizable(False, False)
         # self.history_window.bind("<Destroy>", lambda e: self.history_window.destroy())
 
+        # Create frame for the history title label
         self.history_title_frame = custom_ui.CustomLabelFrame(self.history_window,
                                                               width=200,
                                                               height=40,
@@ -708,6 +753,7 @@ class Interface:
                                                               bg=BGCOLOR)
         self.history_title_frame.canvas.place(x=HIS_WIN_WIDTH // 2 - self.history_title_frame.get_width() // 2, y=15)
 
+        # Create label for history title
         self.history_title = Label(self.history_title_frame.canvas,
                                    text=self.lang["history"],
                                    fg=FONT_COLOR,
@@ -715,6 +761,8 @@ class Interface:
                                    font=BIG_FONT_BOLD)
         self.history_title.place(x=self.history_title_frame.get_width() // 2 - self.history_title.winfo_reqwidth() // 2,
                                  y=self.history_title_frame.get_height() // 2 - self.history_title.winfo_reqheight() // 2)
+
+        # Create outline frame for the history content
         self.history_outline_frame = custom_ui.CustomLabelFrame(self.history_window,
                                                                 width=HIS_WIN_WIDTH - 30,
                                                                 height=HIS_WIN_HEIGHT - 155,
@@ -723,6 +771,7 @@ class Interface:
                                                                 bg=BGCOLOR)
         self.history_outline_frame.canvas.place(x=20, y=70)
 
+        # Populate history content
         self.history_content_list = list()
         y_pos = 10
         y_offset = 40
@@ -745,6 +794,7 @@ class Interface:
             self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
             y_pos += y_offset
 
+        # Create exit button for the history window
         self.history_exit_button = custom_button.CustomButton(self.history_window,
                                                               text=self.lang["exit"],
                                                               command=self.close_history_window,
@@ -754,15 +804,24 @@ class Interface:
             x=HIS_WIN_WIDTH // 2 - self.history_exit_button.winfo_reqwidth() // 2,
             y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
 
+        # Update the layout of the history window
         self.history_window.update_idletasks()
         self.history_window.geometry(f"{self.history_outline_frame.get_width() + 40}x{HIS_WIN_HEIGHT}")
 
     def close_history_window(self):
-        if self.history_window is not None:
-            self.history_window_opened = False
-            self.history_content_list = None
-            self.history_exit_button.destroy()
-            self.history_window.destroy()
+        """
+        Closes the history window if it exists and logs its status.
+
+        If the history window exists, it clears the content list, destroys the exit button,
+        and destroys the history window. It then sets the status flag indicating the window's
+        closure and logs its status. Additionally, it checks if the window still exists after
+        destruction and logs the result.
+        """
+        if self.history_window is not None:  # Check if history window exists
+            self.history_content_list = None  # Clear content list
+            self.history_exit_button.destroy()  # Destroy exit button
+            self.history_window.destroy()  # Destroy history window
+            self.history_window_opened = False  # Set status flag to closed
             debug.log(f"History window opened status: {self.history_window_opened}")
 
             # Check if the window still exists
@@ -778,40 +837,39 @@ class Interface:
         to reflect the language change.
 
         """
-        # Update text for labels
-        debug.log("Changing browser wrapper...")
+        # Update text for wrapper labels
         if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
-        debug.log("Changing frame wrapper...")
         if self.frame_wrapper is not None: self.frame_wrapper.set_label_text(self.lang["video_data"])
-        debug.log("Changing progress wrapper...")
-        if self.new_progress_wrapper is not None: self.new_progress_wrapper.set_label_text(self.lang["progress"])
+        if self.progress_wrapper is not None: self.progress_wrapper.set_label_text(self.lang["progress"])
 
-        debug.log("Changing labels...")
+        # Update text for specified widgets
         for label in [self.settings_window, self.button_wrapper, self.history_title, self.finished_window,
                       self.frame_wrapper, self.progress_wrapper, self.settings_label, self.lang_label,
                       self.theme_label]:
             self.change_text(label)
+
+        # Update text of history window
         if self.history_window is not None:
             if self.history_window.winfo_exists():
                 self.history_title.place(
                     x=self.history_title_frame.get_width() // 2 - self.history_title.winfo_reqwidth() // 2,
                     y=self.history_title_frame.get_height() // 2 - self.history_title.winfo_reqheight() // 2)
 
-        debug.log("Changed labels!")
-
+        # Update text of finished window
         if self.finished_window is not None:
             if self.finished_window.winfo_exists():
                 self.finished_window.title(self.lang["proc_finished"])
                 self.finished_title_label.config(text=self.lang["proc_finished"])
                 self.result_label.config(text=f"{self.lang["diff"]}: {processing.total_difference}")
 
+        # Set the selected language option based on current language
         self.lang_options = [self.lang["english"], self.lang["hungarian"]]
         if self.curr_lang == "english":
             self.lang_selected_option.set(self.lang_options[0])
         else:
             self.lang_selected_option.set(self.lang_options[1])
 
-        self.theme_options = [self.lang["dark"], self.lang["light"], self.lang["palenight"]]
+        # Set the selected theme option based on the current theme
         if self.curr_theme == "dark":
             self.theme_selected_option.set(self.theme_options[0])
         elif self.curr_theme == "light":
@@ -824,8 +882,10 @@ class Interface:
                        self.media_player_button]:
             self.change_button_text(button)
 
+        # Update frame details header
         if self.frame_details_header is not None:
             self.frame_details_header.config(text=self.lang["video_det"])
+
         # Update image details if available
         if self.im_det is not None:
             self.im_det = "\n".join(
@@ -834,6 +894,7 @@ class Interface:
         if self.image_details is not None:
             self.image_details.config(text=self.im_det)
 
+        # Update settings window
         if self.settings_window is not None:
             self.settings_window.title(self.lang["settings"])
         if self.settings_label is not None:
@@ -896,9 +957,7 @@ class Interface:
     def update_colors(self):
         """
         Update the colors of the GUI elements to match the current theme settings.
-        This method sets the background and foreground colors of various widgets,
-        including the main window, history window, outline frame, and history content list.
-
+        This method sets the background and foreground colors of various widgets.
         """
         global BGCOLOR, ACCENT, FONT_COLOR
         self.set_color()
@@ -917,8 +976,8 @@ class Interface:
                                             buttons=[self.media_player_button, self.process_video_button],
                                             labels=[self.frame_details_header, self.image_details])
 
-        if self.new_progress_wrapper is not None:
-            self.new_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.progress_label])
+        if self.progress_wrapper is not None:
+            self.progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.progress_label])
             self.custom_progress_bar.config(bg=ACCENT)
             self.pbar_overlay.change_fill_color(ACCENT)
             self.pbar_overlay.change_bg_color(ACCENT)

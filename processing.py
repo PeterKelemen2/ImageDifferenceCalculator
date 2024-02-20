@@ -27,7 +27,7 @@ def process_video(path, progress_callback):
     total_difference = 0
     finished = False
 
-    debug.log(f"Started processing of: {path}", text_color="blue")
+    debug.log(f"Started processing {path}", text_color="blue")
     cap = cv2.VideoCapture(path)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
