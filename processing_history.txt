@@ -149,3 +149,15 @@ File: sample.mp4;Result: 3.0
 File: sample.mp4;Result: 3.0
 File: sample.mp4;Result: 3.0
 File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 2.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
+File: sample.mp4;Result: 3.0
