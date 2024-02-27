@@ -5,7 +5,7 @@ import cv2
 
 # Source: https://github.com/spmallick/learnopencv/blob/master/VideoStabilization/video_stabilization.py
 
-SMOOTHING = 50
+SMOOTHING = 20
 STAB_SUFFIX = "_stabilized.mp4"
 
 
