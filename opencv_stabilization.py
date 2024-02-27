@@ -1,4 +1,6 @@
 # Import numpy and OpenCV
+import time
+
 import numpy as np
 import cv2
 
@@ -37,10 +39,10 @@ def fixBorder(frame):
 
 
 # The larger the more stable the video, but less reactive to sudden panning
-SMOOTHING_RADIUS = 50
+SMOOTHING_RADIUS = 20
 
 # Read input video
-cap = cv2.VideoCapture('C:/sample.mp4')
+cap = cv2.VideoCapture('C:/sample2.mp4')
 
 # Get frame count
 n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -53,10 +55,10 @@ h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = cap.get(cv2.CAP_PROP_FPS)
 
 # Define the codec for output video
-fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+fourcc = cv2.VideoWriter_fourcc(*'H264')
 
 # Set up output video
-out = cv2.VideoWriter('C:/sample_stabilized.avi', fourcc, fps, (2 * w, h))
+out = cv2.VideoWriter('C:/sample2_stabilized.avi', fourcc, fps, (w, h))
 
 # Read first frame
 _, prev = cap.read()
@@ -67,10 +69,12 @@ prev_gray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
 # Pre-define transformation-store array
 transforms = np.zeros((n_frames - 1, 3), np.float32)
 
+start_time = time.time()
+
 for i in range(n_frames - 2):
     # Detect feature points in previous frame
     prev_pts = cv2.goodFeaturesToTrack(prev_gray,
-                                       maxCorners=200,
+                                       maxCorners=100,
                                        qualityLevel=0.01,
                                        minDistance=30,
                                        blockSize=3)
@@ -155,18 +159,22 @@ for i in range(n_frames - 2):
     frame_stabilized = fixBorder(frame_stabilized)
 
     # Write the frame to the file
-    frame_out = cv2.hconcat([frame, frame_stabilized])
-    out.write(frame_out)
+    # frame_out = cv2.hconcat([frame, frame_stabilized])
+    # frame_out = cv2.hconcat([frame, frame_stabilized])
+    out.write(frame_stabilized)
     # If the image is too big, resize it.
-    if (frame_out.shape[1] > 1920):
-        frame_out = cv2.resize(frame_out, (int(frame_out.shape[1] / 2), int(frame_out.shape[0] / 2)))
+    # if (frame_out.shape[1] > 1920):
+    #     frame_out = cv2.resize(frame_out, (int(frame_out.shape[1] / 2), int(frame_out.shape[0] / 2)))
 
-    cv2.imshow("Before and After", frame_out)
-    cv2.waitKey(10)
+    # cv2.imshow("Before and After", frame_out)
+    # cv2.waitKey(10)
     # out.write(frame_out)
 
 # Release video
 cap.release()
 out.release()
+
+print(f"Stabilization time: {"{:.2f}s".format(time.time() - start_time)}")
+
 # Close windows
-cv2.destroyAllWindows()
+# cv2.destroyAllWindows()
