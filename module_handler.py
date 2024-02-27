@@ -4,7 +4,7 @@ import time
 
 import debug
 
-modules = ["opencv-python", "pillow"]
+modules = ["opencv-python", "pillow", "vidstab"]
 
 
 def check_if_modules_installed(installed_modules):

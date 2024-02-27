@@ -5,6 +5,7 @@ import time
 import cv2
 
 import debug
+import stabilizer
 
 progress_callback = None
 progress_percentage = None
@@ -42,12 +43,14 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
+    stabilizer.stabilize_video(path)
+    new_path = path[:-4] + "_stabilized_cbr_converted.mp4"
     global total_difference, finished, progress_percentage
     total_difference = 0
     finished = False
 
-    debug.log(f"Started processing {path}", text_color="blue")
-    cap = cv2.VideoCapture(path)
+    debug.log(f"Started processing {new_path}", text_color="blue")
+    cap = cv2.VideoCapture(new_path)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     if not cap.isOpened():
