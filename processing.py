@@ -5,6 +5,7 @@ import time
 import cv2
 
 import debug
+import opencv_stabilization
 import stabilizer
 
 progress_callback = None
@@ -43,8 +44,11 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
-    stabilizer.stabilize_video(path)
-    new_path = path[:-4] + "_stabilized_cbr_converted.mp4"
+    # stabilizer.stabilize_video(path)
+
+    opencv_stabilization.stabilize_video(path)
+
+    new_path = path[:-4] + "_stabilized.mp4"
     global total_difference, finished, progress_percentage
     total_difference = 0
     finished = False
