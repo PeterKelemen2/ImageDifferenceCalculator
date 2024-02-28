@@ -5,23 +5,15 @@ import cv2
 
 # Source: https://github.com/spmallick/learnopencv/blob/master/VideoStabilization/video_stabilization.py
 
-SMOOTHING = 200
+SMOOTHING = 500
 STAB_SUFFIX = "_stabilized.mp4"
 
 
 def avg_movement(curve, radius):
-    # Compute the size of the moving average window
     window_size = 2 * radius + 1
-
-    # Compute the filter for the moving average
-    filter = np.ones(window_size, dtype=float) / window_size
-
-    # Pad the curve with edge values
+    filt = np.ones(window_size, dtype=float) / window_size
     curve_padded = np.pad(curve, (radius, radius), mode='edge')
-
-    # Apply the convolution to compute the moving average
-    curve_smoothed = np.convolve(curve_padded, filter, mode='valid')
-
+    curve_smoothed = np.convolve(curve_padded, filt, mode='valid')
     return curve_smoothed
 
 
@@ -31,12 +23,25 @@ def smooth(trajectory):
     return smoothed_traj
 
 
-def zoom_frame(frame):
-    s = frame.shape
-    # Add 10% scale
-    t = cv2.getRotationMatrix2D((s[1] / 2, s[0] / 2), 0, 1.1)
-    frame = cv2.warpAffine(frame, t, (s[1], s[0]))
-    return frame
+def zoom_frame(frame, scale_factor=1.05):
+    # Get the height and width of the frame
+    height, width = frame.shape[:2]
+
+    # Calculate the new dimensions for the content (zoomed region)
+    new_width = int(width / scale_factor)
+    new_height = int(height / scale_factor)
+
+    # Calculate the top-left corner to crop the frame
+    crop_x = int((width - new_width) / 2)
+    crop_y = int((height - new_height) / 2)
+
+    # Crop the frame to the zoomed region
+    zoomed_region = frame[crop_y:crop_y + new_height, crop_x:crop_x + new_width]
+
+    # Resize the zoomed region back to the original frame dimensions
+    zoomed_frame = cv2.resize(zoomed_region, (width, height), interpolation=cv2.INTER_LINEAR)
+
+    return zoomed_frame
 
 
 def stabilize_video(video_path):
@@ -52,7 +57,7 @@ def stabilize_video(video_path):
     )
 
     # Define the codec for output video
-    codec = cv2.VideoWriter_fourcc(*'H264')
+    codec = cv2.VideoWriter_fourcc('F', 'F', 'V', '1')
 
     # Set up output video
     video_output = cv2.VideoWriter(video_path[:-4] + STAB_SUFFIX, codec, fps, (width, height))
@@ -70,9 +75,9 @@ def stabilize_video(video_path):
         # Detect feature points in previous frame
         prev_points = cv2.goodFeaturesToTrack(prev_gray,
                                               maxCorners=200,
-                                              qualityLevel=0.1,
-                                              minDistance=30,
-                                              blockSize=10)
+                                              qualityLevel=0.2,
+                                              minDistance=40,
+                                              blockSize=7)
 
         # Read next frame
         next_frame, curr = cap.read()
@@ -83,7 +88,7 @@ def stabilize_video(video_path):
         curr_gray = cv2.cvtColor(curr, cv2.COLOR_BGR2GRAY)
 
         # Calculate optical flow
-        curr_points, status, err = cv2.calcOpticalFlowPyrLK(prev_gray, curr_gray, prev_points, None, maxLevel=2)
+        curr_points, status, err = cv2.calcOpticalFlowPyrLK(prev_gray, curr_gray, prev_points, None)
 
         # Sanity check
         assert prev_points.shape == curr_points.shape
@@ -94,7 +99,7 @@ def stabilize_video(video_path):
         curr_points = curr_points[idx]
 
         # Find transformation matrix
-        matrix = cv2.estimateAffinePartial2D(prev_points, curr_points)[0]  # will only work with OpenCV-3 or less
+        matrix = cv2.estimateAffinePartial2D(prev_points, curr_points)[0]
 
         # Extract traslation
         dx = matrix[0, 2]
@@ -109,38 +114,38 @@ def stabilize_video(video_path):
         # Move to next frame
         prev_gray = curr_gray
 
-        print(f"Frame: {i}/{frame_count} - Tracked points: {len(prev_points)}")
+        print(
+            f"Frame: {i}/{frame_count} - Tracked points: {len(prev_points)}" + " [{:.0f}%]".format((i * 100) / frame_count))
 
     # Calculate newer transformation array
-    transforms_smooth = transforms + (smooth(np.cumsum(transforms, axis=0)) - np.cumsum(transforms, axis=0))
+    trajectory = np.cumsum(transforms, axis=0)
+    # smoothed_trajectory = smooth(np.cumsum(transforms, axis=0))
+    # difference = smooth(np.cumsum(transforms, axis=0)) - np.cumsum(transforms, axis=0)
+    transforms_smooth = transforms + (smooth(trajectory) - trajectory)
 
     # Reset stream to first frame
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+    # Center of the first frame
+    center_x, center_y = width / 2, height / 2
 
     # Write n_frames-1 transformed frames
     for i in range(frame_count - 2):
-        # Read next frame
         next_frame, frame = cap.read()
         if not next_frame:
             break
 
         dx, dy, da = (
-            transforms_smooth[i, 0],
-            transforms_smooth[i, 1],
-            transforms_smooth[i, 2]
+            transforms_smooth[i, 0] * 1.05,
+            transforms_smooth[i, 1] * 1.05,
+            transforms_smooth[i, 2] * 1.05
         )
 
         # Compute rotation matrix
-        matrix = cv2.getRotationMatrix2D((width / 2, height / 2), np.degrees(da), scale=1.0)
+        matrix = cv2.getRotationMatrix2D((center_x, center_y), np.degrees(da), scale=1.0)
         matrix[:, 2] += [dx, dy]
 
-        # Apply affine wrapping to the given frame
         frame_stabilized = cv2.warpAffine(frame, matrix, (width, height))
-
-        # Fix border artifacts
-        # frame_stabilized = zoom_frame(frame_stabilized)
-
-        # Write the frame to the file
+        # frame_stabilized = zoom_frame(cv2.warpAffine(frame, matrix, (width, height)), 1)
         video_output.write(frame_stabilized)
 
     # Release video
