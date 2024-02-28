@@ -5,7 +5,7 @@ import cv2
 
 # Source: https://github.com/spmallick/learnopencv/blob/master/VideoStabilization/video_stabilization.py
 
-SMOOTHING = 20
+SMOOTHING = 200
 STAB_SUFFIX = "_stabilized.mp4"
 
 
@@ -66,13 +66,13 @@ def stabilize_video(video_path):
 
     start_time = time.time()
 
-    for i in range(frame_count - 2):
+    for i in range(frame_count + 1):
         # Detect feature points in previous frame
         prev_points = cv2.goodFeaturesToTrack(prev_gray,
                                               maxCorners=200,
-                                              qualityLevel=0.01,
+                                              qualityLevel=0.1,
                                               minDistance=30,
-                                              blockSize=3)
+                                              blockSize=10)
 
         # Read next frame
         next_frame, curr = cap.read()
@@ -83,7 +83,7 @@ def stabilize_video(video_path):
         curr_gray = cv2.cvtColor(curr, cv2.COLOR_BGR2GRAY)
 
         # Calculate optical flow
-        curr_points, status, err = cv2.calcOpticalFlowPyrLK(prev_gray, curr_gray, prev_points, None)
+        curr_points, status, err = cv2.calcOpticalFlowPyrLK(prev_gray, curr_gray, prev_points, None, maxLevel=2)
 
         # Sanity check
         assert prev_points.shape == curr_points.shape
@@ -94,14 +94,14 @@ def stabilize_video(video_path):
         curr_points = curr_points[idx]
 
         # Find transformation matrix
-        m = cv2.estimateAffinePartial2D(prev_points, curr_points)[0]  # will only work with OpenCV-3 or less
+        matrix = cv2.estimateAffinePartial2D(prev_points, curr_points)[0]  # will only work with OpenCV-3 or less
 
         # Extract traslation
-        dx = m[0, 2]
-        dy = m[1, 2]
+        dx = matrix[0, 2]
+        dy = matrix[1, 2]
 
         # Extract rotation angle
-        da = np.arctan2(m[1, 0], m[0, 0])
+        da = np.arctan2(matrix[1, 0], matrix[0, 0])
 
         # Store transformation
         transforms[i] = [dx, dy, da]
@@ -111,17 +111,8 @@ def stabilize_video(video_path):
 
         print(f"Frame: {i}/{frame_count} - Tracked points: {len(prev_points)}")
 
-    # Compute trajectory using cumulative sum of transformations
-    trajectory = np.cumsum(transforms, axis=0)
-
-    # Create variable to store smoothed trajectory
-    smoothed_trajectory = smooth(trajectory)
-
-    # Calculate difference in smoothed_trajectory and trajectory
-    difference = smoothed_trajectory - trajectory
-
     # Calculate newer transformation array
-    transforms_smooth = transforms + difference
+    transforms_smooth = transforms + (smooth(np.cumsum(transforms, axis=0)) - np.cumsum(transforms, axis=0))
 
     # Reset stream to first frame
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -133,20 +124,21 @@ def stabilize_video(video_path):
         if not next_frame:
             break
 
-        # Extract transformations from the new transformation array
-        dx = transforms_smooth[i, 0]
-        dy = transforms_smooth[i, 1]
-        da = transforms_smooth[i, 2]
+        dx, dy, da = (
+            transforms_smooth[i, 0],
+            transforms_smooth[i, 1],
+            transforms_smooth[i, 2]
+        )
 
         # Compute rotation matrix
-        m = cv2.getRotationMatrix2D((width / 2, height / 2), np.degrees(da), scale=1.0)
-        m[:, 2] += [dx, dy]
+        matrix = cv2.getRotationMatrix2D((width / 2, height / 2), np.degrees(da), scale=1.0)
+        matrix[:, 2] += [dx, dy]
 
         # Apply affine wrapping to the given frame
-        frame_stabilized = cv2.warpAffine(frame, m, (width, height))
+        frame_stabilized = cv2.warpAffine(frame, matrix, (width, height))
 
         # Fix border artifacts
-        frame_stabilized = zoom_frame(frame_stabilized)
+        # frame_stabilized = zoom_frame(frame_stabilized)
 
         # Write the frame to the file
         video_output.write(frame_stabilized)
