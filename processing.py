@@ -5,13 +5,14 @@ import time
 import cv2
 
 import debug
+import interface
 import opencv_stabilization
 import stabilizer
 
 progress_callback = None
 progress_percentage = None
 total_difference = None
-finished = False
+is_finished = False
 HISTORY_PATH = "processing_history.txt"
 
 
@@ -46,10 +47,17 @@ def process_video(path, progress_callback):
 
     # stabilizer.stabilize_video(path)
 
-    opencv_stabilization.stabilize_video(path)
+    # opencv_stabilization.stabilize_video(path)
+    # opencv_stabilization.set_progress_callback(interface.Interface.update_bar)
+    opencv_stabilization.stab_video_thread(path)
 
-    new_path = path[:-4] + "_stabilized.mp4"
-    global total_difference, finished, progress_percentage
+    while not opencv_stabilization.is_finished:
+        time.sleep(0.02)
+
+    new_path = path[:-4] + ".mp4"
+    # new_path = path[:-4] + "_stabilized.mp4"
+
+    global total_difference, is_finished, progress_percentage
     total_difference = 0
     finished = False
 
@@ -78,7 +86,7 @@ def process_video(path, progress_callback):
 
                 if frames_since_last_callback == 5:
                     progress_percentage = "{:.0f}".format((current_frame_index * 100) / total_frames)
-                    progress_callback(int(progress_percentage))
+                    progress_callback("processing", int(progress_percentage))
                     frames_since_last_callback = 0
 
                 prev_frame = frame
@@ -88,7 +96,7 @@ def process_video(path, progress_callback):
             write_to_history(path, total_difference)
             read_from_history()
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
-            progress_callback(100)
+            progress_callback("processing", 100)
 
     cap.release()
     cv2.destroyAllWindows()

@@ -1,12 +1,31 @@
+import threading
 import time
 
 import numpy as np
 import cv2
 
+import debug
+
 # Source: https://github.com/spmallick/learnopencv/blob/master/VideoStabilization/video_stabilization.py
 
 SMOOTHING = 500
 STAB_SUFFIX = "_stabilized.mp4"
+progress_callback = None
+is_finished = False
+
+
+def set_progress_callback(callback):
+    """
+    Sets the progress callback function.
+
+    This function sets the callback function that will be called during video processing
+    to report progress.
+
+    Parameters:
+        callback (function): The callback function to report progress.
+    """
+    global progress_callback
+    progress_callback = callback
 
 
 def avg_movement(curve, radius):
@@ -44,7 +63,8 @@ def zoom_frame(frame, scale_factor=1.05):
     return zoomed_frame
 
 
-def stabilize_video(video_path):
+def stabilize_video(video_path, p_callback):
+    global is_finished
     # Read input video
     cap = cv2.VideoCapture(video_path)
 
@@ -70,6 +90,8 @@ def stabilize_video(video_path):
     transforms = np.zeros((frame_count - 1, 3), np.float32)
 
     start_time = time.time()
+
+    frames_since_last_callback = 0
 
     for i in range(frame_count + 1):
         # Detect feature points in previous frame
@@ -115,7 +137,14 @@ def stabilize_video(video_path):
         prev_gray = curr_gray
 
         print(
-            f"Frame: {i}/{frame_count} - Tracked points: {len(prev_points)}" + " [{:.0f}%]".format((i * 100) / frame_count))
+            f"Frame: {i}/{frame_count} - Tracked points: {len(prev_points)}" + " [{:.0f}%]".format(
+                (i * 100) / frame_count))
+
+        frames_since_last_callback += 1
+
+        if frames_since_last_callback == 5:
+            p_callback("stabilization", int("{:.0f}".format((i * 100) / frame_count)))
+            frames_since_last_callback = 0
 
     # Calculate newer transformation array
     trajectory = np.cumsum(transforms, axis=0)
@@ -151,5 +180,23 @@ def stabilize_video(video_path):
     # Release video
     cap.release()
     video_output.release()
-
+    progress_callback("stabilization", 100)
+    is_finished = True
     print(f"Stabilization time: {"{:.2f}s".format(time.time() - start_time)}")
+
+
+def stab_video_thread(path):
+    """
+    Creates a thread for video processing.
+
+    This function creates a separate thread to process the video specified by `path`.
+
+    Parameters:
+        path (str): The path to the video file.
+    """
+    global progress_callback
+    if progress_callback is None:
+        debug.log("Progress callback not set. Aborting video processing.", text_color="red")
+        return
+    thread = threading.Thread(target=stabilize_video, args=(path, progress_callback))
+    thread.start()

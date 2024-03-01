@@ -266,7 +266,8 @@ class CustomProgressBar:
     def set_percentage(self, percentage):
         # Settings progress bar width based on percentage
         new_width = int(round(pg_bar_width * (percentage / 100)))
-        self.create_pbar_fg(width=new_width, height=self.height - self.padding * 2)
+        if new_width > self.radius:
+            self.create_pbar_fg(width=new_width, height=self.height - self.padding * 2)
 
     def config(self, bg):
         self.bg = bg

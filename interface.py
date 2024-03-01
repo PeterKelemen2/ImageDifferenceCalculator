@@ -15,6 +15,7 @@ import debug
 
 import custom_button
 import lang
+import opencv_stabilization
 import processing
 import vlc_handler
 
@@ -63,7 +64,7 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 80
 WIN_WIDTH = 800
-WIN_HEIGHT = 510
+WIN_HEIGHT = 590
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 300
@@ -78,8 +79,12 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
-        self.pbar_overlay = None
-        self.custom_progress_bar = None
+        self.stab_pbar_overlay = None
+        self.stab_progress_label = None
+        self.stab_progress_bar = None
+        self.stab_progress_wrapper = None
+        self.proc_pbar_overlay = None
+        self.proc_progress_bar = None
         self.history_title_frame = None
         self.settings_window_opened = False
         self.history_window_opened = False
@@ -89,7 +94,7 @@ class Interface:
         self.lang_option_menu = None
         self.theme_option_menu = None
         self.buttons_wrapper = None
-        self.progress_wrapper = None
+        self.proc_progress_wrapper = None
         self.frame_wrapper = None
         self.next_lang = None
         self.previous_language = None
@@ -111,7 +116,7 @@ class Interface:
         self.lang_options = None
         self.settings_label = None
         self.settings_window = None
-        self.progress_wrapper = None
+        self.proc_progress_wrapper = None
         self.media_player_button = None
         self.image_details = None
         self.frame_details_header = None
@@ -126,7 +131,7 @@ class Interface:
         self.time_label = None
         self.time_wrapper = None
         self.progress_bar = None
-        self.progress_label = None
+        self.proc_progress_label = None
         self.process_video_button = None
         self.browse_button = None
         self.is_file_selected = False
@@ -150,6 +155,9 @@ class Interface:
         self.create_settings_button()
         self.create_history_button()
         self.create_browser()
+
+        # self.create_stabilization_progress_bar()
+        # self.create_processing_progress_bar()
 
         debug.log("[1/2] Interface created", text_color="blue")
         self.win.mainloop()
@@ -427,53 +435,91 @@ class Interface:
             self.browse_button.disable()
 
             # Create and display a progress bar
-            self.create_progress_bar()
+            self.create_stabilization_progress_bar()
+            self.create_processing_progress_bar()
 
             # Set the progress callback function
-            processing.set_progress_callback(self.update_progress)
-
+            processing.set_progress_callback(self.update_bar)
+            opencv_stabilization.set_progress_callback(self.update_bar)
             # Start video processing in a separate thread
             processing.process_video_thread(video_file_path)
 
-    def create_progress_bar(self):
+    def create_stabilization_progress_bar(self):
+        self.stab_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                                text="Stabilization",
+                                                                width=780,
+                                                                height=70,
+                                                                fill=ACCENT,
+                                                                radius=15,
+                                                                bg=BGCOLOR)
+        self.stab_progress_wrapper.canvas.place(x=10, y=430)
+
+        self.stab_progress_bar = custom_ui.CustomProgressBar(self.stab_progress_wrapper.canvas,
+                                                             width=705,
+                                                             height=30,
+                                                             padding=6,
+                                                             bg=ACCENT,
+                                                             bar_bg_accent=BAR_BG_ACCENT,
+                                                             pr_bar=PB_COLOR)
+        self.stab_progress_bar.canvas.place(x=10, y=self.stab_progress_wrapper.get_height() // 2 - 5)
+
+        self.stab_progress_label = Label(self.stab_progress_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT,
+                                         font=BOLD_FONT)
+        self.stab_progress_label.place(x=720, y=30)
+        debug.log("[6/6] Progress label created!", text_color="magenta")
+
+        # Create an overlay frame for the progress bar to hide flickering bug
+        self.stab_pbar_overlay = custom_ui.CustomLabelFrame(self.stab_progress_wrapper.canvas, width=705, height=30,
+                                                            bg=ACCENT, fill=ACCENT)
+        self.stab_pbar_overlay.canvas.place(x=10, y=self.stab_progress_bar.get_height() * 2)
+
+    def create_processing_progress_bar(self):
         """
         Creates and displays a custom progress bar with a progress label.
         """
         debug.log("[6/1] Creating progress wrapper...", text_color="magenta")
         # Create a wrapper frame for the progress bar
-        self.progress_wrapper = custom_ui.CustomLabelFrame(self.win,
-                                                           text=self.lang["progress"],
-                                                           width=780,
-                                                           height=70,
-                                                           fill=ACCENT,
-                                                           radius=15,
-                                                           bg=BGCOLOR)
-        self.progress_wrapper.canvas.place(x=10, y=430)
+        self.proc_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                                text=self.lang["progress"],
+                                                                width=780,
+                                                                height=70,
+                                                                fill=ACCENT,
+                                                                radius=15,
+                                                                bg=BGCOLOR)
+        self.proc_progress_wrapper.canvas.place(x=10, y=510)
         debug.log("[6/2] Progress wrapper created!", text_color="magenta")
 
         # Create the custom progress bar
         debug.log("[6/3] Creating custom progress bar...", text_color="magenta")
-        self.custom_progress_bar = custom_ui.CustomProgressBar(self.progress_wrapper.canvas,
-                                                               width=705,
-                                                               height=30,
-                                                               padding=6,
-                                                               bg=ACCENT,
-                                                               bar_bg_accent=BAR_BG_ACCENT,
-                                                               pr_bar=PB_COLOR)
-        self.custom_progress_bar.canvas.place(x=10, y=self.progress_wrapper.get_height() // 2 - 5)
+        self.proc_progress_bar = custom_ui.CustomProgressBar(self.proc_progress_wrapper.canvas,
+                                                             width=705,
+                                                             height=30,
+                                                             padding=6,
+                                                             bg=ACCENT,
+                                                             bar_bg_accent=BAR_BG_ACCENT,
+                                                             pr_bar=PB_COLOR)
+        self.proc_progress_bar.canvas.place(x=10, y=self.proc_progress_wrapper.get_height() // 2 - 5)
         debug.log("[6/4] Custom progress bar created!", text_color="magenta")
 
         # Create and place the progress label
         debug.log("[6/5] Creating progress label...", text_color="magenta")
-        self.progress_label = Label(self.progress_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT,
-                                    font=BOLD_FONT)
-        self.progress_label.place(x=720, y=30)
+        self.proc_progress_label = Label(self.proc_progress_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT,
+                                         font=BOLD_FONT)
+        self.proc_progress_label.place(x=720, y=30)
         debug.log("[6/6] Progress label created!", text_color="magenta")
 
         # Create an overlay frame for the progress bar to hide flickering bug
-        self.pbar_overlay = custom_ui.CustomLabelFrame(self.progress_wrapper.canvas, width=705, height=30,
-                                                       bg=ACCENT, fill=ACCENT)
-        self.pbar_overlay.canvas.place(x=10, y=self.custom_progress_bar.get_height() * 2)
+        self.proc_pbar_overlay = custom_ui.CustomLabelFrame(self.proc_progress_wrapper.canvas, width=705, height=30,
+                                                            bg=ACCENT, fill=ACCENT)
+        self.proc_pbar_overlay.canvas.place(x=10, y=self.proc_progress_bar.get_height() * 2)
+
+    def update_bar(self, bar: str, value: int):
+        if bar == "stabilization":
+            self.stab_progress_bar.set_percentage(value)
+            self.stab_progress_label['text'] = f"{value} %\n"
+        elif bar == "processing":
+            self.proc_progress_bar.set_percentage(value)
+            self.proc_progress_label['text'] = f"{value} %"
 
     def update_progress(self, value: int):
         """
@@ -483,10 +529,10 @@ class Interface:
             value (int): The progress value to be displayed.
         """
         # Set the progress bar percentage
-        self.custom_progress_bar.set_percentage(value)
+        self.proc_progress_bar.set_percentage(value)
 
         # Update the progress label with the current value
-        self.progress_label['text'] = f"{value} %"
+        self.proc_progress_label['text'] = f"{value} %"
 
         # Check if processing has finished
         if processing.finished:
@@ -494,7 +540,7 @@ class Interface:
             debug.log(f"{self.lang['diff']}: {processing.total_difference}", text_color="blue")
 
             # Create and display the finished window
-            self.create_finished_window()
+            # self.create_finished_window()
 
     def create_finished_window(self):
         """
@@ -840,11 +886,11 @@ class Interface:
         # Update text for wrapper labels
         if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
         if self.frame_wrapper is not None: self.frame_wrapper.set_label_text(self.lang["video_data"])
-        if self.progress_wrapper is not None: self.progress_wrapper.set_label_text(self.lang["progress"])
+        if self.proc_progress_wrapper is not None: self.proc_progress_wrapper.set_label_text(self.lang["progress"])
 
         # Update text for specified widgets
         for label in [self.settings_window, self.button_wrapper, self.history_title, self.finished_window,
-                      self.frame_wrapper, self.progress_wrapper, self.settings_label, self.lang_label,
+                      self.frame_wrapper, self.proc_progress_wrapper, self.settings_label, self.lang_label,
                       self.theme_label]:
             self.change_text(label)
 
@@ -976,12 +1022,12 @@ class Interface:
                                             buttons=[self.media_player_button, self.process_video_button],
                                             labels=[self.frame_details_header, self.image_details])
 
-        if self.progress_wrapper is not None:
-            self.progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.progress_label])
-            self.custom_progress_bar.config(bg=ACCENT)
-            self.pbar_overlay.change_fill_color(ACCENT)
-            self.pbar_overlay.change_bg_color(ACCENT)
-            self.custom_progress_bar.change_pb_color(PB_COLOR)
+        if self.proc_progress_wrapper is not None:
+            self.proc_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.proc_progress_label])
+            self.proc_progress_bar.config(bg=ACCENT)
+            self.proc_pbar_overlay.change_fill_color(ACCENT)
+            self.proc_pbar_overlay.change_bg_color(ACCENT)
+            self.proc_progress_bar.change_pb_color(PB_COLOR)
 
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)
