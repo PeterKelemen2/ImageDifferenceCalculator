@@ -3,6 +3,7 @@ import threading
 import time
 
 import cv2
+import numpy as np
 
 import debug
 import interface
@@ -45,15 +46,6 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
-    # stabilizer.stabilize_video(path)
-
-    # opencv_stabilization.stabilize_video(path)
-    # opencv_stabilization.set_progress_callback(interface.Interface.update_bar)
-    opencv_stabilization.stab_video_thread(path)
-
-    while not opencv_stabilization.is_finished:
-        time.sleep(0.02)
-
     new_path = path[:-4] + ".mp4"
     # new_path = path[:-4] + "_stabilized.mp4"
 
@@ -63,43 +55,55 @@ def process_video(path, progress_callback):
 
     debug.log(f"Started processing {new_path}", text_color="blue")
     cap = cv2.VideoCapture(new_path)
+    ret, prev_frame = cap.read()
+    height, width = prev_frame.shape[:2]
+    video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95, (width, height))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     if not cap.isOpened():
         debug.log("Could not open video", text_color="red")
     else:
-        ret, prev_frame = cap.read()
+        average1 = np.float32(prev_frame)
 
         if not ret:
             debug.log("Could not read the first frame", text_color="red")
         else:
             while True:
-                ret, frame = cap.read()
                 current_frame_index += 1
+
+                # 7
+                if not current_frame_index == 5:
+                    current_frame_index = 0
+                    for to_skip in range(0, 2):
+                        ret, frame = cap.read()
+
                 frames_since_last_callback += 1
 
                 if not ret:
                     break
 
-                abs_diff = cv2.absdiff(prev_frame, frame)
-                total_difference += abs_diff.mean()
+                cv2.accumulateWeighted(frame, average1, 0.1)
+                frame_delta = cv2.absdiff(frame, cv2.convertScaleAbs(average1))
+                video_output.write(frame_delta)
+
+                # cv2.imshow("Main video", cv2.resize(frame, (500, 500)))
+                # cv2.imshow("Change in foreground", cv2.resize(frame_delta, (500, 500)))
 
                 if frames_since_last_callback == 5:
-                    progress_percentage = "{:.0f}".format((current_frame_index * 100) / total_frames)
+                    progress_percentage = "{:.0f}".format((cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
                     progress_callback("processing", int(progress_percentage))
                     frames_since_last_callback = 0
 
                 prev_frame = frame
 
+            cap.release()
+            video_output.release()
+            cv2.destroyAllWindows()
+
             finished = True
-            total_difference = total_difference // total_frames
             write_to_history(path, total_difference)
-            read_from_history()
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
             progress_callback("processing", 100)
-
-    cap.release()
-    cv2.destroyAllWindows()
 
 
 def process_video_thread(path):

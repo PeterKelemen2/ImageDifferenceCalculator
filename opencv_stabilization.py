@@ -123,7 +123,7 @@ def stabilize_video(video_path, p_callback):
         # Find transformation matrix
         matrix = cv2.estimateAffinePartial2D(prev_points, curr_points)[0]
 
-        # Extract traslation
+        # Extract translation
         dx = matrix[0, 2]
         dy = matrix[1, 2]
 
