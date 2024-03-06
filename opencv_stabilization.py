@@ -173,8 +173,8 @@ def stabilize_video(video_path, p_callback):
         matrix = cv2.getRotationMatrix2D((center_x, center_y), np.degrees(da), scale=1.0)
         matrix[:, 2] += [dx, dy]
 
-        frame_stabilized = cv2.warpAffine(frame, matrix, (width, height))
-        # frame_stabilized = zoom_frame(cv2.warpAffine(frame, matrix, (width, height)), 1)
+        # frame_stabilized = cv2.warpAffine(frame, matrix, (width, height))
+        frame_stabilized = zoom_frame(cv2.warpAffine(frame, matrix, (width, height)), 1.2)
         video_output.write(frame_stabilized)
 
     # Release video

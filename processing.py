@@ -46,6 +46,11 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
+    # opencv_stabilization.stab_video_thread(path)
+    #
+    # while not opencv_stabilization.is_finished:
+    #     time.sleep(0.02)
+    #
     new_path = path[:-4] + ".mp4"
     # new_path = path[:-4] + "_stabilized.mp4"
 
@@ -71,18 +76,21 @@ def process_video(path, progress_callback):
             while True:
                 current_frame_index += 1
 
-                # 7
-                if not current_frame_index == 5:
+                # Discarding of the 2ms pulse of light
+                if current_frame_index == 2:
+                    # Slow, but works
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, cap.get(cv2.CAP_PROP_POS_FRAMES) + 2)
+                    ret, frame = cap.read()
                     current_frame_index = 0
-                    for to_skip in range(0, 2):
-                        ret, frame = cap.read()
+                else:
+                    ret, frame = cap.read()
 
                 frames_since_last_callback += 1
 
                 if not ret:
                     break
 
-                cv2.accumulateWeighted(frame, average1, 0.1)
+                cv2.accumulateWeighted(frame, average1, 0.04)
                 frame_delta = cv2.absdiff(frame, cv2.convertScaleAbs(average1))
                 video_output.write(frame_delta)
 
