@@ -59,8 +59,18 @@ def process_video(path, progress_callback):
     finished = False
 
     debug.log(f"Started processing {new_path}", text_color="blue")
+
+    alpha = 50
+    beta = 230
+    contrast = 1.4
+    brightness = 1.3
+    threshold_value = 120
+    threshold_value_max = 255
     cap = cv2.VideoCapture(new_path)
     ret, prev_frame = cap.read()
+    _, prev_frame = cv2.threshold(prev_frame, threshold_value, threshold_value_max, cv2.THRESH_BINARY)
+    # cv2.normalize(prev_frame, prev_frame, alpha, beta, cv2.NORM_MINMAX)
+
     height, width = prev_frame.shape[:2]
     video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95, (width, height))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -77,22 +87,28 @@ def process_video(path, progress_callback):
                 current_frame_index += 1
 
                 # Discarding of the 2ms pulse of light
-                if current_frame_index == 2:
-                    # Slow, but works
-                    cap.set(cv2.CAP_PROP_POS_FRAMES, cap.get(cv2.CAP_PROP_POS_FRAMES) + 2)
+                if current_frame_index == 3:
                     ret, frame = cap.read()
+                    ret, frame = cap.read()
+                    # cv2.normalize(frame, frame, alpha, beta, cv2.NORM_MINMAX)
+                    # frame = cv2.convertScaleAbs(frame, alpha=contrast, beta=brightness)
                     current_frame_index = 0
                 else:
                     ret, frame = cap.read()
+                    # cv2.normalize(frame, frame, alpha, beta, cv2.NORM_MINMAX)
+                    # frame = cv2.convertScaleAbs(frame, alpha=contrast, beta=brightness)
 
                 frames_since_last_callback += 1
 
                 if not ret:
                     break
 
+                _, frame = cv2.threshold(frame, threshold_value, threshold_value_max, cv2.THRESH_BINARY)
+
                 cv2.accumulateWeighted(frame, average1, 0.04)
                 frame_delta = cv2.absdiff(frame, cv2.convertScaleAbs(average1))
                 video_output.write(frame_delta)
+                # video_output.write(frame)
 
                 # cv2.imshow("Main video", cv2.resize(frame, (500, 500)))
                 # cv2.imshow("Change in foreground", cv2.resize(frame_delta, (500, 500)))
@@ -102,7 +118,7 @@ def process_video(path, progress_callback):
                     progress_callback("processing", int(progress_percentage))
                     frames_since_last_callback = 0
 
-                prev_frame = frame
+                # prev_frame = frame
 
             cap.release()
             video_output.release()
