@@ -64,11 +64,15 @@ def process_video(path, progress_callback):
     beta = 230
     contrast = 1.4
     brightness = 1.3
-    threshold_value = 120
-    threshold_value_max = 255
+    threshold_upper_light = 125
+    threshold_lower_light = 0
+    threshold_upper_dark = 255
+    threshold_lower_dark = 95
+    thresh_method = cv2.THRESH_BINARY
+
     cap = cv2.VideoCapture(new_path)
     ret, prev_frame = cap.read()
-    _, prev_frame = cv2.threshold(prev_frame, threshold_value, threshold_value_max, cv2.THRESH_BINARY)
+    _, prev_frame = cv2.threshold(prev_frame, threshold_upper_light, 255, thresh_method)
     # cv2.normalize(prev_frame, prev_frame, alpha, beta, cv2.NORM_MINMAX)
 
     height, width = prev_frame.shape[:2]
@@ -103,12 +107,20 @@ def process_video(path, progress_callback):
                 if not ret:
                     break
 
-                _, frame = cv2.threshold(frame, threshold_value, threshold_value_max, cv2.THRESH_BINARY)
+                frame = cv2.GaussianBlur(frame, (5, 5), 0)
 
-                cv2.accumulateWeighted(frame, average1, 0.04)
-                frame_delta = cv2.absdiff(frame, cv2.convertScaleAbs(average1))
-                video_output.write(frame_delta)
-                # video_output.write(frame)
+                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
+                binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
+
+                first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
+                second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
+                # _, frame = cv2.threshold(frame, threshold_upper_light, 255, thresh_method)
+
+                # cv2.accumulateWeighted(frame, average1, 0.04)
+                # frame_delta = cv2.absdiff(frame, cv2.convertScaleAbs(average1))
+                # video_output.write(frame_delta)
+                video_output.write(second_mask_pass)
 
                 # cv2.imshow("Main video", cv2.resize(frame, (500, 500)))
                 # cv2.imshow("Change in foreground", cv2.resize(frame_delta, (500, 500)))
