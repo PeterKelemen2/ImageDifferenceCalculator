@@ -46,13 +46,13 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
-    # opencv_stabilization.stab_video_thread(path)
-    #
-    # while not opencv_stabilization.is_finished:
-    #     time.sleep(0.02)
-    #
+    opencv_stabilization.stab_video_thread(path)
+
+    while not opencv_stabilization.is_finished:
+        time.sleep(0.02)
+
     new_path = path[:-4] + ".mp4"
-    # new_path = path[:-4] + "_stabilized.mp4"
+    new_path = path[:-4] + "_stabilized.mp4"
 
     global total_difference, is_finished, progress_percentage
     total_difference = 0
@@ -64,28 +64,35 @@ def process_video(path, progress_callback):
     beta = 230
     contrast = 1.4
     brightness = 1.3
-    threshold_upper_light = 125
+    threshold_upper_light = 130
     threshold_lower_light = 0
     threshold_upper_dark = 255
     threshold_lower_dark = 95
     thresh_method = cv2.THRESH_BINARY
 
     cap = cv2.VideoCapture(new_path)
-    ret, prev_frame = cap.read()
-    _, prev_frame = cv2.threshold(prev_frame, threshold_upper_light, 255, thresh_method)
-    # cv2.normalize(prev_frame, prev_frame, alpha, beta, cv2.NORM_MINMAX)
 
-    height, width = prev_frame.shape[:2]
+    ret, first_frame = cap.read()
+    first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
+    gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
+    binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
+    binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
+
+    # _, first_frame = cv2.threshold(first_frame, threshold_upper_light, 255, thresh_method)
+    # cv2.normalize(first_frame, first_frame, alpha, beta, cv2.NORM_MINMAX)
+
+    height, width = first_frame.shape[:2]
+    accumulated_frame = np.zeros((height, width, 3), dtype=np.float32)
     video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95, (width, height))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     if not cap.isOpened():
         debug.log("Could not open video", text_color="red")
     else:
-        average1 = np.float32(prev_frame)
+        average1 = np.float32(first_frame)
 
         if not ret:
-            debug.log("Could not read the first frame", text_color="red")
+            debug.log("Could not read video frames", text_color="red")
         else:
             while True:
                 current_frame_index += 1
@@ -107,20 +114,20 @@ def process_video(path, progress_callback):
                 if not ret:
                     break
 
-                frame = cv2.GaussianBlur(frame, (5, 5), 0)
-
-                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
-                binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
+                # frame = cv2.GaussianBlur(frame, (7, 7), 0)
+                # gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                #
+                # binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
+                # binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
 
                 first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
                 second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
-                # _, frame = cv2.threshold(frame, threshold_upper_light, 255, thresh_method)
 
-                # cv2.accumulateWeighted(frame, average1, 0.04)
-                # frame_delta = cv2.absdiff(frame, cv2.convertScaleAbs(average1))
-                # video_output.write(frame_delta)
-                video_output.write(second_mask_pass)
+                cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
+                # accumulated_frame += second_mask_pass.astype(np.float32)
+                frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
+                video_output.write(frame_delta)
+                # video_output.write(second_mask_pass)
 
                 # cv2.imshow("Main video", cv2.resize(frame, (500, 500)))
                 # cv2.imshow("Change in foreground", cv2.resize(frame_delta, (500, 500)))
@@ -130,7 +137,7 @@ def process_video(path, progress_callback):
                     progress_callback("processing", int(progress_percentage))
                     frames_since_last_callback = 0
 
-                # prev_frame = frame
+                # first_frame = frame
 
             cap.release()
             video_output.release()
