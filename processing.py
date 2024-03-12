@@ -53,14 +53,16 @@ def process_video(path, progress_callback):
 
     debug.log(f"Started processing {new_path}", text_color="blue")
 
+    cap = cv2.VideoCapture(new_path)
+    ret, first_frame = cap.read()
+    avg_light_level = first_frame.sum() // first_frame.size
+    print(avg_light_level)
+
     threshold_lower_light = 0
-    threshold_lower_dark = 1
-    threshold_upper_light = 254
+    threshold_lower_dark = int(avg_light_level - 25)
+    threshold_upper_light = int(avg_light_level + 12)
     threshold_upper_dark = 255
 
-    cap = cv2.VideoCapture(new_path)
-
-    ret, first_frame = cap.read()
     first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
     gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
     binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
