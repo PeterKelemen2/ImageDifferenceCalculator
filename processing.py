@@ -59,8 +59,8 @@ def process_video(path, progress_callback):
     print(avg_light_level)
 
     threshold_lower_light = 0
-    threshold_lower_dark = int(avg_light_level - 25)
-    threshold_upper_light = int(avg_light_level + 12)
+    threshold_lower_dark = int(avg_light_level - 20)
+    threshold_upper_light = int(avg_light_level - 0)
     threshold_upper_dark = 255
 
     first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
