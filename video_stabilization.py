@@ -49,7 +49,6 @@ def stabilize_video(video_path, p_callback):
 
     curr_frame_index = 1
     while True:
-
         print(f"Frames: {curr_frame_index}/{total_frames}")
 
         if (curr_frame_index % 10) % 5 == 0:

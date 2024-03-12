@@ -44,16 +44,6 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
-    # opencv_stabilization.stab_video_thread(path)
-    #
-    # while not opencv_stabilization.is_finished:
-    #     time.sleep(0.02)
-
-    video_stabilization.stab_video_thread(path)
-
-    while not video_stabilization.is_finished:
-        time.sleep(0.02)
-
     new_path = path[:-4] + ".mp4"
     new_path = path[:-4] + "_newly_stabilized.mp4"
 
@@ -63,15 +53,10 @@ def process_video(path, progress_callback):
 
     debug.log(f"Started processing {new_path}", text_color="blue")
 
-    alpha = 50
-    beta = 230
-    contrast = 1.4
-    brightness = 1.3
-    threshold_upper_light = 130
     threshold_lower_light = 0
-    threshold_upper_dark = 255
     threshold_lower_dark = 95
-    thresh_method = cv2.THRESH_BINARY
+    threshold_upper_light = 120
+    threshold_upper_dark = 255
 
     cap = cv2.VideoCapture(new_path)
 
@@ -80,9 +65,6 @@ def process_video(path, progress_callback):
     gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
     binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
     binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
-
-    # _, first_frame = cv2.threshold(first_frame, threshold_upper_light, 255, thresh_method)
-    # cv2.normalize(first_frame, first_frame, alpha, beta, cv2.NORM_MINMAX)
 
     height, width = first_frame.shape[:2]
     accumulated_frame = np.zeros((height, width, 3), dtype=np.float32)
@@ -100,47 +82,22 @@ def process_video(path, progress_callback):
             while True:
                 current_frame_index += 1
 
-                # Discarding of the 2ms pulse of light
-                if current_frame_index == 3:
-                    ret, frame = cap.read()
-                    ret, frame = cap.read()
-                    # cv2.normalize(frame, frame, alpha, beta, cv2.NORM_MINMAX)
-                    # frame = cv2.convertScaleAbs(frame, alpha=contrast, beta=brightness)
-                    current_frame_index = 0
-                else:
-                    ret, frame = cap.read()
-                    # cv2.normalize(frame, frame, alpha, beta, cv2.NORM_MINMAX)
-                    # frame = cv2.convertScaleAbs(frame, alpha=contrast, beta=brightness)
-
-                frames_since_last_callback += 1
-
+                ret, frame = cap.read()
                 if not ret:
                     break
-
-                # frame = cv2.GaussianBlur(frame, (7, 7), 0)
-                # gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                #
-                # binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
-                # binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
+                frames_since_last_callback += 1
 
                 first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
                 second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
 
                 cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
-                # accumulated_frame += second_mask_pass.astype(np.float32)
                 frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
                 video_output.write(frame_delta)
-                # video_output.write(second_mask_pass)
-
-                # cv2.imshow("Main video", cv2.resize(frame, (500, 500)))
-                # cv2.imshow("Change in foreground", cv2.resize(frame_delta, (500, 500)))
 
                 if frames_since_last_callback == 5:
                     progress_percentage = "{:.0f}".format((cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
                     progress_callback("processing", int(progress_percentage))
                     frames_since_last_callback = 0
-
-                # first_frame = frame
 
             cap.release()
             video_output.release()
