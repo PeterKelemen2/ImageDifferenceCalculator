@@ -7,6 +7,7 @@ import numpy as np
 
 import debug
 import interface
+import new_tracking
 import opencv_stabilization
 import stabilizer
 
@@ -46,13 +47,18 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
-    opencv_stabilization.stab_video_thread(path)
+    # opencv_stabilization.stab_video_thread(path)
+    #
+    # while not opencv_stabilization.is_finished:
+    #     time.sleep(0.02)
 
-    while not opencv_stabilization.is_finished:
+    new_tracking.stab_video_thread(path)
+
+    while not new_tracking.is_finished:
         time.sleep(0.02)
 
     new_path = path[:-4] + ".mp4"
-    new_path = path[:-4] + "_stabilized.mp4"
+    new_path = path[:-4] + "_newly_stabilized.mp4"
 
     global total_difference, is_finished, progress_percentage
     total_difference = 0

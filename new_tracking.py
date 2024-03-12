@@ -1,10 +1,36 @@
+import threading
+
 import cv2
 import numpy as np
 
+import debug
+
+progress_callback = None
+is_finished = False
+stab_thread = None
+
+
+def set_progress_callback(callback):
+    """
+    Sets the progress callback function.
+
+    This function sets the callback function that will be called during video processing
+    to report progress.
+
+    Parameters:
+        callback (function): The callback function to report progress.
+    """
+    global progress_callback
+    progress_callback = callback
+
 
 # Function to find offset and move the frame
-def process_video(video_path, output_path):
+def stabilize_video(video_path, p_callback):
+    global is_finished
+
+    # Read video input
     cap = cv2.VideoCapture(video_path)
+    output = video_path[:-4] + "_newly_stabilized.mp4"
 
     # Read the first frame
     ret, first_frame = cap.read()
@@ -19,12 +45,16 @@ def process_video(video_path, output_path):
 
     # Define the output video codec and create a VideoWriter object
     codec = cv2.VideoWriter_fourcc(*'H264')
-    out = cv2.VideoWriter(output_path, codec, int(cap.get(cv2.CAP_PROP_FPS)), (frame_width, frame_height))
+    out = cv2.VideoWriter(output, codec, int(cap.get(cv2.CAP_PROP_FPS)), (frame_width, frame_height))
 
     curr_frame_index = 1
     while True:
 
         print(f"Frames: {curr_frame_index}/{total_frames}")
+
+        if (curr_frame_index % 10) % 5 == 0:
+            p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames)))
+
         # Read the current frame
         ret, frame = cap.read()
 
@@ -51,21 +81,26 @@ def process_video(video_path, output_path):
         # Write the processed frame to the output video file
         out.write(moved_frame)
         curr_frame_index += 1
-        # Display the result
-        # cv2.imshow('Moved Frame', moved_frame)
-
-        # Break the loop if 'q' is pressed
-        if cv2.waitKey(30) & 0xFF == ord('q'):
-            break
 
     cap.release()
     out.release()
-    cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()
+    progress_callback("stabilization", 100)
+    is_finished = True
 
 
-# Specify the path to your video file and output video file
-video_path = 'C:/sample.mp4'
-output_path = 'C:/sample_newly_stabilized.mp4'  # Change the file extension and path as needed
+def stab_video_thread(path):
+    """
+    Creates a thread for video processing.
 
-# Call the function to process the video and save the output
-process_video(video_path, output_path)
+    This function creates a separate thread to process the video specified by `path`.
+
+    Parameters:
+        path (str): The path to the video file.
+    """
+    global progress_callback, stab_thread
+    if progress_callback is None:
+        debug.log("Progress callback not set. Aborting video processing.", text_color="red")
+        return
+    stab_thread = threading.Thread(target=stabilize_video, args=(path, progress_callback))
+    stab_thread.start()

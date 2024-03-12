@@ -15,6 +15,7 @@ import debug
 
 import custom_button
 import lang
+import new_tracking
 import opencv_stabilization
 import processing
 import vlc_handler
@@ -441,6 +442,7 @@ class Interface:
             # Set the progress callback function
             processing.set_progress_callback(self.update_bar)
             opencv_stabilization.set_progress_callback(self.update_bar)
+            new_tracking.set_progress_callback(self.update_bar)
             # Start video processing in a separate thread
             processing.process_video_thread(video_file_path)
 
