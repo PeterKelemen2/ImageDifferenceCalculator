@@ -6,10 +6,7 @@ import cv2
 import numpy as np
 
 import debug
-import interface
-import new_tracking
-import opencv_stabilization
-import stabilizer
+import video_stabilization
 
 progress_callback = None
 progress_percentage = None
@@ -52,9 +49,9 @@ def process_video(path, progress_callback):
     # while not opencv_stabilization.is_finished:
     #     time.sleep(0.02)
 
-    new_tracking.stab_video_thread(path)
+    video_stabilization.stab_video_thread(path)
 
-    while not new_tracking.is_finished:
+    while not video_stabilization.is_finished:
         time.sleep(0.02)
 
     new_path = path[:-4] + ".mp4"
