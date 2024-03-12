@@ -54,8 +54,8 @@ def process_video(path, progress_callback):
     debug.log(f"Started processing {new_path}", text_color="blue")
 
     threshold_lower_light = 0
-    threshold_lower_dark = 95
-    threshold_upper_light = 120
+    threshold_lower_dark = 1
+    threshold_upper_light = 254
     threshold_upper_dark = 255
 
     cap = cv2.VideoCapture(new_path)
