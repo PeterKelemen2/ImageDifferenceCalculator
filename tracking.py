@@ -65,6 +65,7 @@ def stabilize_video(input_path, output_path):
     # Destroy any OpenCV windows
     cv2.destroyAllWindows()
 
+
 # print(f"Processing {cap.get(cv2.CAP_PROP_POS_FRAMES)}/{cap.get(cv2.CAP_PROP_FRAME_COUNT)}")
 # Example usage
 input_video_path = 'C:/sample.mp4'
