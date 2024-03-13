@@ -44,6 +44,11 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
+    # video_stabilization.stab_video_thread(path)
+    #
+    # while not video_stabilization.is_finished:
+    #     time.sleep(0.02)
+
     new_path = path[:-4] + ".mp4"
     new_path = path[:-4] + "_newly_stabilized.mp4"
 
@@ -59,8 +64,8 @@ def process_video(path, progress_callback):
     print(avg_light_level)
 
     threshold_lower_light = 0
-    threshold_lower_dark = int(avg_light_level - 20)
-    threshold_upper_light = int(avg_light_level - 0)
+    threshold_upper_light = int(avg_light_level + avg_light_level * 0.055)
+    threshold_lower_dark = int(avg_light_level - avg_light_level * 0.145)
     threshold_upper_dark = 255
 
     first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
@@ -91,6 +96,7 @@ def process_video(path, progress_callback):
 
                 first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
                 second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
+                # second_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_dark)
 
                 cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
                 frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
