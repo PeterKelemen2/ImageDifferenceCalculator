@@ -31,7 +31,7 @@ def stabilize_video(video_path, p_callback):
 
     # Read video input
     cap = cv2.VideoCapture(video_path)
-    output = video_path[:-4] + "_newly_stabilized.mp4"
+    output = video_path[:-4] + "_stabilized.mp4"
 
     # Read the first frame
     ret, first_frame = cap.read()

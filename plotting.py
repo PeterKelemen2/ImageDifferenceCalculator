@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_average_brightness(before_list, after_list, title="Graph", path=None):
+def plot_average_brightness(before_list, after_list, title="Graph", path=None, dpi=150):
     x_values = range(len(before_list))
     plt.figure(figsize=(8, 4))
-    plt.plot(x_values, before_list, linestyle='-', color='red')
-    plt.plot(x_values, after_list, linestyle='-', color='blue')
+    plt.plot(x_values, before_list, linestyle='-', color='red', label="Before")
+    plt.plot(x_values, after_list, linestyle='-', color='blue', label="After")
     plt.xlabel("Frame index")
     plt.ylabel("Brightness value")
     plt.title(title)
@@ -15,11 +15,11 @@ def plot_average_brightness(before_list, after_list, title="Graph", path=None):
     plt.xlim(0, len(x_values) - 1)
     plt.legend()
     if path:
-        plt.savefig(path[:-4] + "_prepass_plot.png", dpi=150)
+        plt.savefig(path[:-4] + "_prepass_plot.png", dpi=dpi)
     plt.show()
 
 
-def plot_stabilization_movement(movement_data, title="Stabilization movement", size=(8, 4), path=None):
+def plot_stabilization_movement(movement_data, title="Stabilization movement", size=(8, 4), path=None, dpi=150):
     avg_movement = [(item[0] + item[1]) / 2 for item in movement_data]
     index = range(len(avg_movement))
     plt.figure(figsize=size)
@@ -32,5 +32,5 @@ def plot_stabilization_movement(movement_data, title="Stabilization movement", s
     plt.xlim(0, len(index) - 1)
     plt.legend()
     if path:
-        plt.savefig(path[:-4] + "_stabilization_plot.png", dpi=150)
+        plt.savefig(path[:-4] + "_stabilization_plot.png", dpi=dpi)
     plt.show()

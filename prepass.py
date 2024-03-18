@@ -3,7 +3,6 @@ import time
 
 import debug
 
-os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
 import cv2
 import numpy as np
 
@@ -95,4 +94,4 @@ def preprocess(path, to_plot=True):
     debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
 
 
-preprocess('C:/sample_newly_stabilized.mp4', to_plot=True)
+# preprocess('C:/sample_newly_stabilized.mp4', to_plot=True)
