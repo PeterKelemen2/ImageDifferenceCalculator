@@ -1,4 +1,5 @@
 import os
+import threading
 import time
 
 import debug
@@ -35,6 +36,10 @@ def print_as_table_row(i, curr, first, delta, to_debug=False):
         debug.log(line, text_color=color)
     else:
         print(line)
+
+
+is_finished = False
+progress_callback = None
 
 
 def preprocess(path, to_plot=True):
@@ -93,5 +98,36 @@ def preprocess(path, to_plot=True):
         debug.log("Graph created!", text_color="yellow")
     debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
 
+    global is_finished
+    is_finished = True
 
-# preprocess('C:/sample_newly_stabilized.mp4', to_plot=True)
+
+def set_progress_callback(callback):
+    """
+    Sets the progress callback function.
+
+    This function sets the callback function that will be called during video processing
+    to report progress.
+
+    Parameters:
+        callback (function): The callback function to report progress.
+    """
+    global progress_callback
+    progress_callback = callback
+
+
+def stab_video_thread(path):
+    """
+    Creates a thread for video processing.
+
+    This function creates a separate thread to process the video specified by `path`.
+
+    Parameters:
+        path (str): The path to the video file.
+    """
+    global progress_callback, stab_thread
+    if progress_callback is None:
+        debug.log("Progress callback not set. Aborting video processing.", text_color="red")
+        return
+    stab_thread = threading.Thread(target=preprocess(), args=(path, progress_callback))
+    stab_thread.start()

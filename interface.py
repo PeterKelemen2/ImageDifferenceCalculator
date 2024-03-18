@@ -15,6 +15,7 @@ import debug
 
 import custom_button
 import lang
+import prepass
 import video_stabilization
 # import opencv_stabilization
 import processing
@@ -65,7 +66,7 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 80
 WIN_WIDTH = 800
-WIN_HEIGHT = 590
+WIN_HEIGHT = 670
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 300
@@ -80,6 +81,9 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.prep_wrapper = None
+        self.prep_progress_bar = None
+        self.prep_progress_label = None
         self.stab_pbar_overlay = None
         self.stab_progress_label = None
         self.stab_progress_bar = None
@@ -438,13 +442,39 @@ class Interface:
             # Create and display a progress bar
             self.create_stabilization_progress_bar()
             self.create_processing_progress_bar()
+            self.create_preprocess_progress_bar()
 
-            # Set the progress callback function
+            # Set the progress callback functions
             processing.set_progress_callback(self.update_bar)
             # opencv_stabilization.set_progress_callback(self.update_bar)
             video_stabilization.set_progress_callback(self.update_bar)
+            prepass.set_progress_callback(self.update_bar)
+
             # Start video processing in a separate thread
             processing.process_video_thread(video_file_path)
+
+    def create_preprocess_progress_bar(self):
+        self.prep_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                       text="Preprocessing Progress",
+                                                       width=780,
+                                                       height=70,
+                                                       fill=ACCENT,
+                                                       radius=15,
+                                                       bg=BGCOLOR)
+        self.prep_wrapper.canvas.place(x=10, y=430)
+
+        self.prep_progress_bar = custom_ui.CustomProgressBar(self.prep_wrapper.canvas,
+                                                             width=705,
+                                                             height=30,
+                                                             padding=6,
+                                                             bg=ACCENT,
+                                                             bar_bg_accent=BAR_BG_ACCENT,
+                                                             pr_bar=PB_COLOR)
+
+        self.prep_progress_bar.canvas.place(x=10, y=self.prep_wrapper.get_height() // 2 - 5)
+
+        self.prep_progress_label = Label(self.prep_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT, font=BOLD_FONT)
+        self.prep_progress_label.place(x=720, y=30)
 
     def create_stabilization_progress_bar(self):
         self.stab_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
@@ -454,7 +484,7 @@ class Interface:
                                                                 fill=ACCENT,
                                                                 radius=15,
                                                                 bg=BGCOLOR)
-        self.stab_progress_wrapper.canvas.place(x=10, y=430)
+        self.stab_progress_wrapper.canvas.place(x=10, y=510)
 
         self.stab_progress_bar = custom_ui.CustomProgressBar(self.stab_progress_wrapper.canvas,
                                                              width=705,
@@ -488,7 +518,7 @@ class Interface:
                                                                 fill=ACCENT,
                                                                 radius=15,
                                                                 bg=BGCOLOR)
-        self.proc_progress_wrapper.canvas.place(x=10, y=510)
+        self.proc_progress_wrapper.canvas.place(x=10, y=590)
         debug.log("[6/2] Progress wrapper created!", text_color="magenta")
 
         # Create the custom progress bar
@@ -516,7 +546,10 @@ class Interface:
         self.proc_pbar_overlay.canvas.place(x=10, y=self.proc_progress_bar.get_height() * 2)
 
     def update_bar(self, bar: str, value: int):
-        if bar == "stabilization":
+        if bar == "preprocessing":
+            self.prep_progress_bar.set_percentage(value)
+            self.prep_progress_label['text'] = f"{value} %\n"
+        elif bar == "stabilization":
             self.stab_progress_bar.set_percentage(value)
             self.stab_progress_label['text'] = f"{value} %\n"
         elif bar == "processing":
