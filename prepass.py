@@ -8,14 +8,19 @@ def calculate_avg_brightness(frame):
     return frame.sum() // frame.size
 
 
-def plot_average_brightness(brightness_list):
-    x_values = range(len(brightness_list))
-    plt.figure(figsize=(16, 4))
-    plt.plot(x_values, brightness_list, linestyle='-')
+def plot_average_brightness(before_list, after_list, title="Average", path=None):
+    x_values = range(len(before_list))
+    plt.figure(figsize=(10, 4))
+    plt.plot(x_values, before_list, linestyle='-', color='red', label="Before")
+    plt.plot(x_values, after_list, linestyle='-', color='blue', label="After")
     plt.xlabel("Index")
     plt.ylabel("Value")
-    plt.title(f"Brightness visualization")
+    plt.title(title)
     plt.grid(True)
+    plt.ylim(min(before_list) - 1, max(before_list) + 1)
+    plt.legend()
+    if path:
+        plt.savefig(path[:-4] + "_prepass_plot.png", dpi=150)
     plt.show()
 
 
@@ -33,6 +38,7 @@ def preprocess(path):
     prev_frame = first_frame
 
     b_list = list()
+    prepass_b_list = list()
 
     while True:
         ret, frame = cap.read()
@@ -44,28 +50,26 @@ def preprocess(path):
         curr_brightness = calculate_avg_brightness(frame)
         prev_brightness = calculate_avg_brightness(prev_frame)
 
-        b_list.append(abs(curr_brightness - prev_brightness))
+        b_list.append(curr_brightness)
 
-        # 1 - original brightness
-        if curr_brightness - prev_brightness == 0:
+        delta_brightness = 1 - ((curr_brightness - prev_brightness) / curr_brightness)
+        if curr_brightness - prev_brightness == 0:  # or delta_brightness > 1.005:
             delta_brightness = 1
-        else:
-            delta_brightness = 1 - ((curr_brightness - prev_brightness) / curr_brightness)
 
         print(
             f"[Frame: {curr_index}] {curr_brightness} (Difference: {curr_brightness - prev_brightness} | {delta_brightness})")
-        new_frame = cv2.convertScaleAbs(frame, alpha=delta_brightness, beta=0)
-        output.write(new_frame)
-        # if abs(curr_brightness - prev_brightness) <= 3:
-        #     output.write(frame)
-        #     prev_frame = frame
-        # else:
-        #     ret, frame = cap.read()
+        frame = cv2.convertScaleAbs(frame, alpha=delta_brightness, beta=0)
+
+        prepass_b_list.append(calculate_avg_brightness(frame))
+
+        output.write(frame)
+
+        # prev_frame = frame
 
     cap.release()
     output.release()
 
-    plot_average_brightness(b_list)
+    plot_average_brightness(before_list=b_list, after_list=prepass_b_list, title="Before regulation", path=path)
 
 
 preprocess('C:/sample_newly_stabilized.mp4')
