@@ -43,17 +43,24 @@ def preprocess(path):
 
         curr_brightness = calculate_avg_brightness(frame)
         prev_brightness = calculate_avg_brightness(prev_frame)
-        print(f"[Frame: {curr_index}] {curr_brightness} (Difference: {abs(curr_brightness - prev_brightness)})")
 
         b_list.append(abs(curr_brightness - prev_brightness))
 
-        if abs(curr_brightness - prev_brightness) <= 3:
-            output.write(frame)
-            prev_frame = frame
+        # 1 - original brightness
+        if curr_brightness - prev_brightness == 0:
+            delta_brightness = 1
+        else:
+            delta_brightness = 1 - ((curr_brightness - prev_brightness) / curr_brightness)
+
+        print(
+            f"[Frame: {curr_index}] {curr_brightness} (Difference: {curr_brightness - prev_brightness} | {delta_brightness})")
+        new_frame = cv2.convertScaleAbs(frame, alpha=delta_brightness, beta=0)
+        output.write(new_frame)
+        # if abs(curr_brightness - prev_brightness) <= 3:
+        #     output.write(frame)
+        #     prev_frame = frame
         # else:
         #     ret, frame = cap.read()
-
-
 
     cap.release()
     output.release()
@@ -62,5 +69,5 @@ def preprocess(path):
 
 
 preprocess('C:/sample_newly_stabilized.mp4')
-preprocess('C:/sample_newly_stabilized_pass.mp4')
+# preprocess('C:/sample_newly_stabilized_pass.mp4')
 # preprocess('C:/sample_newly_stabilized_pass_pass.mp4')
