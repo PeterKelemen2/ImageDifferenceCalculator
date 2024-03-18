@@ -44,10 +44,10 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
-    # video_stabilization.stab_video_thread(path)
-    #
-    # while not video_stabilization.is_finished:
-    #     time.sleep(0.02)
+    video_stabilization.stab_video_thread(path)
+
+    while not video_stabilization.is_finished:
+        time.sleep(0.02)
 
     new_path = path[:-4] + ".mp4"
     new_path = path[:-4] + "_newly_stabilized.mp4"

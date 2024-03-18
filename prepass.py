@@ -82,15 +82,15 @@ def preprocess(path, to_plot=True):
     output.release()
     if to_plot:
         debug.log("Creating graph for brightness regulation...", text_color="yellow")
-        # plotting.plot_average_brightness(before_list=b_list,
-        #                                  after_list=prepass_b_list,
-        #                                  title="Brightness regulation",
-        #                                  path=path)
-        plotting.plot(values=[b_list, prepass_b_list],
-                      title="Brightness regulation",
-                      graph_labels=["Frame index", "Brightness value"],
-                      legend_labels=["Before", "After"],
-                      path=path)
+        plotting.plot_average_brightness(before_list=b_list,
+                                         after_list=prepass_b_list,
+                                         title="Brightness regulation",
+                                         path=path)
+        # plotting.plot(values=[b_list, prepass_b_list],
+        #               title="Brightness regulation",
+        #               graph_labels=["Frame index", "Brightness value"],
+        #               legend_labels=["Before", "After"],
+        #               path=path)
         debug.log("Graph created!", text_color="yellow")
     debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
 

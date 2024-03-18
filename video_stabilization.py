@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 
 import debug
+import plotting
 
 progress_callback = None
 is_finished = False
@@ -49,6 +50,8 @@ def stabilize_video(video_path, p_callback):
     out = cv2.VideoWriter(output, codec, int(cap.get(cv2.CAP_PROP_FPS)), (frame_width, frame_height))
 
     curr_frame_index = 1
+    movement_data = []
+
     while True:
         print(f"Frames: {curr_frame_index}/{total_frames}")
 
@@ -73,7 +76,7 @@ def stabilize_video(video_path, p_callback):
 
         # Calculate the offset with scaling factor and negate the values
         offset = (-1 * (max_loc[0] - roi_x), -1 * (max_loc[1] - roi_y))
-
+        movement_data.append(offset)
         # Move the frame by applying the offset
         M = np.float32([[1, 0, offset[0]], [0, 1, offset[1]]])
         moved_frame = cv2.warpAffine(frame, M, (frame.shape[1], frame.shape[0]))
@@ -87,6 +90,9 @@ def stabilize_video(video_path, p_callback):
     # cv2.destroyAllWindows()
     progress_callback("stabilization", 100)
     is_finished = True
+    plotting.plot_stabilization_movement(movement_data=movement_data,
+                                         title="Stabilization movement",
+                                         path=video_path[:-4] + "stabilization_plot.png")
 
 
 def stab_video_thread(path):
