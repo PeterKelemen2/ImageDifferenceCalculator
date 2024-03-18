@@ -453,6 +453,7 @@ class Interface:
             # Start video processing in a separate thread
             processing.process_video_thread(video_file_path)
 
+    # TODO: Add it to theme and language changer; Bind preprocessing progress to its progress bar
     def create_preprocess_progress_bar(self):
         self.prep_wrapper = custom_ui.CustomLabelFrame(self.win,
                                                        text="Preprocessing Progress",
