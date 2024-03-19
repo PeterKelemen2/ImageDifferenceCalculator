@@ -192,9 +192,12 @@ class Interface:
         theme_colors = {
             "dark": (DARK_BG, DARK_FONT_COLOR, DARK_ACCENT, BASIC_PB_COLOR),
             "light": (LIGHT_BG, LIGHT_FONT_COLOR, LIGHT_ACCENT, BASIC_PB_COLOR),
-            "palenight": (PALENIGHT_BG, DARK_FONT_COLOR, PALENIGHT_ACCENT, PALENIGHT_PB),
-            "cherrywhite": (CHERRY_WHITE_BG, LIGHT_FONT_COLOR, CHERRY_WHITE_ACCENT, CHERRY_WHITE_PB),
-            "brownorange": (DARK_ORANGE_BG, DARK_FONT_COLOR, DARK_ORANGE_ACCENT, DARK_ORANGE_PB)
+            "palenight": (PALENIGHT_BG, DARK_FONT_COLOR, PALENIGHT_ACCENT, BASIC_PB_COLOR),
+            "cherrywhite": (CHERRY_WHITE_BG, LIGHT_FONT_COLOR, CHERRY_WHITE_ACCENT, BASIC_PB_COLOR),
+            "brownorange": (DARK_ORANGE_BG, DARK_FONT_COLOR, DARK_ORANGE_ACCENT, BASIC_PB_COLOR)
+            # "palenight": (PALENIGHT_BG, DARK_FONT_COLOR, PALENIGHT_ACCENT, PALENIGHT_PB),
+            # "cherrywhite": (CHERRY_WHITE_BG, LIGHT_FONT_COLOR, CHERRY_WHITE_ACCENT, CHERRY_WHITE_PB),
+            # "brownorange": (DARK_ORANGE_BG, DARK_FONT_COLOR, DARK_ORANGE_ACCENT, DARK_ORANGE_PB)
         }
 
         # Set global color variables based on the current theme
@@ -1067,9 +1070,23 @@ class Interface:
         if self.proc_progress_wrapper is not None:
             self.proc_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.proc_progress_label])
             self.proc_progress_bar.config(bg=ACCENT)
+            # self.proc_progress_bar.change_pb_color(PB_COLOR)
             self.proc_pbar_overlay.change_fill_color(ACCENT)
             self.proc_pbar_overlay.change_bg_color(ACCENT)
-            self.proc_progress_bar.change_pb_color(PB_COLOR)
+
+        if self.stab_progress_wrapper is not None:
+            self.stab_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.stab_progress_label])
+            self.stab_progress_bar.config(bg=ACCENT)
+            # self.stab_progress_bar.change_pb_color(PB_COLOR)
+            self.stab_pbar_overlay.change_fill_color(ACCENT)
+            self.stab_pbar_overlay.change_bg_color(ACCENT)
+
+        if self.prep_wrapper is not None:
+            self.prep_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.prep_progress_label])
+            self.prep_progress_bar.config(bg=ACCENT)
+            # self.prep_progress_bar.change_pb_color(PB_COLOR)
+            self.prep_pbar_overlay.change_fill_color(ACCENT)
+            self.prep_pbar_overlay.change_bg_color(ACCENT)
 
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)
