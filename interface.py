@@ -1070,23 +1070,17 @@ class Interface:
         if self.proc_progress_wrapper is not None:
             self.proc_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.proc_progress_label])
             self.proc_progress_bar.config(bg=ACCENT)
-            # self.proc_progress_bar.change_pb_color(PB_COLOR)
-            self.proc_pbar_overlay.change_fill_color(ACCENT)
-            self.proc_pbar_overlay.change_bg_color(ACCENT)
+            self.proc_pbar_overlay.config(fill=ACCENT, bg=ACCENT)
 
         if self.stab_progress_wrapper is not None:
             self.stab_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.stab_progress_label])
             self.stab_progress_bar.config(bg=ACCENT)
-            # self.stab_progress_bar.change_pb_color(PB_COLOR)
-            self.stab_pbar_overlay.change_fill_color(ACCENT)
-            self.stab_pbar_overlay.change_bg_color(ACCENT)
+            self.stab_pbar_overlay.config(fill=ACCENT, bg=ACCENT)
 
         if self.prep_wrapper is not None:
             self.prep_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.prep_progress_label])
             self.prep_progress_bar.config(bg=ACCENT)
-            # self.prep_progress_bar.change_pb_color(PB_COLOR)
-            self.prep_pbar_overlay.change_fill_color(ACCENT)
-            self.prep_pbar_overlay.change_bg_color(ACCENT)
+            self.prep_pbar_overlay.config(fill=ACCENT, bg=ACCENT)
 
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)
