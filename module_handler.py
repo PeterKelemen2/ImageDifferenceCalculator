@@ -49,8 +49,8 @@ def module_handler():
                             text=True)
     installed_modules = {line.split()[0]
                          for line in result.stdout.strip().split('\n')[2:]}
-    for module in installed_modules:
-        debug.log(f"Module installed: {module}")
+    # for module in installed_modules:
+    #     debug.log(f"Module installed: {module}")
     # Install missing modules
     missing_modules = [module for module in modules if module not in installed_modules]
     if missing_modules:

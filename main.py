@@ -1,20 +1,11 @@
+import gc
 import sys
 import module_handler
-
-
-# Handling dependencies before program starts
-# module_handler.module_handler()
-# vlc_handler.vlc_installer()
-# font_handler.install_font("Ubuntu-Regular.ttf")
-# font_handler.install_font("Ubuntu-Bold.ttf")
-# config.init_settings()
-# processing.init_history()
 
 
 # pyinstaller --onefile --add-data "assets;assets" main.py
 
 def main():
-    print("Starting...")
     module_handler.module_handler()
 
     import vlc_handler
@@ -33,9 +24,13 @@ def main():
     try:
         debug.log("Session started!", text_color="cyan")
         my_interface = interface.Interface()
+        while True and not my_interface.terminate_program:
+            pass
+        sys.exit()
     except Exception as e:
         debug.log(f"Application terminated, {e}")
-        sys.exit(1)
+        # del my_interface
+        sys.exit(11)
 
 
 if __name__ == "__main__":

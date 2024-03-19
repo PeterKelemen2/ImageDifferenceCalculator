@@ -46,67 +46,69 @@ stop_thread = False
 
 
 def preprocess(path, p_callback, to_plot=True):
-    start_time = time.time()
+    try:
+        start_time = time.time()
 
-    cap = cv2.VideoCapture(path)
+        cap = cv2.VideoCapture(path)
 
-    new_path = path[:-4] + '_prepass.mp4'
-    ret, first_frame = cap.read()
-    frame_height, frame_width = first_frame.shape[:2]
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    codec = cv2.VideoWriter_fourcc(*'H264')
-    output = cv2.VideoWriter(new_path, codec, 95, (frame_width, frame_height))
+        new_path = path[:-4] + '_prepass.mp4'
+        ret, first_frame = cap.read()
+        frame_height, frame_width = first_frame.shape[:2]
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        codec = cv2.VideoWriter_fourcc(*'H264')
+        output = cv2.VideoWriter(new_path, codec, 95, (frame_width, frame_height))
 
-    curr_index = 0
-    first_frame_brightness = calculate_avg_brightness(first_frame)
+        curr_index = 0
+        first_frame_brightness = calculate_avg_brightness(first_frame)
 
-    b_list, prepass_b_list = [], []
+        b_list, prepass_b_list = [], []
 
-    debug.log("Starting preprocessing...")
+        debug.log("Starting preprocessing...")
 
-    global stop_thread
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        curr_index += 1
+        while True and not stop_thread:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            curr_index += 1
 
-        curr_brightness = calculate_avg_brightness(frame)
-        b_list.append(curr_brightness)
+            curr_brightness = calculate_avg_brightness(frame)
+            b_list.append(curr_brightness)
 
-        delta_brightness = 1 - ((curr_brightness - first_frame_brightness) / curr_brightness)
-        # delta_brightness = round(1 - ((curr_brightness - first_frame_brightness) / curr_brightness), 4)
-        if curr_brightness - first_frame_brightness == 0:
-            delta_brightness = 1
+            delta_brightness = 1 - ((curr_brightness - first_frame_brightness) / curr_brightness)
+            # delta_brightness = round(1 - ((curr_brightness - first_frame_brightness) / curr_brightness), 4)
+            if curr_brightness - first_frame_brightness == 0:
+                delta_brightness = 1
 
-        print_as_table_row(curr_index, curr_brightness, first_frame_brightness, delta_brightness, to_debug=True)
+            print_as_table_row(curr_index, curr_brightness, first_frame_brightness, delta_brightness, to_debug=True)
 
-        frame = cv2.convertScaleAbs(frame, alpha=delta_brightness, beta=0)
-        prepass_b_list.append(calculate_avg_brightness(frame))
+            frame = cv2.convertScaleAbs(frame, alpha=delta_brightness, beta=0)
+            prepass_b_list.append(calculate_avg_brightness(frame))
 
-        output.write(frame)
+            output.write(frame)
 
-        if (curr_index % 10) % 5 == 0:
-            p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames)))
+            if (curr_index % 10) % 5 == 0:
+                p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames)))
 
-    cap.release()
-    output.release()
-    if to_plot:
-        debug.log("Creating graph for brightness regulation...", text_color="yellow")
-        plotting.plot_average_brightness(before_list=b_list,
-                                         after_list=prepass_b_list,
-                                         title="Brightness regulation",
-                                         path=path)
-        # plotting.plot(values=[b_list, prepass_b_list],
-        #               title="Brightness regulation",
-        #               graph_labels=["Frame index", "Brightness value"],
-        #               legend_labels=["Before", "After"],
-        #               path=path)
-        debug.log("Graph created!", text_color="yellow")
-    debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
+        cap.release()
+        output.release()
+        if to_plot:
+            debug.log("Creating graph for brightness regulation...", text_color="yellow")
+            plotting.plot_average_brightness(before_list=b_list,
+                                             after_list=prepass_b_list,
+                                             title="Brightness regulation",
+                                             path=path)
+            # plotting.plot(values=[b_list, prepass_b_list],
+            #               title="Brightness regulation",
+            #               graph_labels=["Frame index", "Brightness value"],
+            #               legend_labels=["Before", "After"],
+            #               path=path)
+            debug.log("Graph created!", text_color="yellow")
+        debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
 
-    global is_finished
-    is_finished = True
+        global is_finished
+        is_finished = True
+    except Exception as e:
+        sys.exit(22)
 
 
 def set_progress_callback(callback):
@@ -124,8 +126,9 @@ def set_progress_callback(callback):
 
 
 def kill_thread():
-    global stop_thread
+    global stop_thread, thread
     stop_thread = True
+    thread.join()
 
 
 def preprocess_video_thread(path, to_plot):

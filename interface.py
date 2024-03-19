@@ -1,3 +1,4 @@
+import gc
 import sys
 import threading
 import time
@@ -82,6 +83,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.terminate_program = False
         self.prep_pbar_overlay = None
         self.prep_wrapper = None
         self.prep_progress_bar = None
@@ -167,7 +169,10 @@ class Interface:
         # self.create_processing_progress_bar()
 
         debug.log("[1/2] Interface created", text_color="blue")
-        self.win.mainloop()
+        try:
+            self.win.mainloop()
+        except Exception as e:
+            print("haaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
     def create_font(self):
         global FONT
@@ -221,6 +226,22 @@ class Interface:
         debug.log("[2/2] Properties set!", text_color="magenta")
 
     def on_window_close(self):
+        self.terminate_program = True
+        prepass.stop_thread = True
+        prepass.thread.join()
+        prepass.is_finished = True
+        prepass.thread = None
+
+        video_stabilization.stop_thread = True
+        video_stabilization.thread.join()
+        video_stabilization.is_finished = True
+        video_stabilization.thread = None
+
+        sys.exit()
+        # processing.stop_thread = True
+        # processing.thread.join()
+
+        print("Stopped threads")
         self.win.destroy()
         sys.exit(2)
 
