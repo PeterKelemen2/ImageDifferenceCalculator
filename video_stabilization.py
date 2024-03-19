@@ -8,7 +8,13 @@ import plotting
 
 progress_callback = None
 is_finished = False
-stab_thread = None
+thread = None
+stop_thread = False
+
+
+def kill_thread():
+    global stop_thread
+    stop_thread = True
 
 
 def set_progress_callback(callback):
@@ -54,6 +60,8 @@ def stabilize_video(video_path, p_callback=None):
     movement_data = []
 
     while True:
+        if stop_thread:
+            return
         print(f"Frames: {curr_frame_index}/{total_frames}")
 
         if (curr_frame_index % 10) % 5 == 0 and p_callback is not None:
@@ -106,9 +114,9 @@ def stab_video_thread(path):
     Parameters:
         path (str): The path to the video file.
     """
-    global progress_callback, stab_thread
+    global progress_callback, thread
     if progress_callback is None:
         debug.log("Progress callback not set. Aborting video processing.", text_color="red")
         return
-    stab_thread = threading.Thread(target=stabilize_video, args=(path, progress_callback))
-    stab_thread.start()
+    thread = threading.Thread(target=stabilize_video, args=(path, progress_callback))
+    thread.start()

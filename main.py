@@ -19,8 +19,11 @@ import interface
 # pyinstaller --onefile --add-data "assets;assets" main.py
 
 def main():
-    debug.log("Session started!", text_color="cyan")
-    my_interface = interface.Interface()
+    try:
+        debug.log("Session started!", text_color="cyan")
+        my_interface = interface.Interface()
+    except Exception as e:
+        debug.log(f"Application terminated, {e}")
 
 
 if __name__ == "__main__":

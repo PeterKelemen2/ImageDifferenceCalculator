@@ -213,10 +213,16 @@ class Interface:
         self.win.title(self.lang["title"])
         self.win.geometry(str(WIN_WIDTH) + "x" + str(WIN_HEIGHT))
         self.win.resizable(False, False)
-        self.win.protocol("WM_DELETE_WINDOW")
+        self.win.protocol("WM_DELETE_WINDOW", self.on_window_close)
         self.selected_file_path = StringVar()
         # self.create_font()
         debug.log("[2/2] Properties set!", text_color="magenta")
+
+    def on_window_close(self):
+        prepass.kill_thread()
+        video_stabilization.kill_thread()
+        processing.kill_thread()
+        self.win.destroy()
 
     def create_buttons_wrapper(self):
         # Create wrapper for settings and history buttons

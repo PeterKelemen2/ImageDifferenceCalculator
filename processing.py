@@ -13,6 +13,7 @@ progress_callback = None
 progress_percentage = None
 total_difference = None
 is_finished = False
+stop_thread = False
 HISTORY_PATH = "processing_history.txt"
 
 
@@ -56,6 +57,9 @@ def process_video(path, progress_callback):
     while not video_stabilization.is_finished:
         time.sleep(0.02)
 
+    if stop_thread:
+        return
+
     # new_path = path[:-4] + ".mp4"
     new_path = new_path[:-4] + "_stabilized.mp4"
 
@@ -85,7 +89,7 @@ def process_video(path, progress_callback):
     video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95, (width, height))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    if not cap.isOpened():
+    if not cap.isOpened() and not stop_thread:
         debug.log("Could not open video", text_color="red")
     else:
         average1 = np.float32(first_frame)
@@ -94,6 +98,9 @@ def process_video(path, progress_callback):
             debug.log("Could not read video frames", text_color="red")
         else:
             while True:
+                if stop_thread:
+                    return
+
                 current_frame_index += 1
 
                 ret, frame = cap.read()
@@ -124,6 +131,15 @@ def process_video(path, progress_callback):
             progress_callback("processing", 100)
 
 
+thread = None
+stop_thread = False
+
+
+def kill_thread():
+    global stop_thread
+    stop_thread = True
+
+
 def process_video_thread(path):
     """
     Creates a thread for video processing.
@@ -133,7 +149,7 @@ def process_video_thread(path):
     Parameters:
         path (str): The path to the video file.
     """
-    global progress_callback
+    global progress_callback, thread
     if progress_callback is None:
         debug.log("Progress callback not set. Aborting video processing.", text_color="red")
         return

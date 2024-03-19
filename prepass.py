@@ -40,6 +40,8 @@ def print_as_table_row(i, curr, first, delta, to_debug=False):
 
 is_finished = False
 progress_callback = None
+thread = None
+stop_thread = False
 
 
 def preprocess(path, p_callback, to_plot=True):
@@ -61,7 +63,11 @@ def preprocess(path, p_callback, to_plot=True):
 
     debug.log("Starting preprocessing...")
 
+    global stop_thread
     while True:
+        if stop_thread:
+            return
+
         ret, frame = cap.read()
         if not ret:
             break
@@ -119,6 +125,11 @@ def set_progress_callback(callback):
     progress_callback = callback
 
 
+def kill_thread():
+    global stop_thread
+    stop_thread = True
+
+
 def preprocess_video_thread(path, to_plot):
     """
     Creates a thread for video processing.
@@ -128,9 +139,9 @@ def preprocess_video_thread(path, to_plot):
     Parameters:
         path (str): The path to the video file.
     """
-    global progress_callback, stab_thread
+    global progress_callback, thread
     if progress_callback is None:
         debug.log("Progress callback not set. Aborting video processing.", text_color="red")
         return
-    stab_thread = threading.Thread(target=preprocess, args=(path, progress_callback, to_plot))
-    stab_thread.start()
+    thread = threading.Thread(target=preprocess, args=(path, progress_callback, to_plot))
+    thread.start()
