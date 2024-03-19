@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import time
 
@@ -65,9 +66,6 @@ def preprocess(path, p_callback, to_plot=True):
 
     global stop_thread
     while True:
-        if stop_thread:
-            return
-
         ret, frame = cap.read()
         if not ret:
             break

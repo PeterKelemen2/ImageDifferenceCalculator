@@ -4,14 +4,14 @@ import time
 
 import debug
 
-modules = ["opencv-python", "pillow", "vidstab"]
+modules = ["opencv-python", "pillow", "matplotlib", "numpy"]
 
 
 def check_if_modules_installed(installed_modules):
     mi_modules = [module
                   for module in modules
                   if module not in installed_modules]
-    if mi_modules:
+    if len(mi_modules) > 0:
         debug.log(f"Module(s) {mi_modules} could not be installed, please install manually",
                   text_color="red",
                   timestamp_color="red")
@@ -37,6 +37,7 @@ def upgrade_pip():
 
 def module_handler():
     start_time = time.time()
+    global modules
 
     # # Upgrade pip to ensure it's up-to-date
     # debug.log("Upgrading pip if necessary...")
@@ -48,7 +49,8 @@ def module_handler():
                             text=True)
     installed_modules = {line.split()[0]
                          for line in result.stdout.strip().split('\n')[2:]}
-
+    for module in installed_modules:
+        debug.log(f"Module installed: {module}")
     # Install missing modules
     missing_modules = [module for module in modules if module not in installed_modules]
     if missing_modules:

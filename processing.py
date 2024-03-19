@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import time
 
@@ -98,9 +99,6 @@ def process_video(path, progress_callback):
             debug.log("Could not read video frames", text_color="red")
         else:
             while True:
-                if stop_thread:
-                    return
-
                 current_frame_index += 1
 
                 ret, frame = cap.read()

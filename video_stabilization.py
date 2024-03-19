@@ -1,3 +1,4 @@
+import sys
 import threading
 
 import cv2
@@ -15,6 +16,7 @@ stop_thread = False
 def kill_thread():
     global stop_thread
     stop_thread = True
+    sys.exit()
 
 
 def set_progress_callback(callback):
@@ -60,11 +62,9 @@ def stabilize_video(video_path, p_callback=None):
     movement_data = []
 
     while True:
-        if stop_thread:
-            return
         print(f"Frames: {curr_frame_index}/{total_frames}")
 
-        if (curr_frame_index % 10) % 5 == 0 and p_callback is not None:
+        if (curr_frame_index % 10) % 5 == 0:
             p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames)))
 
         # Read the current frame
