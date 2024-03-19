@@ -42,7 +42,7 @@ is_finished = False
 progress_callback = None
 
 
-def preprocess(path, to_plot=True):
+def preprocess(path, p_callback, to_plot=True):
     start_time = time.time()
 
     cap = cv2.VideoCapture(path)
@@ -50,7 +50,7 @@ def preprocess(path, to_plot=True):
     new_path = path[:-4] + '_prepass.mp4'
     ret, first_frame = cap.read()
     frame_height, frame_width = first_frame.shape[:2]
-
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     codec = cv2.VideoWriter_fourcc(*'H264')
     output = cv2.VideoWriter(new_path, codec, 95, (frame_width, frame_height))
 
@@ -81,6 +81,9 @@ def preprocess(path, to_plot=True):
         prepass_b_list.append(calculate_avg_brightness(frame))
 
         output.write(frame)
+
+        if (curr_index % 10) % 5 == 0:
+            p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames)))
 
     cap.release()
     output.release()
@@ -116,7 +119,7 @@ def set_progress_callback(callback):
     progress_callback = callback
 
 
-def stab_video_thread(path):
+def preprocess_video_thread(path, to_plot):
     """
     Creates a thread for video processing.
 
@@ -129,5 +132,5 @@ def stab_video_thread(path):
     if progress_callback is None:
         debug.log("Progress callback not set. Aborting video processing.", text_color="red")
         return
-    stab_thread = threading.Thread(target=preprocess(), args=(path, progress_callback))
+    stab_thread = threading.Thread(target=preprocess, args=(path, progress_callback, to_plot))
     stab_thread.start()

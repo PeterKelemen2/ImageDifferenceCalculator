@@ -45,11 +45,14 @@ def process_video(path, progress_callback):
     current_frame_index = 0
     frames_since_last_callback = 0
 
-    prepass.preprocess(path, to_plot=True)
+    prepass.preprocess_video_thread(path, to_plot=True)
+    # prepass.preprocess(path, to_plot=True)
+    while not prepass.is_finished:
+        time.sleep(0.02)
+
     new_path = path[:-4] + "_prepass.mp4"
 
     video_stabilization.stab_video_thread(new_path)
-
     while not video_stabilization.is_finished:
         time.sleep(0.02)
 
