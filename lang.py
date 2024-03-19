@@ -17,11 +17,14 @@ def set_up_dict(lang_file):
     Returns:
         dict: A dictionary containing translations.
     """
+    debug.log(f"Setting up language dictionary from {lang_file}")
     lang_dict = dict()
     with open(lang_file, 'r', encoding="utf-8") as lang:
         for line in lang:
             entry = line.rstrip().split("=")
-            lang_dict[entry[0]] = entry[1]
+            # debug.log(f"Entry: {entry}")
+            if len(entry) == 2:
+                lang_dict[entry[0]] = entry[1]
     return lang_dict
 
 

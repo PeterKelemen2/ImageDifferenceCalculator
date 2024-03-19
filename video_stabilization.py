@@ -26,11 +26,12 @@ def set_progress_callback(callback):
 
 
 # Function to find offset and move the frame
-def stabilize_video(video_path, p_callback):
+def stabilize_video(video_path, p_callback=None):
     global is_finished
 
     # Read video input
     cap = cv2.VideoCapture(video_path)
+    cv2.setNumThreads(2)
     output = video_path[:-4] + "_stabilized.mp4"
 
     # Read the first frame
@@ -55,7 +56,7 @@ def stabilize_video(video_path, p_callback):
     while True:
         print(f"Frames: {curr_frame_index}/{total_frames}")
 
-        if (curr_frame_index % 10) % 5 == 0:
+        if (curr_frame_index % 10) % 5 == 0 and p_callback is not None:
             p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames)))
 
         # Read the current frame
@@ -88,7 +89,8 @@ def stabilize_video(video_path, p_callback):
     cap.release()
     out.release()
     # cv2.destroyAllWindows()
-    progress_callback("stabilization", 100)
+    if p_callback is not None:
+        progress_callback("stabilization", 100)
     is_finished = True
     plotting.plot_stabilization_movement(movement_data=movement_data,
                                          title="Stabilization movement",

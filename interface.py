@@ -81,6 +81,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.prep_pbar_overlay = None
         self.prep_wrapper = None
         self.prep_progress_bar = None
         self.prep_progress_label = None
@@ -455,7 +456,7 @@ class Interface:
 
     def create_preprocess_progress_bar(self):
         self.prep_wrapper = custom_ui.CustomLabelFrame(self.win,
-                                                       text="Preprocessing Progress",
+                                                       text=self.lang["preprocessing"],
                                                        width=780,
                                                        height=70,
                                                        fill=ACCENT,
@@ -476,9 +477,13 @@ class Interface:
         self.prep_progress_label = Label(self.prep_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT, font=BOLD_FONT)
         self.prep_progress_label.place(x=720, y=30)
 
+        self.prep_pbar_overlay = custom_ui.CustomLabelFrame(self.prep_wrapper.canvas, width=705, height=30,
+                                                            bg=ACCENT, fill=ACCENT)
+        self.prep_pbar_overlay.canvas.place(x=10, y=self.prep_progress_bar.get_height() * 2)
+
     def create_stabilization_progress_bar(self):
         self.stab_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
-                                                                text="Stabilization",
+                                                                text=self.lang["stabilization"],
                                                                 width=780,
                                                                 height=70,
                                                                 fill=ACCENT,
@@ -922,6 +927,8 @@ class Interface:
         if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
         if self.frame_wrapper is not None: self.frame_wrapper.set_label_text(self.lang["video_data"])
         if self.proc_progress_wrapper is not None: self.proc_progress_wrapper.set_label_text(self.lang["progress"])
+        if self.stab_progress_wrapper is not None: self.stab_progress_wrapper.set_label_text(self.lang["stabilization"])
+        if self.prep_wrapper is not None: self.prep_wrapper.set_label_text(self.lang["preprocessing"])
 
         # Update text for specified widgets
         for label in [self.settings_window, self.button_wrapper, self.history_title, self.finished_window,

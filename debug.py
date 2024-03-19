@@ -67,7 +67,7 @@ def init_logger():
     global log_file_path
     date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     log_file_path = f"{log_folder_path}/log_{date}.txt"
-    log_file = open(log_file_path, "a")
+    log_file = open(log_file_path, "a", encoding="utf-8")
 
     global session_started
     session_started = True
