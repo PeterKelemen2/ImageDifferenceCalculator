@@ -226,21 +226,20 @@ class Interface:
         debug.log("[2/2] Properties set!", text_color="magenta")
 
     def on_window_close(self):
-        self.terminate_program = True
-        prepass.stop_thread = True
-        prepass.thread.join()
-        prepass.is_finished = True
-        prepass.thread = None
-
-        video_stabilization.stop_thread = True
-        video_stabilization.thread.join()
-        video_stabilization.is_finished = True
-        video_stabilization.thread = None
-
-        sys.exit()
+        # self.terminate_program = True
+        # prepass.stop_thread = True
+        # prepass.thread.join()
+        # prepass.is_finished = True
+        # prepass.thread = None
+        #
+        # video_stabilization.stop_thread = True
+        # video_stabilization.thread.join()
+        # video_stabilization.is_finished = True
+        # video_stabilization.thread = None
         # processing.stop_thread = True
         # processing.thread.join()
 
+        processing.stop_processing_thread()
         print("Stopped threads")
         self.win.destroy()
         sys.exit(2)

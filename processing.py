@@ -14,9 +14,10 @@ progress_callback = None
 progress_percentage = None
 total_difference = None
 is_finished = False
-thread = None
+thread: threading.Thread
 stop_thread = False
 HISTORY_PATH = "processing_history.txt"
+stop_thread_event = None
 
 
 def set_progress_callback(callback):
@@ -44,97 +45,110 @@ def process_video(path, progress_callback):
         path (str): The path to the video file.
         progress_callback (function): The callback function to report progress.
     """
-    try:
-        global stop_thread
-        while not stop_thread:
-            start_time = time.time()
-            current_frame_index = 0
-            frames_since_last_callback = 0
 
-            prepass.preprocess_video_thread(path, to_plot=True)
-            while not prepass.is_finished and not prepass.stop_thread:
-                time.sleep(0.02)
+    global stop_thread, is_finished, total_difference, progress_percentage, stop_thread_event
+    is_finished = False
+    stop_thread_event = threading.Event()
+    while not is_finished:
+        if stop_thread_event.is_set():
+            debug.log("Stopping video processing thread...(1)")
+            break
+        start_time = time.time()
+        current_frame_index = 0
+        frames_since_last_callback = 0
 
-            new_path = path[:-4] + "_prepass.mp4"
+        # prepass.preprocess_video_thread(path, to_plot=True)
+        # while not prepass.is_finished and not prepass.stop_thread:
+        #     time.sleep(0.02)
+        #
+        # new_path = path[:-4] + "_prepass.mp4"
+        #
+        # video_stabilization.stab_video_thread(new_path)
+        # while not video_stabilization.is_finished and not video_stabilization.stop_thread:
+        #     time.sleep(0.02)
 
-            video_stabilization.stab_video_thread(new_path)
-            while not video_stabilization.is_finished and not video_stabilization.stop_thread:
-                time.sleep(0.02)
+        # new_path = path[:-4] + ".mp4"
+        # new_path = new_path[:-4] + "_prepass_stabilized.mp4"
+        new_path = path[:-4] + "_prepass_stabilized.mp4"
 
-            # new_path = path[:-4] + ".mp4"
-            new_path = new_path[:-4] + "_stabilized.mp4"
+        total_difference = 0
 
-            global total_difference, is_finished, progress_percentage
-            total_difference = 0
-            finished = False
+        debug.log(f"Started processing {new_path}", text_color="blue")
 
-            debug.log(f"Started processing {new_path}", text_color="blue")
+        cap = cv2.VideoCapture(new_path)
+        ret, first_frame = cap.read()
+        avg_light_level = first_frame.sum() // first_frame.size
+        print(avg_light_level)
 
-            cap = cv2.VideoCapture(new_path)
-            ret, first_frame = cap.read()
-            avg_light_level = first_frame.sum() // first_frame.size
-            print(avg_light_level)
+        threshold_lower_light = 0
+        threshold_upper_light = int(avg_light_level + avg_light_level * 0.055)
+        threshold_lower_dark = int(avg_light_level - avg_light_level * 0.145)
+        threshold_upper_dark = 255
 
-            threshold_lower_light = 0
-            threshold_upper_light = int(avg_light_level + avg_light_level * 0.055)
-            threshold_lower_dark = int(avg_light_level - avg_light_level * 0.145)
-            threshold_upper_dark = 255
+        first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
+        gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
+        binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
+        binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
 
-            first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
-            gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
-            binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
-            binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
+        height, width = first_frame.shape[:2]
+        accumulated_frame = np.zeros((height, width, 3), dtype=np.float32)
+        video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95,
+                                       (width, height))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-            height, width = first_frame.shape[:2]
-            accumulated_frame = np.zeros((height, width, 3), dtype=np.float32)
-            video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95,
-                                           (width, height))
-            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if not cap.isOpened():
+            debug.log("Could not open video", text_color="red")
+            cap.release()
+            video_output.release()
+        else:
+            average1 = np.float32(first_frame)
 
-            if not cap.isOpened() and not is_finished:
-                debug.log("Could not open video", text_color="red")
+            if not ret:
+                debug.log("Could not read video frames", text_color="red")
             else:
-                average1 = np.float32(first_frame)
+                while True:
+                    if stop_thread_event.is_set():
+                        debug.log("Stopping video processing thread...(2)")
+                        cap.release()
+                        video_output.release()
+                        break
+                    current_frame_index += 1
 
-                if not ret:
-                    debug.log("Could not read video frames", text_color="red")
-                else:
-                    while True and not stop_thread:
-                        current_frame_index += 1
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    frames_since_last_callback += 1
 
-                        ret, frame = cap.read()
-                        if not ret:
-                            break
-                        frames_since_last_callback += 1
+                    first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
+                    second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
+                    # second_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_dark)
 
-                        first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
-                        second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
-                        # second_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_dark)
+                    cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
+                    frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
+                    video_output.write(frame_delta)
 
-                        cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
-                        frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
-                        video_output.write(frame_delta)
+                    if frames_since_last_callback == 5:
+                        progress_percentage = "{:.0f}".format(
+                            (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
+                        progress_callback("processing", int(progress_percentage))
+                        frames_since_last_callback = 0
 
-                        if frames_since_last_callback == 5:
-                            progress_percentage = "{:.0f}".format(
-                                (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
-                            progress_callback("processing", int(progress_percentage))
-                            frames_since_last_callback = 0
+                cap.release()
+                video_output.release()
+                cv2.destroyAllWindows()
 
-                    cap.release()
-                    video_output.release()
-                    cv2.destroyAllWindows()
+                is_finished = True
+                write_to_history(path, total_difference)
+                debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
+                progress_callback("processing", 100)
 
-                    finished = True
-                    write_to_history(path, total_difference)
-                    debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
-                    progress_callback("processing", 100)
 
-        sys.exit()
-    except Exception as e:
-        print("Exception in processing", e)
-        thread.join()
-        sys.exit(123)
+def stop_processing_thread():
+    debug.log("Stopping processing thread...", text_color="red")
+    global thread, stop_thread_event
+    stop_thread_event.set()
+    # thread.join()
+    debug.log("Stopped processing thread", text_color="blue")
 
 
 def process_video_thread(path):
