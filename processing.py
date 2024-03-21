@@ -25,9 +25,8 @@ def set_progress_callback(callback):
     progress_callback = callback
 
 
-def process_video(path, progress_callback):
+def process_video(path, p_callback):
     global is_finished, total_difference, progress_percentage, stop_thread_event
-    # set_progress_callback(progress_callback)
     with lock:  # Acquire the lock
         is_finished = False
         stop_thread_event = threading.Event()
@@ -112,7 +111,7 @@ def process_video(path, progress_callback):
                     progress_percentage = "{:.0f}".format(
                         (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
                     # if not stop_thread_event.is_set():
-                    #     progress_callback("processing", int(progress_percentage))
+                    #     p_callback("processing", int(progress_percentage))
                     frames_since_last_callback = 0
                     debug.log(f"Processing {progress_percentage}%")
 
@@ -124,7 +123,7 @@ def process_video(path, progress_callback):
                 is_finished = True
             write_to_history(path, total_difference)
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
-            # progress_callback("processing", 100)
+            # p_callback("processing", 100)
 
 
 def stop_processing_thread():
@@ -143,13 +142,15 @@ def stop_processing_thread():
     debug.log("Stopped processing thread!", text_color="blue")
 
 
-def process_video_thread(path):
+def process_video_thread(path, callback):
     global progress_callback, thread
-    if progress_callback is None:
+    progress_callback = callback
+    # if progress_callback is None:
+    if callback is None:
         debug.log("Progress callback not set. Aborting video processing.", text_color="red")
         return
 
-    thread = threading.Thread(target=process_video, args=(path, progress_callback))
+    thread = threading.Thread(target=process_video, args=(path, callback))
     thread.start()
 
 
