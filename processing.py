@@ -14,63 +14,30 @@ progress_callback = None
 progress_percentage = None
 total_difference = None
 is_finished = False
-thread: threading.Thread
-stop_thread = False
+thread: threading.Thread = None
 HISTORY_PATH = "processing_history.txt"
 stop_thread_event = None
+lock = threading.Lock()  # Lock for synchronization
 
 
 def set_progress_callback(callback):
-    """
-    Sets the progress callback function.
-
-    This function sets the callback function that will be called during video processing
-    to report progress.
-
-    Parameters:
-        callback (function): The callback function to report progress.
-    """
     global progress_callback
     progress_callback = callback
 
 
 def process_video(path, progress_callback):
-    """
-    Processes the video file.
+    global is_finished, total_difference, progress_percentage, stop_thread_event
+    # set_progress_callback(progress_callback)
+    with lock:  # Acquire the lock
+        is_finished = False
+        stop_thread_event = threading.Event()
 
-    This function reads frames from the video file specified by `path`, calculates the difference
-    between consecutive frames, and reports progress through the callback function.
-
-    Parameters:
-        path (str): The path to the video file.
-        progress_callback (function): The callback function to report progress.
-    """
-
-    global stop_thread, is_finished, total_difference, progress_percentage, stop_thread_event
-    is_finished = False
-    stop_thread_event = threading.Event()
-    while not is_finished:
-        if stop_thread_event.is_set():
-            debug.log("Stopping video processing thread...(1)")
-            break
+    if not is_finished:
         start_time = time.time()
         current_frame_index = 0
         frames_since_last_callback = 0
 
-        # prepass.preprocess_video_thread(path, to_plot=True)
-        # while not prepass.is_finished and not prepass.stop_thread:
-        #     time.sleep(0.02)
-        #
-        # new_path = path[:-4] + "_prepass.mp4"
-        #
-        # video_stabilization.stab_video_thread(new_path)
-        # while not video_stabilization.is_finished and not video_stabilization.stop_thread:
-        #     time.sleep(0.02)
-
-        # new_path = path[:-4] + ".mp4"
-        # new_path = new_path[:-4] + "_prepass_stabilized.mp4"
         new_path = path[:-4] + "_prepass_stabilized.mp4"
-
         total_difference = 0
 
         debug.log(f"Started processing {new_path}", text_color="blue")
@@ -97,83 +64,96 @@ def process_video(path, progress_callback):
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         if not cap.isOpened():
-            debug.log("Could not open video", text_color="red")
+            with lock:  # Acquire the lock
+                debug.log("Could not open video", text_color="red")
+                is_finished = True  # Ensure is_finished is updated even if an error occurs
+                stop_thread_event.set()  # Set stop event in case of error
             cap.release()
             video_output.release()
+            return
         else:
             average1 = np.float32(first_frame)
 
             if not ret:
-                debug.log("Could not read video frames", text_color="red")
-            else:
-                while True:
-                    if stop_thread_event.is_set():
-                        debug.log("Stopping video processing thread...(2)")
-                        cap.release()
-                        video_output.release()
-                        break
-                    current_frame_index += 1
-
-                    ret, frame = cap.read()
-                    if not ret:
-                        break
-                    frames_since_last_callback += 1
-
-                    first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
-                    second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
-                    # second_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_dark)
-
-                    cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
-                    frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
-                    video_output.write(frame_delta)
-
-                    if frames_since_last_callback == 5:
-                        progress_percentage = "{:.0f}".format(
-                            (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
-                        progress_callback("processing", int(progress_percentage))
-                        frames_since_last_callback = 0
-
+                with lock:  # Acquire the lock
+                    debug.log("Could not read video frames", text_color="red")
+                    is_finished = True  # Ensure is_finished is updated even if an error occurs
+                    stop_thread_event.set()  # Set stop event in case of error
                 cap.release()
                 video_output.release()
-                cv2.destroyAllWindows()
+                return
 
+            while True:
+                if stop_thread_event.is_set():
+                    with lock:  # Acquire the lock
+                        debug.log("Stopping video processing thread...")
+                        is_finished = True
+                    cap.release()
+                    video_output.release()
+                    return
+
+                current_frame_index += 1
+
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                frames_since_last_callback += 1
+
+                first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
+                second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
+
+                cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
+                frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
+                video_output.write(frame_delta)
+
+                # If callback function is called in between the checks the thread will not join!!
+                # Temporarily disabled
+                if frames_since_last_callback == 5 and not stop_thread_event.is_set():
+                    progress_percentage = "{:.0f}".format(
+                        (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
+                    # if not stop_thread_event.is_set():
+                    #     progress_callback("processing", int(progress_percentage))
+                    frames_since_last_callback = 0
+                    debug.log(f"Processing {progress_percentage}%")
+
+            cap.release()
+            video_output.release()
+            cv2.destroyAllWindows()
+
+            with lock:  # Acquire the lock
                 is_finished = True
-                write_to_history(path, total_difference)
-                debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
-                progress_callback("processing", 100)
+            write_to_history(path, total_difference)
+            debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
+            # progress_callback("processing", 100)
 
 
 def stop_processing_thread():
-    debug.log("Stopping processing thread...", text_color="red")
-    global thread, stop_thread_event
-    stop_thread_event.set()
-    # thread.join()
-    debug.log("Stopped processing thread", text_color="blue")
+    global thread, stop_thread_event, progress_callback
+
+    with lock:  # Acquire the lock
+        if stop_thread_event is not None:
+            stop_thread_event.set()
+            debug.log("Thread event set!")
+
+    if thread is not None:
+        debug.log("Joining thread...")
+        thread.join()
+        debug.log("Thread joined!")
+
+    debug.log("Stopped processing thread!", text_color="blue")
 
 
 def process_video_thread(path):
-    """
-    Creates a thread for video processing.
-
-    This function creates a separate thread to process the video specified by `path`.
-
-    Parameters:
-        path (str): The path to the video file.
-    """
     global progress_callback, thread
     if progress_callback is None:
         debug.log("Progress callback not set. Aborting video processing.", text_color="red")
         return
+
     thread = threading.Thread(target=process_video, args=(path, progress_callback))
     thread.start()
 
 
 def init_history():
-    """
-    Initializes the processing history file.
-
-    This function creates a new processing history file if it doesn't exist.
-    """
     if not os.path.exists(HISTORY_PATH):
         try:
             with open(HISTORY_PATH, "w"):
@@ -183,35 +163,17 @@ def init_history():
 
 
 def write_to_history(video_file: str, result):
-    """
-    Writes processing result to the history file.
-
-    This function writes the processing result for a video file to the history file.
-
-    Parameters:
-        video_file (str): The path to the video file.
-        result: The processing result.
-    """
     file_name = video_file.split("/")
     with open(HISTORY_PATH, "a") as history_file:
         history_file.write(f"File: {file_name[len(file_name) - 1]};Result: {result}\n")
 
 
 def read_from_history():
-    """
-    Reads processing history from the history file.
-
-    This function reads the processing history from the history file and prints the last 7 entries.
-
-    Returns:
-        list: A list containing the last 7 entries from the history file.
-    """
     res_list = list()
     with open(HISTORY_PATH, "r") as history_file:
         for line in history_file:
             res_list.append(line)
 
-    # Show last 7 lines
     while len(res_list) > 7:
         res_list.pop(0)
 

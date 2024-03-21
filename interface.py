@@ -2,6 +2,7 @@ import gc
 import sys
 import threading
 import time
+import tkinter
 from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button
 from tkinter.ttk import Progressbar
 
@@ -152,6 +153,10 @@ class Interface:
         self.image_detail_dict = None
         self.browse_wrapper = None
         self.browse_button = None
+        # self.loading_gif_path = None
+        # self.gif = None
+        # self.gif_images_list = None
+        # self.loading_image_label = None
 
         self.set_color()
 
@@ -165,14 +170,9 @@ class Interface:
         self.create_history_button()
         self.create_browser()
 
-        # self.create_stabilization_progress_bar()
-        # self.create_processing_progress_bar()
-
         debug.log("[1/2] Interface created", text_color="blue")
-        try:
-            self.win.mainloop()
-        except Exception as e:
-            print("haaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
+        self.win.mainloop()
 
     def create_font(self):
         global FONT

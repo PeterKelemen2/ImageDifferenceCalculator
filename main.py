@@ -21,16 +21,16 @@ def main():
     config.init_settings()
     processing.init_history()
 
-    try:
-        debug.log("Session started!", text_color="cyan")
-        my_interface = interface.Interface()
-        while True and not my_interface.terminate_program:
-            pass
-        sys.exit()
-    except Exception as e:
-        debug.log(f"Application terminated, {e}")
-        # del my_interface
-        sys.exit(11)
+
+    debug.log("Session started!", text_color="cyan")
+    my_interface = interface.Interface()
+    while True and not my_interface.terminate_program:
+        pass
+    sys.exit()
+
+    debug.log(f"Application terminated, {e}")
+    # del my_interface
+    sys.exit(11)
 
 
 if __name__ == "__main__":
