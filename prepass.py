@@ -2,6 +2,7 @@ import os
 import sys
 import threading
 import time
+from queue import Queue
 
 import debug
 
@@ -41,8 +42,10 @@ def print_as_table_row(i, curr, first, delta, to_debug=False):
 
 is_finished = False
 progress_callback = None
-thread = None
 stop_thread = False
+callback_queue: Queue = Queue()
+thread: threading.Thread = None
+stop_thread_event: threading.Event = None
 
 
 def preprocess(path, p_callback, to_plot=True):
@@ -65,7 +68,7 @@ def preprocess(path, p_callback, to_plot=True):
 
         debug.log("Starting preprocessing...")
 
-        while True and not stop_thread:
+        while not stop_thread_event.is_set():
             ret, frame = cap.read()
             if not ret:
                 break
@@ -87,7 +90,8 @@ def preprocess(path, p_callback, to_plot=True):
             output.write(frame)
 
             if (curr_index % 10) % 5 == 0:
-                p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames)))
+                # p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames)))
+                debug.log("{:.0f}".format((curr_index * 100) / total_frames))
 
         cap.release()
         output.release()
@@ -125,10 +129,31 @@ def set_progress_callback(callback):
     progress_callback = callback
 
 
-def kill_thread():
-    global stop_thread, thread
-    stop_thread = True
-    thread.join()
+def stop_prepass_thread():
+    global thread, stop_thread_event, is_finished
+
+    if stop_thread_event is not None:
+        stop_thread_event.set()
+        time.sleep(0.5)  # To wait for the current cycle to finish
+        debug.log("Preprocessing Thread event set!")
+
+    if thread is not None:
+        debug.log("Joining preprocessing thread...")
+        if stop_thread_event is not None and stop_thread_event.is_set():
+            thread.join()
+        debug.log("Preprocessing thread joined!")
+
+    is_finished = True
+
+    debug.log("Stopped preprocessing thread!", text_color="blue")
+
+
+def execute_callbacks():
+    debug.log("Executing callbacks...", text_color="blue")
+    while not callback_queue.empty():
+        callback = callback_queue.get()
+        callback()
+        # debug.log(f"Executed {callback} callback")
 
 
 def preprocess_video_thread(path, to_plot):

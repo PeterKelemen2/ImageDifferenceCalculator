@@ -1,6 +1,7 @@
 import sys
 import threading
-
+import time
+from queue import Queue
 import cv2
 import numpy as np
 
@@ -9,14 +10,10 @@ import plotting
 
 progress_callback = None
 is_finished = False
-thread = None
+callback_queue: Queue = Queue()
+thread: threading.Thread = None
+stop_thread_event: threading.Event = None
 stop_thread = False
-
-
-def kill_thread():
-    global stop_thread
-    stop_thread = True
-    sys.exit()
 
 
 def set_progress_callback(callback):
@@ -37,7 +34,7 @@ def set_progress_callback(callback):
 def stabilize_video(video_path, p_callback=None):
     global is_finished, stop_thread
 
-    try:
+    if not stop_thread_event.is_set():
         # Read video input
         cap = cv2.VideoCapture(video_path)
         cv2.setNumThreads(2)
@@ -62,11 +59,12 @@ def stabilize_video(video_path, p_callback=None):
         curr_frame_index = 1
         movement_data = []
 
-        while True and not stop_thread:
+        while not stop_thread_event.is_set():
             print(f"Frames: {curr_frame_index}/{total_frames}")
 
             if (curr_frame_index % 10) % 5 == 0:
-                p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames)))
+                # p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames)))
+                debug.log("{:.0f}".format((curr_frame_index * 100) / total_frames))
 
             # Read the current frame
             ret, frame = cap.read()
@@ -99,14 +97,29 @@ def stabilize_video(video_path, p_callback=None):
         out.release()
         # cv2.destroyAllWindows()
         if p_callback is not None:
-            progress_callback("stabilization", 100)
+            # progress_callback("stabilization", 100)
+            pass
         is_finished = True
         plotting.plot_stabilization_movement(movement_data=movement_data,
                                              title="Stabilization movement",
                                              path=video_path[:-4] + "stabilization_plot.png")
 
-    except Exception as e:
-        stop_thread = True
+
+def stop_stabilization_thread():
+    global thread, stop_thread_event
+
+    if stop_thread_event is not None:
+        stop_thread_event.set()
+        time.sleep(0.5)  # To wait for the current cycle to finish
+        debug.log("Stabilization thread event set!")
+
+    if thread is not None:
+        debug.log("Joining stabilization thread...")
+        if stop_thread_event is not None and stop_thread_event.is_set():
+            thread.join()
+        debug.log("Stabilization thread joined!")
+
+    debug.log("Stopped stabilization thread!", text_color="blue")
 
 
 def stab_video_thread(path):

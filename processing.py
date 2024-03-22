@@ -37,7 +37,20 @@ def process_video(path, p_callback):
         current_frame_index = 0
         frames_since_last_callback = 0
 
-        new_path = path[:-4] + "_prepass_stabilized.mp4"
+        prepass.preprocess_video_thread(path, to_plot=True)
+        debug.log("Started preprocessing thread!")
+        while not prepass.is_finished:
+            time.sleep(0.02)
+        prepass.thread.join()
+
+        new_path = path[:-4] + "_prepass.mp4"
+
+        video_stabilization.stab_video_thread(new_path)
+        while not video_stabilization.is_finished:
+            time.sleep(0.02)
+        video_stabilization.thread.join()
+
+        # new_path = path[:-4] + "_prepass_stabilized.mp4"
         total_difference = 0
 
         debug.log(f"Started processing {new_path}", text_color="blue")

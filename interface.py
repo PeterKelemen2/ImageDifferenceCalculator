@@ -245,8 +245,19 @@ class Interface:
         # processing.stop_thread = True
         # processing.thread.join()
 
+        debug.log("Stopping all threads!!!")
+
+        debug.log("Stopping prepass thread...", text_color="yellow")
+        prepass.stop_prepass_thread()
+        debug.log("Stopped prepass thread!", text_color="magenta")
+
+        # TODO: This acts weird... fml
+        debug.log("Stopping stabilization thread...", text_color="yellow")
+        video_stabilization.stop_stabilization_thread()
+        debug.log("Stopped stabilization thread!", text_color="magenta")
+
         processing.stop_processing_thread()
-        print("Stopped threads")
+        debug.log("Stopped threads")
         self.win.destroy()
         sys.exit(2)
 
