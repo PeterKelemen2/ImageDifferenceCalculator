@@ -1,4 +1,5 @@
 import os
+from queue import Queue
 import sys
 import threading
 import time
@@ -16,8 +17,9 @@ total_difference = None
 is_finished = False
 thread: threading.Thread = None
 HISTORY_PATH = "processing_history.txt"
-stop_thread_event = None
+stop_thread_event: threading.Event = None
 lock = threading.Lock()  # Lock for synchronization
+callback_queue: Queue = Queue()
 
 
 def set_progress_callback(callback):
@@ -27,9 +29,8 @@ def set_progress_callback(callback):
 
 def process_video(path, p_callback):
     global is_finished, total_difference, progress_percentage, stop_thread_event
-    with lock:  # Acquire the lock
-        is_finished = False
-        stop_thread_event = threading.Event()
+    is_finished = False
+    stop_thread_event = threading.Event()
 
     if not is_finished:
         start_time = time.time()
@@ -44,7 +45,6 @@ def process_video(path, p_callback):
         cap = cv2.VideoCapture(new_path)
         ret, first_frame = cap.read()
         avg_light_level = first_frame.sum() // first_frame.size
-        print(avg_light_level)
 
         threshold_lower_light = 0
         threshold_upper_light = int(avg_light_level + avg_light_level * 0.055)
@@ -63,10 +63,9 @@ def process_video(path, p_callback):
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         if not cap.isOpened():
-            with lock:  # Acquire the lock
-                debug.log("Could not open video", text_color="red")
-                is_finished = True  # Ensure is_finished is updated even if an error occurs
-                stop_thread_event.set()  # Set stop event in case of error
+            debug.log("Could not open video", text_color="red")
+            is_finished = True
+            stop_thread_event.set()
             cap.release()
             video_output.release()
             return
@@ -74,23 +73,14 @@ def process_video(path, p_callback):
             average1 = np.float32(first_frame)
 
             if not ret:
-                with lock:  # Acquire the lock
-                    debug.log("Could not read video frames", text_color="red")
-                    is_finished = True  # Ensure is_finished is updated even if an error occurs
-                    stop_thread_event.set()  # Set stop event in case of error
+                debug.log("Could not read video frames", text_color="red")
+                is_finished = True  # Ensure is_finished is updated even if an error occurs
+                stop_thread_event.set()  # Set stop event in case of error
                 cap.release()
                 video_output.release()
                 return
 
-            while True:
-                if stop_thread_event.is_set():
-                    with lock:  # Acquire the lock
-                        debug.log("Stopping video processing thread...")
-                        is_finished = True
-                    cap.release()
-                    video_output.release()
-                    return
-
+            while not stop_thread_event.is_set():
                 current_frame_index += 1
 
                 ret, frame = cap.read()
@@ -107,11 +97,11 @@ def process_video(path, p_callback):
 
                 # If callback function is called in between the checks the thread will not join!!
                 # Temporarily disabled
-                if frames_since_last_callback == 5 and not stop_thread_event.is_set():
+                if frames_since_last_callback == 5:
                     progress_percentage = "{:.0f}".format(
                         (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
-                    # if not stop_thread_event.is_set():
-                    #     p_callback("processing", int(progress_percentage))
+                    # p_callback("processing", int(progress_percentage))
+                    callback_queue.put(lambda: p_callback("processing", int(progress_percentage)))
                     frames_since_last_callback = 0
                     debug.log(f"Processing {progress_percentage}%")
 
@@ -119,27 +109,37 @@ def process_video(path, p_callback):
             video_output.release()
             cv2.destroyAllWindows()
 
-            with lock:  # Acquire the lock
-                is_finished = True
+            is_finished = True
             write_to_history(path, total_difference)
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
             # p_callback("processing", 100)
+
+    debug.log("End of processing method")
 
 
 def stop_processing_thread():
     global thread, stop_thread_event, progress_callback
 
-    with lock:  # Acquire the lock
-        if stop_thread_event is not None:
-            stop_thread_event.set()
-            debug.log("Thread event set!")
+    if stop_thread_event is not None:
+        stop_thread_event.set()
+        time.sleep(0.5)  # To wait for the current cycle to finish
+        debug.log("Thread event set!")
 
     if thread is not None:
         debug.log("Joining thread...")
-        thread.join()
+        if stop_thread_event is not None and stop_thread_event.is_set():
+            thread.join()
         debug.log("Thread joined!")
 
     debug.log("Stopped processing thread!", text_color="blue")
+
+
+def execute_callbacks():
+    debug.log("Executing callbacks...", text_color="blue")
+    while not callback_queue.empty():
+        callback = callback_queue.get()
+        callback()
+        # debug.log(f"Executed {callback} callback")
 
 
 def process_video_thread(path, callback):

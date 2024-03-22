@@ -225,6 +225,12 @@ class Interface:
         # self.create_font()
         debug.log("[2/2] Properties set!", text_color="magenta")
 
+        self.win.after(500, self.schedule_periodic_processing_execution)
+
+    def schedule_periodic_processing_execution(self):
+        processing.execute_callbacks()
+        self.win.after(500, self.schedule_periodic_processing_execution)
+
     def on_window_close(self):
         # self.terminate_program = True
         # prepass.stop_thread = True
