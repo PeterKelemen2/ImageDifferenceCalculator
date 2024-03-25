@@ -11,11 +11,8 @@ import processing
 
 progress_callback = None
 is_finished = False
-initialized = False
-callback_queue: Queue = Queue()
 thread: threading.Thread = None
 stop_thread_event: threading.Event = None
-stop_thread = False
 
 
 def set_progress_callback(callback):
@@ -34,10 +31,7 @@ def set_progress_callback(callback):
 
 # Function to find offset and move the frame
 def stabilize_video(video_path, p_callback=None):
-    global is_finished, stop_thread, stop_thread_event, initialized
-
-    initialized = True
-
+    global is_finished, stop_thread, stop_thread_event
     stop_thread_event = threading.Event()
 
     if not is_finished:
@@ -129,14 +123,6 @@ def stop_stabilization_thread():
         debug.log("Stabilization thread joined!")
 
     debug.log("Stopped stabilization thread!", text_color="blue")
-
-
-def execute_callbacks():
-    debug.log("Executing stabilization callbacks...", text_color="blue")
-    while not callback_queue.empty():
-        callback = callback_queue.get()
-        callback()
-        # debug.log(f"Executed {callback} callback")
 
 
 def stab_video_thread(path):

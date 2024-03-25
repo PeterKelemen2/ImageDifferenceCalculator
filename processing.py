@@ -19,7 +19,6 @@ initialized = False
 thread: threading.Thread = None
 HISTORY_PATH = "processing_history.txt"
 stop_thread_event: threading.Event = None
-lock = threading.Lock()  # Lock for synchronization
 callback_queue: Queue = Queue()
 
 

@@ -13,13 +13,9 @@ import plotting
 import processing
 
 is_finished = False
-initialized = False
 progress_callback = None
-stop_thread = False
-callback_queue: Queue = Queue()
 thread: threading.Thread = None
 stop_thread_event: threading.Event = None
-force_stopped = False
 
 
 def calculate_avg_brightness(frame):
@@ -51,8 +47,7 @@ def print_as_table_row(i, curr, first, delta, to_debug=False):
 
 
 def preprocess(path, to_plot=True):
-    global is_finished, stop_thread_event, progress_callback, initialized
-    initialized = True
+    global is_finished, stop_thread_event, progress_callback
     p_callback = progress_callback
     stop_thread_event = threading.Event()
 
@@ -155,14 +150,6 @@ def stop_prepass_thread():
     is_finished = True
 
     debug.log("Stopped preprocessing thread!", text_color="blue")
-
-
-def execute_callbacks():
-    debug.log("Executing preprocessing callbacks...", text_color="blue")
-    while not callback_queue.empty():
-        callback = callback_queue.get()
-        callback()
-        # debug.log(f"Executed {callback} callback")
 
 
 def preprocess_video_thread(path, to_plot):
