@@ -484,6 +484,21 @@ class Interface:
                                  y=self.frame_details_header.winfo_y() + self.frame_details_header.winfo_reqheight() + 20)
         debug.log("[5/12] Labels to display video details created!", text_color="yellow")
 
+        # stab_checkbox_var = tkinter.BooleanVar
+        # self.stab_checkbox = tkinter.Checkbutton(self.frame_wrapper.canvas,
+        #                                          text="Stabilization",
+        #                                          variable=stab_checkbox_var,
+        #                                          fg=FONT_COLOR,
+        #                                          bg=ACCENT,
+        #                                          selectcolor=ACCENT,
+        #                                          highlightcolor=ACCENT)
+        # self.stab_checkbox.place(x=new_width + 30,
+        #                          y=250)
+
+        checkbox = custom_ui.CustomCheckbutton(self.frame_wrapper.canvas, bg=ACCENT, selectcolor=BGCOLOR)
+        checkbox.place(x=new_width + 30, y=250)
+        # y=self.image_details.winfo_reqheight() + 2 * self.stab_checkbox.winfo_reqheight() + 10)
+
     def process_video(self):
         """
         Initiates the video processing task.

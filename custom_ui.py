@@ -1,4 +1,5 @@
 import time
+import tkinter
 from tkinter import PhotoImage, Canvas
 
 import PIL.ImageOps
@@ -24,6 +25,40 @@ FONT = ("Ubuntu", TIME_FONT_SIZE)
 BOLD_FONT = ("Ubuntu", TIME_FONT_SIZE, "bold")
 BIG_FONT = ("Ubuntu", BIG_FONT_SIZE)
 BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
+
+
+class CustomCheckbutton(tkinter.Canvas):
+    def __init__(self, master=None, width=40, height=40, **kwargs):
+        self.var = kwargs.pop('variable', None)
+        self.checked = tkinter.BooleanVar()
+        self.checked.set(False)
+
+        self.width = kwargs.pop('width', width)
+        self.height = kwargs.pop('height', height)
+        self.bg_color = kwargs.pop('bg', 'white')
+        self.fg_color = kwargs.pop('fg', 'black')
+        self.select_color = kwargs.pop('selectcolor', 'blue')
+
+        super().__init__(master, width=self.width, height=self.height, **kwargs)
+
+        self.bind('<Button-1>', self.toggle)
+
+        self.draw()
+
+    def draw(self):
+        self.delete('all')
+        self.create_rectangle(0, 0, self.width, self.height, fill=self.bg_color, outline=self.fg_color, width=1)
+        if self.checked.get():
+            radius = min(self.width, self.height) // 4
+            print(radius)
+            self.create_oval(self.width // 2 - radius + 1, self.height // 2 - radius + 1,
+                             self.width // 2 + radius + 1, self.height // 2 + radius + 1, fill=self.select_color)
+
+    def toggle(self, event):
+        self.checked.set(not self.checked.get())
+        self.draw()
+        if self.var:
+            self.var.set(self.checked.get())
 
 
 class CustomLabelFrame:
