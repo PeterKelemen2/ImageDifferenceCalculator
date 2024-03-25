@@ -226,11 +226,16 @@ class Interface:
         # self.create_font()
         debug.log("[2/2] Properties set!", text_color="magenta")
 
-        self.win.after(500, self.schedule_periodic_processing_execution)
+        self.win.after(300, self.schedule_periodic_processing_execution)
 
     def schedule_periodic_processing_execution(self):
-        processing.execute_callbacks()
-        self.periodic_exec_id = self.win.after(500, self.schedule_periodic_processing_execution)
+        if processing.initialized:
+            processing.execute_callbacks()
+
+        self.periodic_exec_id = self.win.after(150, self.schedule_periodic_processing_execution)
+        if processing.is_finished:
+            processing.execute_callbacks()
+            self.stop_periodic_progress_update()
 
     def stop_periodic_progress_update(self):
         if self.periodic_exec_id is not None:

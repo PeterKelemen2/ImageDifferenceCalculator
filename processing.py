@@ -15,6 +15,7 @@ progress_callback = None
 progress_percentage = None
 total_difference = None
 is_finished = False
+initialized = False
 thread: threading.Thread = None
 HISTORY_PATH = "processing_history.txt"
 stop_thread_event: threading.Event = None
@@ -28,7 +29,9 @@ def set_progress_callback(callback):
 
 
 def process_video(path, p_callback):
-    global is_finished, total_difference, progress_percentage, stop_thread_event
+    global is_finished, total_difference, progress_percentage, stop_thread_event, initialized
+
+    initialized = True
     is_finished = False
     stop_thread_event = threading.Event()
 
@@ -37,6 +40,7 @@ def process_video(path, p_callback):
         current_frame_index = 0
         frames_since_last_callback = 0
 
+        prepass.set_progress_callback(p_callback)
         prepass.preprocess_video_thread(path, to_plot=True)
         debug.log("Started preprocessing thread!")
         while not prepass.is_finished:
@@ -46,6 +50,7 @@ def process_video(path, p_callback):
 
         new_path = path[:-4] + "_prepass.mp4"
 
+        video_stabilization.set_progress_callback(p_callback)
         video_stabilization.stab_video_thread(new_path)
         debug.log("Started stabilization thread!")
         while not video_stabilization.is_finished:
@@ -54,6 +59,7 @@ def process_video(path, p_callback):
         debug.log("Stabilization finished!")
 
         # new_path = path[:-4] + "_prepass_stabilized.mp4"
+
         total_difference = 0
 
         debug.log(f"Started processing {new_path}", text_color="blue")
@@ -111,8 +117,6 @@ def process_video(path, p_callback):
                 frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
                 video_output.write(frame_delta)
 
-                # If callback function is called in between the checks the thread will not join!!
-                # Temporarily disabled
                 if frames_since_last_callback == 5:
                     progress_percentage = "{:.0f}".format(
                         (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
@@ -125,10 +129,11 @@ def process_video(path, p_callback):
             video_output.release()
             cv2.destroyAllWindows()
 
+            callback_queue.put(lambda: p_callback("processing", 100))
+            # execute_callbacks()
             is_finished = True
             write_to_history(path, total_difference)
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
-            # p_callback("processing", 100)
 
     debug.log("End of processing method")
 
@@ -161,7 +166,7 @@ def stop_processing_thread():
 
 
 def execute_callbacks():
-    debug.log("Executing callbacks...", text_color="blue")
+    debug.log("Executing processing callbacks...", text_color="blue")
     while not callback_queue.empty():
         callback = callback_queue.get()
         callback()

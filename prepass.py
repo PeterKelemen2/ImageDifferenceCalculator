@@ -10,8 +10,10 @@ import cv2
 import numpy as np
 
 import plotting
+import processing
 
 is_finished = False
+initialized = False
 progress_callback = None
 stop_thread = False
 callback_queue: Queue = Queue()
@@ -49,8 +51,9 @@ def print_as_table_row(i, curr, first, delta, to_debug=False):
 
 
 def preprocess(path, to_plot=True):
-    global is_finished, stop_thread_event
-
+    global is_finished, stop_thread_event, progress_callback, initialized
+    initialized = True
+    p_callback = progress_callback
     stop_thread_event = threading.Event()
 
     if not is_finished:
@@ -95,7 +98,8 @@ def preprocess(path, to_plot=True):
             output.write(frame)
 
             if (curr_index % 10) % 5 == 0:
-                pass
+                processing.callback_queue.put(
+                    lambda: p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames))))
                 # p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames)))
                 # debug.log("{:.0f}".format((curr_index * 100) / total_frames))
 
@@ -114,7 +118,8 @@ def preprocess(path, to_plot=True):
             #               path=path)
             debug.log("Graph created!", text_color="yellow")
         debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
-
+        processing.callback_queue.put(lambda: p_callback("preprocessing", 100))
+        # execute_callbacks()
         is_finished = True
 
 
@@ -153,7 +158,7 @@ def stop_prepass_thread():
 
 
 def execute_callbacks():
-    debug.log("Executing callbacks...", text_color="blue")
+    debug.log("Executing preprocessing callbacks...", text_color="blue")
     while not callback_queue.empty():
         callback = callback_queue.get()
         callback()

@@ -7,9 +7,11 @@ import numpy as np
 
 import debug
 import plotting
+import processing
 
 progress_callback = None
 is_finished = False
+initialized = False
 callback_queue: Queue = Queue()
 thread: threading.Thread = None
 stop_thread_event: threading.Event = None
@@ -32,7 +34,9 @@ def set_progress_callback(callback):
 
 # Function to find offset and move the frame
 def stabilize_video(video_path, p_callback=None):
-    global is_finished, stop_thread, stop_thread_event
+    global is_finished, stop_thread, stop_thread_event, initialized
+
+    initialized = True
 
     stop_thread_event = threading.Event()
 
@@ -65,8 +69,11 @@ def stabilize_video(video_path, p_callback=None):
             print(f"Frames: {curr_frame_index}/{total_frames}")
 
             if (curr_frame_index % 10) % 5 == 0:
+                processing.callback_queue.put(
+                    lambda: p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames))))
                 # p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames)))
-                debug.log("{:.0f}".format((curr_frame_index * 100) / total_frames))
+                # debug.log("{:.0f}".format((curr_frame_index * 100) / total_frames))
+                # stabilization
 
             # Read the current frame
             ret, frame = cap.read()
@@ -97,10 +104,10 @@ def stabilize_video(video_path, p_callback=None):
 
         cap.release()
         out.release()
-        # cv2.destroyAllWindows()
-        if p_callback is not None:
-            # progress_callback("stabilization", 100)
-            pass
+
+        processing.callback_queue.put(
+            lambda: p_callback("stabilization", 100))
+        # execute_callbacks()
         is_finished = True
         plotting.plot_stabilization_movement(movement_data=movement_data,
                                              title="Stabilization movement",
@@ -122,6 +129,14 @@ def stop_stabilization_thread():
         debug.log("Stabilization thread joined!")
 
     debug.log("Stopped stabilization thread!", text_color="blue")
+
+
+def execute_callbacks():
+    debug.log("Executing stabilization callbacks...", text_color="blue")
+    while not callback_queue.empty():
+        callback = callback_queue.get()
+        callback()
+        # debug.log(f"Executed {callback} callback")
 
 
 def stab_video_thread(path):
