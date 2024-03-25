@@ -11,6 +11,14 @@ import numpy as np
 
 import plotting
 
+is_finished = False
+progress_callback = None
+stop_thread = False
+callback_queue: Queue = Queue()
+thread: threading.Thread = None
+stop_thread_event: threading.Event = None
+force_stopped = False
+
 
 def calculate_avg_brightness(frame):
     # return frame.sum() // frame.size
@@ -40,16 +48,13 @@ def print_as_table_row(i, curr, first, delta, to_debug=False):
         print(line)
 
 
-is_finished = False
-progress_callback = None
-stop_thread = False
-callback_queue: Queue = Queue()
-thread: threading.Thread = None
-stop_thread_event: threading.Event = None
+def preprocess(path, to_plot=True):
+    global is_finished, stop_thread_event
 
+    stop_thread_event = threading.Event()
 
-def preprocess(path, p_callback, to_plot=True):
-    try:
+    if not is_finished:
+        debug.log("Entered preprocess method")
         start_time = time.time()
 
         cap = cv2.VideoCapture(path)
@@ -90,8 +95,9 @@ def preprocess(path, p_callback, to_plot=True):
             output.write(frame)
 
             if (curr_index % 10) % 5 == 0:
+                pass
                 # p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames)))
-                debug.log("{:.0f}".format((curr_index * 100) / total_frames))
+                # debug.log("{:.0f}".format((curr_index * 100) / total_frames))
 
         cap.release()
         output.release()
@@ -109,10 +115,7 @@ def preprocess(path, p_callback, to_plot=True):
             debug.log("Graph created!", text_color="yellow")
         debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
 
-        global is_finished
         is_finished = True
-    except Exception as e:
-        sys.exit(22)
 
 
 def set_progress_callback(callback):
@@ -130,10 +133,11 @@ def set_progress_callback(callback):
 
 
 def stop_prepass_thread():
-    global thread, stop_thread_event, is_finished
+    global thread, stop_thread_event, is_finished, force_stopped
 
     if stop_thread_event is not None:
         stop_thread_event.set()
+        force_stopped = True
         time.sleep(0.5)  # To wait for the current cycle to finish
         debug.log("Preprocessing Thread event set!")
 
@@ -166,8 +170,8 @@ def preprocess_video_thread(path, to_plot):
         path (str): The path to the video file.
     """
     global progress_callback, thread
-    if progress_callback is None:
-        debug.log("Progress callback not set. Aborting video processing.", text_color="red")
-        return
-    thread = threading.Thread(target=preprocess, args=(path, progress_callback, to_plot))
+    # if progress_callback is None:
+    #     debug.log("Progress callback not set. Aborting video processing.", text_color="red")
+    #     return
+    thread = threading.Thread(target=preprocess, args=(path, to_plot))
     thread.start()

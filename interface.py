@@ -84,6 +84,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.periodic_exec_id = None
         self.terminate_program = False
         self.prep_pbar_overlay = None
         self.prep_wrapper = None
@@ -229,7 +230,12 @@ class Interface:
 
     def schedule_periodic_processing_execution(self):
         processing.execute_callbacks()
-        self.win.after(500, self.schedule_periodic_processing_execution)
+        self.periodic_exec_id = self.win.after(500, self.schedule_periodic_processing_execution)
+
+    def stop_periodic_progress_update(self):
+        if self.periodic_exec_id is not None:
+            self.win.after_cancel(self.periodic_exec_id)
+            self.periodic_exec_id = None
 
     def on_window_close(self):
         # self.terminate_program = True
@@ -246,12 +252,11 @@ class Interface:
         # processing.thread.join()
 
         debug.log("Stopping all threads!!!")
-
+        self.stop_periodic_progress_update()
         debug.log("Stopping prepass thread...", text_color="yellow")
         prepass.stop_prepass_thread()
         debug.log("Stopped prepass thread!", text_color="magenta")
 
-        # TODO: This acts weird... fml
         debug.log("Stopping stabilization thread...", text_color="yellow")
         video_stabilization.stop_stabilization_thread()
         debug.log("Stopped stabilization thread!", text_color="magenta")
@@ -494,8 +499,8 @@ class Interface:
             # Set the progress callback functions
             # processing.set_progress_callback(self.update_bar)
             # opencv_stabilization.set_progress_callback(self.update_bar)
-            video_stabilization.set_progress_callback(self.update_bar)
-            prepass.set_progress_callback(self.update_bar)
+            # video_stabilization.set_progress_callback(self.update_bar)
+            # prepass.set_progress_callback(self.update_bar)
 
             # Start video processing in a separate thread
             processing.process_video_thread(video_file_path, self.update_bar)

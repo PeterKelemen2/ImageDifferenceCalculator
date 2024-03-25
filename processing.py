@@ -42,13 +42,16 @@ def process_video(path, p_callback):
         while not prepass.is_finished:
             time.sleep(0.02)
         prepass.thread.join()
+        debug.log("Preprocessing finished!")
 
         new_path = path[:-4] + "_prepass.mp4"
 
         video_stabilization.stab_video_thread(new_path)
+        debug.log("Started stabilization thread!")
         while not video_stabilization.is_finished:
             time.sleep(0.02)
         video_stabilization.thread.join()
+        debug.log("Stabilization finished!")
 
         # new_path = path[:-4] + "_prepass_stabilized.mp4"
         total_difference = 0
@@ -57,23 +60,23 @@ def process_video(path, p_callback):
 
         cap = cv2.VideoCapture(new_path)
         ret, first_frame = cap.read()
-        avg_light_level = first_frame.sum() // first_frame.size
+        if first_frame is not None or not stop_thread_event.is_set():
+            avg_light_level = first_frame.sum() // first_frame.size
+            threshold_lower_light = 0
+            threshold_upper_light = int(avg_light_level + avg_light_level * 0.055)
+            threshold_lower_dark = int(avg_light_level - avg_light_level * 0.145)
+            threshold_upper_dark = 255
 
-        threshold_lower_light = 0
-        threshold_upper_light = int(avg_light_level + avg_light_level * 0.055)
-        threshold_lower_dark = int(avg_light_level - avg_light_level * 0.145)
-        threshold_upper_dark = 255
+            first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
+            gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
+            binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
+            binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
 
-        first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
-        gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
-        binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
-        binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
-
-        height, width = first_frame.shape[:2]
-        accumulated_frame = np.zeros((height, width, 3), dtype=np.float32)
-        video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95,
-                                       (width, height))
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            height, width = first_frame.shape[:2]
+            accumulated_frame = np.zeros((height, width, 3), dtype=np.float32)
+            video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95,
+                                           (width, height))
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         if not cap.isOpened():
             debug.log("Could not open video", text_color="red")
@@ -133,18 +136,28 @@ def process_video(path, p_callback):
 def stop_processing_thread():
     global thread, stop_thread_event, progress_callback
 
+    if prepass.stop_thread_event is not None:
+        prepass.stop_thread_event.set()
+        time.sleep(0.2)
+        debug.log("Preprocessing stop event set!")
+
+    if video_stabilization.stop_thread_event is not None:
+        video_stabilization.stop_thread_event.set()
+        time.sleep(0.2)
+        debug.log("Video stabilization stop event set!")
+
     if stop_thread_event is not None:
         stop_thread_event.set()
-        time.sleep(0.5)  # To wait for the current cycle to finish
-        debug.log("Thread event set!")
+        time.sleep(0.2)  # To wait for the current cycle to finish
+        debug.log("Main processing thread event set!")
 
     if thread is not None:
-        debug.log("Joining thread...")
+        debug.log("Joining main processing thread...")
         if stop_thread_event is not None and stop_thread_event.is_set():
             thread.join()
-        debug.log("Thread joined!")
+        debug.log("Main processing thread joined!")
 
-    debug.log("Stopped processing thread!", text_color="blue")
+    debug.log("Stopped main processing thread!", text_color="blue")
 
 
 def execute_callbacks():

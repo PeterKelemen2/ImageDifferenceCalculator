@@ -32,9 +32,11 @@ def set_progress_callback(callback):
 
 # Function to find offset and move the frame
 def stabilize_video(video_path, p_callback=None):
-    global is_finished, stop_thread
+    global is_finished, stop_thread, stop_thread_event
 
-    if not stop_thread_event.is_set():
+    stop_thread_event = threading.Event()
+
+    if not is_finished:
         # Read video input
         cap = cv2.VideoCapture(video_path)
         cv2.setNumThreads(2)
@@ -110,7 +112,7 @@ def stop_stabilization_thread():
 
     if stop_thread_event is not None:
         stop_thread_event.set()
-        time.sleep(0.5)  # To wait for the current cycle to finish
+        time.sleep(0.2)  # To wait for the current cycle to finish
         debug.log("Stabilization thread event set!")
 
     if thread is not None:
@@ -132,8 +134,8 @@ def stab_video_thread(path):
         path (str): The path to the video file.
     """
     global progress_callback, thread
-    if progress_callback is None:
-        debug.log("Progress callback not set. Aborting video processing.", text_color="red")
-        return
+    # if progress_callback is None:
+    #     debug.log("Progress callback not set. Aborting video processing.", text_color="red")
+    #     return
     thread = threading.Thread(target=stabilize_video, args=(path, progress_callback))
     thread.start()
