@@ -12,6 +12,8 @@ import interface
 bg_path = "assets/rounded_frame.png"
 circle = "assets/frame_circle.png"
 rect = "assets/frame_square.png"
+toggled_on = "assets/toggle_button/toggle_on.png"
+toggled_off = "assets/toggle_button/toggle_off.png"
 
 BGCOLOR = "#3a3a3a"
 DARKER_BG = "#292929"
@@ -28,18 +30,20 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 
 
 class CustomCheckbutton(tkinter.Canvas):
-    def __init__(self, master=None, width=40, height=40, **kwargs):
-        self.var = kwargs.pop('variable', None)
+    def __init__(self, master=None, width=21, height=21, outline_color=BGCOLOR, dot_fill_color=WHITE, fg=WHITE,
+                 bg=BGCOLOR):
+        self.var = None
         self.checked = tkinter.BooleanVar()
         self.checked.set(False)
 
-        self.width = kwargs.pop('width', width)
-        self.height = kwargs.pop('height', height)
-        self.bg_color = kwargs.pop('bg', 'white')
-        self.fg_color = kwargs.pop('fg', 'black')
-        self.select_color = kwargs.pop('selectcolor', 'blue')
+        self.width = width
+        self.height = height
+        self.bg_color = bg
+        self.fg_color = fg
+        self.dot_fill = dot_fill_color
+        self.outline_color = outline_color
 
-        super().__init__(master, width=self.width, height=self.height, **kwargs)
+        super().__init__(master, width=self.width, height=self.height)
 
         self.bind('<Button-1>', self.toggle)
 
@@ -47,12 +51,14 @@ class CustomCheckbutton(tkinter.Canvas):
 
     def draw(self):
         self.delete('all')
-        self.create_rectangle(0, 0, self.width, self.height, fill=self.bg_color, outline=self.fg_color, width=1)
+        self.create_rectangle(0, 0, self.width, self.height, fill=self.bg_color, outline=self.bg_color, width=2)
         if self.checked.get():
-            radius = min(self.width, self.height) // 4
-            print(radius)
+            radius = min(self.width, self.height) // 4 + 0
+            # print(radius)
             self.create_oval(self.width // 2 - radius + 1, self.height // 2 - radius + 1,
-                             self.width // 2 + radius + 1, self.height // 2 + radius + 1, fill=self.select_color)
+                             self.width // 2 + radius + 2, self.height // 2 + radius + 2,
+                             fill=self.dot_fill,
+                             outline=self.dot_fill)
 
     def toggle(self, event):
         self.checked.set(not self.checked.get())
@@ -61,8 +67,53 @@ class CustomCheckbutton(tkinter.Canvas):
             self.var.set(self.checked.get())
 
 
+class CustomToggleButton:
+    def __init__(self, master, width, height, text="", bg=None):
+        self.width = width
+        self.height = height
+        self.bg = bg
+        self.text = text
+
+        self.state = True
+
+        self.toggled_on_im_file = Image.open(toggled_on).convert("RGBA")
+        self.toggled_off_im_file = Image.open(toggled_off).convert("RGBA")
+
+        self.canvas = Canvas(master, width=self.width, height=self.height, bg=self.bg, highlightthickness=0)
+        self.canvas.pack()
+
+        self.t_on_im = self.toggled_on_im_file.resize((self.width, self.height))
+        self.t_off_im = self.toggled_off_im_file.resize((self.width, self.height))
+
+        self.toggled_on_image = ImageTk.PhotoImage(self.t_on_im)
+        self.toggled_off_image = ImageTk.PhotoImage(self.t_off_im)
+
+        self.text = tkinter.Label(self.canvas, text=self.text, anchor="center", fg=interface.FONT_COLOR,
+                                  font=interface.FONT,
+                                  bg=interface.ACCENT)
+        self.canvas.config(width=self.width + self.text.winfo_reqwidth() + 20)
+        self.text.place(x=self.width + 10, y=0)
+        self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
+                                                   image=self.toggled_on_image)
+
+        # self.canvas.bind("<Button-1>", self.toggle)
+        self.canvas.bind("<Button-1>", self.toggle)
+        self.text.bind("<Button-1>", self.toggle)
+
+    def toggle(self, event=None):
+        self.state = not self.state
+        self.canvas.delete(self.image_item)
+        if self.state:
+            self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
+                                                       image=self.toggled_on_image)
+        else:
+            self.image_item = None
+            self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
+                                                       image=self.toggled_off_image)
+
+
 class CustomLabelFrame:
-    def __init__(self, master, width, height, text=None, fill=BLACK, fg=WHITE, bg=BGCOLOR, radius=10):
+    def __init__(self, master, width, height, text="", fill=BLACK, fg=WHITE, bg=BGCOLOR, radius=10):
         self.width = width
         self.height = height
         self.fill = fill

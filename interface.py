@@ -495,9 +495,22 @@ class Interface:
         # self.stab_checkbox.place(x=new_width + 30,
         #                          y=250)
 
-        checkbox = custom_ui.CustomCheckbutton(self.frame_wrapper.canvas, bg=ACCENT, selectcolor=BGCOLOR)
-        checkbox.place(x=new_width + 30, y=250)
-        # y=self.image_details.winfo_reqheight() + 2 * self.stab_checkbox.winfo_reqheight() + 10)
+        # checkbox = custom_ui.CustomCheckbutton(self.frame_wrapper.canvas, bg=BGCOLOR, dot_fill_color=FONT_COLOR)
+        # checkbox.place(x=new_width + 30, y=250)
+
+        self.prepass_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
+                                                                  text="Preprocessing",
+                                                                  width=60,
+                                                                  height=30,
+                                                                  bg=ACCENT)
+        self.prepass_toggle_button.canvas.place(x=new_width + 30, y=200)
+
+        self.stab_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
+                                                               text="Stabilization",
+                                                               width=60,
+                                                               height=30,
+                                                               bg=ACCENT)
+        self.stab_toggle_button.canvas.place(x=new_width + 30, y=240)
 
     def process_video(self):
         """
