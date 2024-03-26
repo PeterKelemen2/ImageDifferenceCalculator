@@ -27,7 +27,7 @@ def set_progress_callback(callback):
     progress_callback = callback
 
 
-def process_video(path, p_callback):
+def process_video(path, preprocess, stabilize, to_plot, p_callback):
     global is_finished, total_difference, progress_percentage, stop_thread_event, initialized
 
     initialized = True
@@ -39,25 +39,26 @@ def process_video(path, p_callback):
         current_frame_index = 0
         frames_since_last_callback = 0
 
-        prepass.set_progress_callback(p_callback)
-        prepass.preprocess_video_thread(path, to_plot=True)
-        debug.log("Started preprocessing thread!")
-        while not prepass.is_finished:
-            time.sleep(0.02)
-        prepass.thread.join()
-        debug.log("Preprocessing finished!")
+        new_path = path
+        if preprocess:
+            prepass.set_progress_callback(p_callback)
+            prepass.preprocess_video_thread(path, to_plot)
+            debug.log("Started preprocessing thread!")
+            while not prepass.is_finished:
+                time.sleep(0.02)
+            prepass.thread.join()
+            debug.log("Preprocessing finished!")
+            new_path = new_path[:-4] + "_prepass.mp4"
 
-        new_path = path[:-4] + "_prepass.mp4"
-
-        video_stabilization.set_progress_callback(p_callback)
-        video_stabilization.stab_video_thread(new_path)
-        debug.log("Started stabilization thread!")
-        while not video_stabilization.is_finished:
-            time.sleep(0.02)
-        video_stabilization.thread.join()
-        debug.log("Stabilization finished!")
-
-        # new_path = path[:-4] + "_prepass_stabilized.mp4"
+        if stabilize:
+            video_stabilization.set_progress_callback(p_callback)
+            video_stabilization.stab_video_thread(new_path, to_plot)
+            debug.log("Started stabilization thread!")
+            while not video_stabilization.is_finished:
+                time.sleep(0.02)
+            video_stabilization.thread.join()
+            debug.log("Stabilization finished!")
+            new_path = path[:-4] + "_prepass_stabilized.mp4"
 
         total_difference = 0
 
@@ -172,15 +173,15 @@ def execute_callbacks():
         # debug.log(f"Executed {callback} callback")
 
 
-def process_video_thread(path, callback):
+def process_video_thread(path, prepass, stabilize, to_plot, callback):
     global progress_callback, thread
     progress_callback = callback
     # if progress_callback is None:
     if callback is None:
         debug.log("Progress callback not set. Aborting video processing.", text_color="red")
         return
-
-    thread = threading.Thread(target=process_video, args=(path, callback))
+    debug.log(f"Starting processing with Preprocess: {prepass}, Stabilization: {stabilize}")
+    thread = threading.Thread(target=process_video, args=(path, prepass, stabilize, to_plot, callback))
     thread.start()
 
 

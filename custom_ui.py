@@ -68,13 +68,13 @@ class CustomCheckbutton(tkinter.Canvas):
 
 
 class CustomToggleButton:
-    def __init__(self, master, width, height, text="", bg=None):
+    def __init__(self, master, width, height, text="", state=True, bg=None):
         self.width = width
         self.height = height
         self.bg = bg
         self.text = text
 
-        self.state = True
+        self.state = state
 
         self.toggled_on_im_file = Image.open(toggled_on).convert("RGBA")
         self.toggled_off_im_file = Image.open(toggled_off).convert("RGBA")
@@ -93,8 +93,14 @@ class CustomToggleButton:
                                   bg=interface.ACCENT)
         self.canvas.config(width=self.width + self.text.winfo_reqwidth() + 20)
         self.text.place(x=self.width + 10, y=0)
-        self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
-                                                   image=self.toggled_on_image)
+
+        if self.state:
+            self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
+                                                       image=self.toggled_on_image)
+        else:
+            self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
+                                                       image=self.toggled_off_image)
+
 
         # self.canvas.bind("<Button-1>", self.toggle)
         self.canvas.bind("<Button-1>", self.toggle)
@@ -110,6 +116,9 @@ class CustomToggleButton:
             self.image_item = None
             self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
                                                        image=self.toggled_off_image)
+
+    def get_state(self):
+        return self.state
 
 
 class CustomLabelFrame:

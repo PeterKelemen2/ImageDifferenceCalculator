@@ -46,7 +46,7 @@ def print_as_table_row(i, curr, first, delta, to_debug=False):
         print(line)
 
 
-def preprocess(path, to_plot=True):
+def preprocess(path, to_plot):
     global is_finished, stop_thread_event, progress_callback
     p_callback = progress_callback
     stop_thread_event = threading.Event()
@@ -106,15 +106,9 @@ def preprocess(path, to_plot=True):
                                              after_list=prepass_b_list,
                                              title="Brightness regulation",
                                              path=path)
-            # plotting.plot(values=[b_list, prepass_b_list],
-            #               title="Brightness regulation",
-            #               graph_labels=["Frame index", "Brightness value"],
-            #               legend_labels=["Before", "After"],
-            #               path=path)
-            debug.log("Graph created!", text_color="yellow")
+            debug.log("Plot created!", text_color="yellow")
         debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
         processing.callback_queue.put(lambda: p_callback("preprocessing", 100))
-        # execute_callbacks()
         is_finished = True
 
 

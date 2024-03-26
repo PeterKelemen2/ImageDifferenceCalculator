@@ -30,7 +30,7 @@ def set_progress_callback(callback):
 
 
 # Function to find offset and move the frame
-def stabilize_video(video_path, p_callback=None):
+def stabilize_video(video_path, to_plot, p_callback=None):
     global is_finished, stop_thread, stop_thread_event
     stop_thread_event = threading.Event()
 
@@ -103,9 +103,11 @@ def stabilize_video(video_path, p_callback=None):
             lambda: p_callback("stabilization", 100))
         # execute_callbacks()
         is_finished = True
-        plotting.plot_stabilization_movement(movement_data=movement_data,
-                                             title="Stabilization movement",
-                                             path=video_path[:-4] + "stabilization_plot.png")
+        if to_plot:
+            plotting.plot_stabilization_movement(movement_data=movement_data,
+                                                 title="Stabilization movement",
+                                                 path=video_path[:-4] + "stabilization_plot.png")
+            debug.log("Stabilization movement plotted")
 
 
 def stop_stabilization_thread():
@@ -125,7 +127,7 @@ def stop_stabilization_thread():
     debug.log("Stopped stabilization thread!", text_color="blue")
 
 
-def stab_video_thread(path):
+def stab_video_thread(path, to_plot):
     """
     Creates a thread for video processing.
 
@@ -138,5 +140,5 @@ def stab_video_thread(path):
     # if progress_callback is None:
     #     debug.log("Progress callback not set. Aborting video processing.", text_color="red")
     #     return
-    thread = threading.Thread(target=stabilize_video, args=(path, progress_callback))
+    thread = threading.Thread(target=stabilize_video, args=(path, to_plot, progress_callback))
     thread.start()

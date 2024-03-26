@@ -84,6 +84,8 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.prepass_toggle_button = None
+        self.stab_toggle_button = None
         self.periodic_exec_id = None
         self.terminate_program = False
         self.prep_pbar_overlay = None
@@ -503,14 +505,22 @@ class Interface:
                                                                   width=60,
                                                                   height=30,
                                                                   bg=ACCENT)
-        self.prepass_toggle_button.canvas.place(x=new_width + 30, y=200)
+        self.prepass_toggle_button.canvas.place(x=new_width + 30, y=190)
 
         self.stab_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
                                                                text="Stabilization",
                                                                width=60,
                                                                height=30,
                                                                bg=ACCENT)
-        self.stab_toggle_button.canvas.place(x=new_width + 30, y=240)
+        self.stab_toggle_button.canvas.place(x=new_width + 30, y=230)
+
+        self.plotting_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
+                                                                   text="Create plot",
+                                                                   width=60,
+                                                                   height=30,
+                                                                   state=False,
+                                                                   bg=ACCENT)
+        self.plotting_toggle_button.canvas.place(x=new_width + 30, y=270)
 
     def process_video(self):
         """
@@ -536,7 +546,11 @@ class Interface:
             # prepass.set_progress_callback(self.update_bar)
 
             # Start video processing in a separate thread
-            processing.process_video_thread(video_file_path, self.update_bar)
+            processing.process_video_thread(video_file_path,
+                                            self.prepass_toggle_button.get_state(),
+                                            self.stab_toggle_button.get_state(),
+                                            self.plotting_toggle_button.get_state(),
+                                            self.update_bar)
 
     def create_preprocess_progress_bar(self):
         self.prep_wrapper = custom_ui.CustomLabelFrame(self.win,
