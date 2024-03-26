@@ -87,6 +87,16 @@ class CustomToggleButton:
     def get_state(self):
         return self.state
 
+    def config(self, bg=None, fg=None, text=None):
+        if bg is not None:
+            self.canvas.config(bg=bg)
+            if fg is not None and self.text is not None:
+                self.text.config(bg=bg, fg=fg)
+        if fg is not None and text is not None:
+            self.text.config(fg=fg)
+        if text is not None:
+            self.text.config(text=text)
+
 
 class CustomLabelFrame:
     def __init__(self, master, width, height, text="", fill=BLACK, fg=WHITE, bg=BGCOLOR, radius=10):

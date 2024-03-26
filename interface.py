@@ -1168,6 +1168,9 @@ class Interface:
             self.frame_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
                                             buttons=[self.media_player_button, self.process_video_button],
                                             labels=[self.frame_details_header, self.image_details])
+            self.prepass_toggle_button.config(fg=FONT_COLOR, bg=ACCENT)
+            self.stab_toggle_button.config(fg=FONT_COLOR, bg=ACCENT)
+            self.plotting_toggle_button.config(fg=FONT_COLOR, bg=ACCENT)
 
         if self.proc_progress_wrapper is not None:
             self.proc_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.proc_progress_label])
