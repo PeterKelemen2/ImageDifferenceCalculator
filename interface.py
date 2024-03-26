@@ -502,21 +502,21 @@ class Interface:
         # checkbox.place(x=new_width + 30, y=250)
 
         self.prepass_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
-                                                                  text="Preprocessing",
+                                                                  text=self.lang["preprocessing"],
                                                                   width=60,
                                                                   height=30,
                                                                   bg=ACCENT)
         self.prepass_toggle_button.canvas.place(x=new_width + 30, y=190)
 
         self.stab_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
-                                                               text="Stabilization",
+                                                               text=self.lang["stabilization"],
                                                                width=60,
                                                                height=30,
                                                                bg=ACCENT)
         self.stab_toggle_button.canvas.place(x=new_width + 30, y=230)
 
         self.plotting_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
-                                                                   text="Create plot",
+                                                                   text=self.lang["to_plot"],
                                                                    width=60,
                                                                    height=30,
                                                                    state=False,
@@ -1030,7 +1030,11 @@ class Interface:
         """
         # Update text for wrapper labels
         if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
-        if self.frame_wrapper is not None: self.frame_wrapper.set_label_text(self.lang["video_data"])
+        if self.frame_wrapper is not None:
+            self.frame_wrapper.set_label_text(self.lang["video_data"])
+            self.prepass_toggle_button.config(text=self.lang["preprocessing"])
+            self.stab_toggle_button.config(text=self.lang["stabilization"])
+            self.plotting_toggle_button.config(text=self.lang["to_plot"])
         if self.proc_progress_wrapper is not None: self.proc_progress_wrapper.set_label_text(self.lang["progress"])
         if self.stab_progress_wrapper is not None: self.stab_progress_wrapper.set_label_text(self.lang["stabilization"])
         if self.prep_wrapper is not None: self.prep_wrapper.set_label_text(self.lang["preprocessing"])

@@ -33,4 +33,5 @@ exit=Kilépés
 None=None
 stabilization=Stabilizáció
 preprocessing=Előfeldolgozás
+to_plot=Ábra készítése
 progress=Feldolgozás

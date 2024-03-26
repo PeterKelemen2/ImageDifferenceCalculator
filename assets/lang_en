@@ -33,4 +33,5 @@ exit=Exit
 None=None
 stabilization=Stabilization
 preprocessing=Preproccessing
+to_plot=Create plot
 progress=Processing
