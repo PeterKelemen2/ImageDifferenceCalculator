@@ -29,51 +29,13 @@ BIG_FONT = ("Ubuntu", BIG_FONT_SIZE)
 BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 
 
-class CustomCheckbutton(tkinter.Canvas):
-    def __init__(self, master=None, width=21, height=21, outline_color=BGCOLOR, dot_fill_color=WHITE, fg=WHITE,
-                 bg=BGCOLOR):
-        self.var = None
-        self.checked = tkinter.BooleanVar()
-        self.checked.set(False)
-
-        self.width = width
-        self.height = height
-        self.bg_color = bg
-        self.fg_color = fg
-        self.dot_fill = dot_fill_color
-        self.outline_color = outline_color
-
-        super().__init__(master, width=self.width, height=self.height)
-
-        self.bind('<Button-1>', self.toggle)
-
-        self.draw()
-
-    def draw(self):
-        self.delete('all')
-        self.create_rectangle(0, 0, self.width, self.height, fill=self.bg_color, outline=self.bg_color, width=2)
-        if self.checked.get():
-            radius = min(self.width, self.height) // 4 + 0
-            # print(radius)
-            self.create_oval(self.width // 2 - radius + 1, self.height // 2 - radius + 1,
-                             self.width // 2 + radius + 2, self.height // 2 + radius + 2,
-                             fill=self.dot_fill,
-                             outline=self.dot_fill)
-
-    def toggle(self, event):
-        self.checked.set(not self.checked.get())
-        self.draw()
-        if self.var:
-            self.var.set(self.checked.get())
-
-
 class CustomToggleButton:
     def __init__(self, master, width, height, text="", state=True, bg=None):
         self.width = width
         self.height = height
         self.bg = bg
         self.text = text
-
+        self.disabled = False
         self.state = state
 
         self.toggled_on_im_file = Image.open(toggled_on).convert("RGBA")
@@ -101,21 +63,26 @@ class CustomToggleButton:
             self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
                                                        image=self.toggled_off_image)
 
-
-        # self.canvas.bind("<Button-1>", self.toggle)
         self.canvas.bind("<Button-1>", self.toggle)
         self.text.bind("<Button-1>", self.toggle)
 
     def toggle(self, event=None):
-        self.state = not self.state
-        self.canvas.delete(self.image_item)
-        if self.state:
-            self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
-                                                       image=self.toggled_on_image)
-        else:
-            self.image_item = None
-            self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
-                                                       image=self.toggled_off_image)
+        if not self.disabled:
+            self.state = not self.state
+            self.canvas.delete(self.image_item)
+            if self.state:
+                self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
+                                                           image=self.toggled_on_image)
+            else:
+                self.image_item = None
+                self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
+                                                           image=self.toggled_off_image)
+
+    def disable(self):
+        self.disabled = True
+
+    def enable(self):
+        self.disabled = False
 
     def get_state(self):
         return self.state

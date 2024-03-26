@@ -243,6 +243,7 @@ class Interface:
         if self.periodic_exec_id is not None:
             self.win.after_cancel(self.periodic_exec_id)
             self.periodic_exec_id = None
+            self.create_finished_window()
 
     def on_window_close(self):
         # self.terminate_program = True
@@ -533,6 +534,9 @@ class Interface:
             # Disable buttons to prevent multiple processing requests
             self.process_video_button.disable()
             self.browse_button.disable()
+            self.prepass_toggle_button.disable()
+            self.stab_toggle_button.disable()
+            self.plotting_toggle_button.disable()
 
             # Create and display a progress bar
             self.create_stabilization_progress_bar()
@@ -729,6 +733,9 @@ class Interface:
         # Enable buttons in the main window
         self.process_video_button.enable()
         self.browse_button.enable()
+        self.prepass_toggle_button.enable()
+        self.stab_toggle_button.enable()
+        self.plotting_toggle_button.enable()
 
     def close_finished_windows(self):
         self.browse_button.enable()

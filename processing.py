@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 
 import debug
+import interface
 import prepass
 import video_stabilization
 
