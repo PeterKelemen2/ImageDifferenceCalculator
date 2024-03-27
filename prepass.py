@@ -76,12 +76,14 @@ def preprocess(path, to_plot):
             table_print.prepass_table_print("Frame", "Brightness value", "Reference brightness",
                                             "Brightness ratio")
 
+        frame_since_callback = 0
         while not stop_thread_event.is_set():
             ret, frame = cap.read()
             if not ret:
                 break
             curr_index += 1
 
+            frame_since_callback += 1
             curr_brightness = calculate_avg_brightness(frame)
             b_list.append(curr_brightness)
 
@@ -99,11 +101,12 @@ def preprocess(path, to_plot):
 
             output.write(frame)
 
-            if (curr_index % 10) % 5 == 0:
+            if frame_since_callback == 2:
                 processing.callback_queue.put(
                     lambda: p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames))))
                 # p_callback("preprocessing", int("{:.0f}".format((curr_index * 100) / total_frames)))
                 # debug.log("{:.0f}".format((curr_index * 100) / total_frames))
+                frame_since_callback = 0
 
         cap.release()
         output.release()
@@ -114,7 +117,8 @@ def preprocess(path, to_plot):
                                              title="Brightness regulation",
                                              path=path)
             debug.log("[Preprocessing] Plot created!", text_color="yellow")
-        debug.log(f"[Preprocessing] Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}\n", text_color="cyan")
+        debug.log(f"[Preprocessing] Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}\n",
+                  text_color="cyan")
         processing.callback_queue.put(lambda: p_callback("preprocessing", 100))
         is_finished = True
 

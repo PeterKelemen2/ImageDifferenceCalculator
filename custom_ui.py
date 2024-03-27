@@ -79,6 +79,8 @@ class CustomToggleButton:
                 self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
                                                            image=self.toggled_off_image)
             debug.log(f"[ToggleButton] {self.text} button toggled. State: {self.state}")
+        else:
+            debug.log(f"[ToggleButton] {self.text} button currently disabled!", text_color="red")
 
     def disable(self):
         self.disabled = True

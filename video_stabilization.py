@@ -61,15 +61,15 @@ def stabilize_video(video_path, to_plot, p_callback=None):
         curr_frame_index = 1
         movement_data = []
         table_print.stab_table_print("Frame", "Total")
+
+        frame_since_callback = 0
         while not stop_thread_event.is_set():
-            # print(f"Frames: {curr_frame_index}/{total_frames}")
             table_print.stab_table_print(curr_frame_index, total_frames)
-            if (curr_frame_index % 10) % 5 == 0:
+            frame_since_callback += 1
+            if frame_since_callback == 2:
                 processing.callback_queue.put(
                     lambda: p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames))))
-                # p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames)))
-                # debug.log("{:.0f}".format((curr_frame_index * 100) / total_frames))
-                # stabilization
+                frame_since_callback = 0
 
             # Read the current frame
             ret, frame = cap.read()
