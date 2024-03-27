@@ -54,7 +54,7 @@ def preprocess(path, to_plot):
     is_finished = False
 
     if not is_finished:
-        debug.log("Entered preprocess method")
+        debug.log("[Preprocessing] Entered preprocess method\n")
         start_time = time.time()
 
         cap = cv2.VideoCapture(path)
@@ -71,9 +71,8 @@ def preprocess(path, to_plot):
 
         b_list, prepass_b_list = [], []
 
-        debug.log("Starting preprocessing...")
-
         if not stop_thread_event.is_set():
+            debug.log("[Preprocessing] Preprocessing started")
             table_print.prepass_table_print("Frame", "Brightness value", "Reference brightness",
                                             "Brightness ratio")
 
@@ -109,13 +108,13 @@ def preprocess(path, to_plot):
         cap.release()
         output.release()
         if to_plot:
-            debug.log("Creating graph for brightness regulation...", text_color="yellow")
+            debug.log("[Preprocessing] Creating graph for brightness regulation...", text_color="yellow")
             plotting.plot_average_brightness(before_list=b_list,
                                              after_list=prepass_b_list,
                                              title="Brightness regulation",
                                              path=path)
-            debug.log("Plot created!", text_color="yellow")
-        debug.log(f"Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
+            debug.log("[Preprocessing] Plot created!", text_color="yellow")
+        debug.log(f"[Preprocessing] Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}\n", text_color="cyan")
         processing.callback_queue.put(lambda: p_callback("preprocessing", 100))
         is_finished = True
 
@@ -141,17 +140,17 @@ def stop_prepass_thread():
         stop_thread_event.set()
         force_stopped = True
         time.sleep(0.5)  # To wait for the current cycle to finish
-        debug.log("Preprocessing Thread event set!")
+        debug.log("[Preprocessing] Preprocessing Thread event set!")
 
     if thread is not None:
-        debug.log("Joining preprocessing thread...")
+        debug.log("[Preprocessing] Joining preprocessing thread...")
         if stop_thread_event is not None and stop_thread_event.is_set():
             thread.join()
-        debug.log("Preprocessing thread joined!")
+        debug.log("[Preprocessing] Preprocessing thread joined!")
 
     is_finished = True
 
-    debug.log("Stopped preprocessing thread!", text_color="blue")
+    debug.log("[Preprocessing] Stopped preprocessing thread!", text_color="blue")
 
 
 def preprocess_video_thread(path, to_plot):

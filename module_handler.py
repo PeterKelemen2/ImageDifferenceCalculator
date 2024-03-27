@@ -12,10 +12,10 @@ def check_if_modules_installed(installed_modules):
                   for module in modules
                   if module not in installed_modules]
     if len(mi_modules) > 0:
-        debug.log(f"Module(s) {mi_modules} could not be installed, please install manually",
+        debug.log(f"[Modules] Module(s) {mi_modules} could not be installed, please install manually",
                   text_color="red",
                   timestamp_color="red")
-        sys.exit(f"Module(s) {mi_modules} could not be installed, please install manually")
+        sys.exit(f"[Modules] Module(s) {mi_modules} could not be installed, please install manually")
 
 
 def upgrade_pip():
@@ -27,12 +27,12 @@ def upgrade_pip():
                                 capture_output=True,
                                 text=True)
         if 'Requirement already up-to-date' in result.stdout:
-            debug.log("pip is already up-to-date.")
+            debug.log("[Modules] pip is already up-to-date.")
         else:
-            debug.log("pip upgraded successfully.")
+            debug.log("[Modules] pip upgraded successfully.")
     except subprocess.CalledProcessError as e:
-        debug.log(f"Error upgrading pip: {e.stderr}")
-        sys.exit("Error upgrading pip.")
+        debug.log(f"[Modules] Error upgrading pip: {e.stderr}")
+        sys.exit("[Modules] Error upgrading pip.")
 
 
 def module_handler():
@@ -59,6 +59,6 @@ def module_handler():
                        shell=True)
 
     check_if_modules_installed(installed_modules)
-    debug.log("All modules installed!", text_color="cyan")
+    debug.log("[Modules] All modules installed!", text_color="cyan")
 
-    debug.log("Executed in {:.2f}s".format(time.time() - start_time), text_color="cyan")
+    debug.log("[Modules] Executed in {:.2f}s".format(time.time() - start_time), text_color="cyan")

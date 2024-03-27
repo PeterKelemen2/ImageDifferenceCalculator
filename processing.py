@@ -44,26 +44,26 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         if preprocess:
             prepass.set_progress_callback(p_callback)
             prepass.preprocess_video_thread(path, to_plot)
-            debug.log("Started preprocessing thread!")
+            debug.log("[Processing] Started preprocessing thread!")
             while not prepass.is_finished:
                 time.sleep(0.02)
             prepass.thread.join()
-            debug.log("Preprocessing finished!")
+            debug.log("[Processing] Preprocessing finished!")
             new_path = new_path[:-4] + "_prepass.mp4"
 
         if stabilize:
             video_stabilization.set_progress_callback(p_callback)
+            debug.log("[Processing] Starting stabilization thread...")
             video_stabilization.stab_video_thread(new_path, to_plot)
-            debug.log("Started stabilization thread!")
             while not video_stabilization.is_finished:
                 time.sleep(0.02)
             video_stabilization.thread.join()
-            debug.log("Stabilization finished!")
+            debug.log("[Processing] Stabilization finished!")
             new_path = path[:-4] + "_prepass_stabilized.mp4"
 
         total_difference = 0
 
-        debug.log(f"Started processing {new_path}", text_color="blue")
+        debug.log(f"[Processing] Started processing {new_path}", text_color="blue")
 
         cap = cv2.VideoCapture(new_path)
         ret, first_frame = cap.read()
@@ -86,7 +86,7 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         if not cap.isOpened():
-            debug.log("Could not open video", text_color="red")
+            debug.log("[Processing] Could not open video", text_color="red")
             is_finished = True
             stop_thread_event.set()
             cap.release()
@@ -96,7 +96,7 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             average1 = np.float32(first_frame)
 
             if not ret:
-                debug.log("Could not read video frames", text_color="red")
+                debug.log("[Processing] Could not read video frames", text_color="red")
                 is_finished = True  # Ensure is_finished is updated even if an error occurs
                 stop_thread_event.set()  # Set stop event in case of error
                 cap.release()
@@ -124,7 +124,7 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
                     # p_callback("processing", int(progress_percentage))
                     callback_queue.put(lambda: p_callback("processing", int(progress_percentage)))
                     frames_since_last_callback = 0
-                    debug.log(f"Processing {progress_percentage}%")
+                    debug.log(f"[Processing] Processing {progress_percentage}%")
 
             cap.release()
             video_output.release()
@@ -134,9 +134,9 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             # execute_callbacks()
             is_finished = True
             write_to_history(path, total_difference)
-            debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
+            debug.log(f"[Processing] Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
             new_frame = path
-    debug.log("End of processing method")
+    debug.log("[Processing] End of processing method")
 
 
 def stop_processing_thread():
@@ -145,29 +145,29 @@ def stop_processing_thread():
     if prepass.stop_thread_event is not None:
         prepass.stop_thread_event.set()
         time.sleep(0.2)
-        debug.log("Preprocessing stop event set!")
+        debug.log("[Processing] Preprocessing stop event set!")
 
     if video_stabilization.stop_thread_event is not None:
         video_stabilization.stop_thread_event.set()
         time.sleep(0.2)
-        debug.log("Video stabilization stop event set!")
+        debug.log("[Processing] Video stabilization stop event set!")
 
     if stop_thread_event is not None:
         stop_thread_event.set()
         time.sleep(0.2)  # To wait for the current cycle to finish
-        debug.log("Main processing thread event set!")
+        debug.log("[Processing] Main processing thread event set!")
 
     if thread is not None:
-        debug.log("Joining main processing thread...")
+        debug.log("[Processing] Joining main processing thread...")
         if stop_thread_event is not None and stop_thread_event.is_set():
             thread.join()
-        debug.log("Main processing thread joined!")
+        debug.log("[Processing] Main processing thread joined!")
 
-    debug.log("Stopped main processing thread!", text_color="blue")
+    debug.log("[Processing] Stopped main processing thread!", text_color="blue")
 
 
 def execute_callbacks():
-    debug.log("Executing processing callbacks...", text_color="blue")
+    debug.log("[Processing] Executing processing callbacks...", text_color="blue")
     while not callback_queue.empty():
         callback = callback_queue.get()
         callback()
@@ -179,9 +179,9 @@ def process_video_thread(path, prepass, stabilize, to_plot, callback):
     progress_callback = callback
     # if progress_callback is None:
     if callback is None:
-        debug.log("Progress callback not set. Aborting video processing.", text_color="red")
+        debug.log("[Processing] Progress callback not set. Aborting video processing.", text_color="red")
         return
-    debug.log(f"Starting processing with Preprocess: {prepass}, Stabilization: {stabilize}")
+    debug.log(f"[Processing] Starting processing with Preprocess: {prepass}, Stabilization: {stabilize}")
     thread = threading.Thread(target=process_video, args=(path, prepass, stabilize, to_plot, callback))
     thread.start()
 
@@ -190,7 +190,7 @@ def init_history():
     if not os.path.exists(HISTORY_PATH):
         try:
             with open(HISTORY_PATH, "w"):
-                debug.log("History file created", text_color="blue")
+                debug.log("[Processing] History file created", text_color="blue")
         except Exception as e:
             debug.log(str(e), text_color="red")
 

@@ -109,7 +109,7 @@ def stabilize_video(video_path, to_plot, p_callback=None):
             plotting.plot_stabilization_movement(movement_data=movement_data,
                                                  title="Stabilization movement",
                                                  path=video_path[:-4] + "stabilization_plot.png")
-            debug.log("Stabilization movement plotted")
+            debug.log("[Stabilization] Stabilization movement plotted")
 
 
 def stop_stabilization_thread():
@@ -118,15 +118,15 @@ def stop_stabilization_thread():
     if stop_thread_event is not None:
         stop_thread_event.set()
         time.sleep(0.2)  # To wait for the current cycle to finish
-        debug.log("Stabilization thread event set!")
+        debug.log("[Stabilization] Stabilization thread event set!")
 
     if thread is not None:
-        debug.log("Joining stabilization thread...")
+        debug.log("[Stabilization] Joining stabilization thread...")
         if stop_thread_event is not None and stop_thread_event.is_set():
             thread.join()
-        debug.log("Stabilization thread joined!")
+        debug.log("[Stabilization] Stabilization thread joined!")
 
-    debug.log("Stopped stabilization thread!", text_color="blue")
+    debug.log("[Stabilization] Stopped stabilization thread!", text_color="blue")
 
 
 def stab_video_thread(path, to_plot):

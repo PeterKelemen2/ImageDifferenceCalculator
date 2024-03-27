@@ -17,7 +17,7 @@ def set_up_dict(lang_file):
     Returns:
         dict: A dictionary containing translations.
     """
-    debug.log(f"Setting up language dictionary from {lang_file}")
+    debug.log(f"[Lang] Setting up language dictionary from {lang_file}")
     lang_dict = dict()
     with open(lang_file, 'r', encoding="utf-8") as lang:
         for line in lang:
@@ -43,11 +43,11 @@ def load_lang(lang):
             If the language is not supported, returns None.
     """
     if lang == "hungarian":
-        debug.log(f"Loaded {lang} language to dictionary", text_color="cyan")
+        debug.log(f"[Lang] Loaded {lang} language to dictionary", text_color="cyan")
         return set_up_dict(lang_hu)
     elif lang == "english":
-        debug.log(f"Loaded {lang} language to dictionary", text_color="cyan")
+        debug.log(f"[Lang] Loaded {lang} language to dictionary", text_color="cyan")
         return set_up_dict(lang_en)
     else:
-        debug.log("Not supported language")
+        debug.log("[Lang] Not supported language")
         return None

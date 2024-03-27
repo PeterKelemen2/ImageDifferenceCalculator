@@ -20,6 +20,6 @@ def install_font(font_filename):
             # Copy the font file to the system's font directory
             shutil.copy(font_path, font_dir)
 
-            debug.log(f"Font {font_filename[:-4]} installed successfully.", text_color="cyan")
+            debug.log(f"[Font] Font {font_filename[:-4]} installed successfully.", text_color="cyan")
         except Exception as e:
-            debug.log(f"Error installing font: {e}", text_color="red")
+            debug.log(f"[Font] Error installing font: {e}", text_color="red")

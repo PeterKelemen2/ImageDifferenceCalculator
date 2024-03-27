@@ -37,6 +37,7 @@ class CustomToggleButton:
         self.text = text
         self.disabled = False
         self.state = state
+        self.text_item = None
 
         self.toggled_on_im_file = Image.open(toggled_on).convert("RGBA")
         self.toggled_off_im_file = Image.open(toggled_off).convert("RGBA")
@@ -50,11 +51,11 @@ class CustomToggleButton:
         self.toggled_on_image = ImageTk.PhotoImage(self.t_on_im)
         self.toggled_off_image = ImageTk.PhotoImage(self.t_off_im)
 
-        self.text = tkinter.Label(self.canvas, text=self.text, anchor="center", fg=interface.FONT_COLOR,
-                                  font=interface.FONT,
-                                  bg=interface.ACCENT)
-        self.canvas.config(width=self.width + self.text.winfo_reqwidth() + 20)
-        self.text.place(x=self.width + 10, y=0)
+        self.text_item = tkinter.Label(self.canvas, text=self.text, anchor="center", fg=interface.FONT_COLOR,
+                                       font=interface.FONT,
+                                       bg=interface.ACCENT)
+        self.canvas.config(width=self.width + self.text_item.winfo_reqwidth() + 20)
+        self.text_item.place(x=self.width + 10, y=0)
 
         if self.state:
             self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
@@ -64,7 +65,7 @@ class CustomToggleButton:
                                                        image=self.toggled_off_image)
 
         self.canvas.bind("<Button-1>", self.toggle)
-        self.text.bind("<Button-1>", self.toggle)
+        self.text_item.bind("<Button-1>", self.toggle)
 
     def toggle(self, event=None):
         if not self.disabled:
@@ -77,6 +78,7 @@ class CustomToggleButton:
                 self.image_item = None
                 self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
                                                            image=self.toggled_off_image)
+            debug.log(f"[ToggleButton] {self.text} button toggled. State: {self.state}")
 
     def disable(self):
         self.disabled = True
@@ -91,11 +93,12 @@ class CustomToggleButton:
         if bg is not None:
             self.canvas.config(bg=bg)
             if fg is not None and self.text is not None:
-                self.text.config(bg=bg, fg=fg)
+                self.text_item.config(bg=bg, fg=fg)
         if fg is not None and text is not None:
-            self.text.config(fg=fg)
+            self.text_item.config(fg=fg)
         if text is not None:
-            self.text.config(text=text)
+            self.text_item.config(text=text)
+            self.text = text
 
 
 class CustomLabelFrame:

@@ -156,14 +156,10 @@ class Interface:
         self.image_detail_dict = None
         self.browse_wrapper = None
         self.browse_button = None
-        # self.loading_gif_path = None
-        # self.gif = None
-        # self.gif_images_list = None
-        # self.loading_image_label = None
 
         self.set_color()
 
-        debug.log("[1/1] Creating interface...", text_color="blue")
+        debug.log("[Interface] [1/1] Creating interface...", text_color="blue")
 
         self.lang = lang.load_lang(self.curr_lang)
 
@@ -173,7 +169,7 @@ class Interface:
         self.create_history_button()
         self.create_browser()
 
-        debug.log("[1/2] Interface created", text_color="blue")
+        debug.log("[Interface] [1/2] Interface created", text_color="blue")
 
         self.win.mainloop()
 
@@ -215,7 +211,7 @@ class Interface:
 
     def set_properties(self):
         # Set windows properties
-        debug.log("[2/1] Setting properties...", text_color="magenta")
+        debug.log("[Interface] [2/1] Setting properties...", text_color="magenta")
 
         self.win = Tk()
         self.win["bg"] = BGCOLOR
@@ -226,7 +222,7 @@ class Interface:
         self.win.protocol("WM_DELETE_WINDOW", self.on_window_close)
         self.selected_file_path = StringVar()
         # self.create_font()
-        debug.log("[2/2] Properties set!", text_color="magenta")
+        debug.log("[Interface] [2/2] Properties set!\n", text_color="magenta")
 
         self.win.after(150, self.schedule_periodic_processing_execution)
 
@@ -261,18 +257,18 @@ class Interface:
         # processing.stop_thread = True
         # processing.thread.join()
 
-        debug.log("Stopping all threads!!!")
+        debug.log("[Interface] Stopping all threads!!!")
         self.stop_periodic_progress_update()
-        debug.log("Stopping prepass thread...", text_color="yellow")
+        debug.log("[Interface] Stopping prepass thread...", text_color="yellow")
         prepass.stop_prepass_thread()
-        debug.log("Stopped prepass thread!", text_color="magenta")
+        debug.log("[Interface] Stopped prepass thread!", text_color="magenta")
 
-        debug.log("Stopping stabilization thread...", text_color="yellow")
+        debug.log("[Interface] Stopping stabilization thread...", text_color="yellow")
         video_stabilization.stop_stabilization_thread()
-        debug.log("Stopped stabilization thread!", text_color="magenta")
+        debug.log("[Interface] Stopped stabilization thread!", text_color="magenta")
 
         processing.stop_processing_thread()
-        debug.log("Stopped threads")
+        debug.log("[Interface] Stopped threads")
         self.win.destroy()
         sys.exit(2)
 
@@ -310,7 +306,7 @@ class Interface:
 
     def create_browser(self):
         # Wrapper for file browsing
-        debug.log("[4/1] Creating Browsing wrapper...", text_color="magenta")
+        debug.log("[Interface] [4/1] Creating Browsing wrapper...", text_color="magenta")
         self.browse_wrapper = custom_ui.CustomLabelFrame(self.win,
                                                          text=self.lang["input_file"],
                                                          fill=ACCENT,
@@ -320,9 +316,9 @@ class Interface:
                                                          height=80,
                                                          radius=15)
         self.browse_wrapper.canvas.place(x=170, y=10)
-        debug.log("[4/2] Browsing wrapper created!", text_color="magenta")
+        debug.log("[Interface] [4/2] Browsing wrapper created!", text_color="magenta")
 
-        debug.log("[4/3] Creating browse Button...", text_color="magenta")
+        debug.log("[Interface] [4/3] Creating browse Button...", text_color="magenta")
         self.browse_button = custom_button.CustomButton(self.browse_wrapper.canvas,
                                                         text=self.lang["browse"],
                                                         command=self.browse_files,
@@ -330,10 +326,10 @@ class Interface:
                                                         button_type=custom_button.button)
         self.browse_button.canvas.place(x=10, y=30)
 
-        debug.log("[4/4] Browse Button created!", text_color="magenta")
+        debug.log("[Interface] [4/4] Browse Button created!", text_color="magenta")
 
         # Label for showing opened file path
-        debug.log("[4/5] Creating file path Label...", text_color="magenta")
+        debug.log("[Interface] [4/5] Creating file path Label...", text_color="magenta")
         self.opened_file_label = Label(self.browse_wrapper.canvas,
                                        textvariable=self.selected_file_path,
                                        fg=FONT_COLOR,
@@ -345,28 +341,28 @@ class Interface:
 
         # Place right to the button, vertically centered
         self.opened_file_label.place(x=85, y=self.browse_button.winfo_reqheight())
-        debug.log("[4/6] File path Label created!", text_color="magenta")
+        debug.log("[Interface] [4/6] File path Label created!\n", text_color="magenta")
 
     def browse_files(self):
         # Open a file dialog and get the selected file path
         global video_file_path
         global prev_video_path
         video_file_path = prev_video_path
-        debug.log("Opening file browser dialog...", text_color="magenta")
+        debug.log("[Interface] Opening file browser dialog...", text_color="magenta")
         file_path = filedialog.askopenfilename(title="Select a file",
                                                filetypes=[("Video Files", "*.mp4;*.avi;*.mkv;*.mov;*.wmv")])
 
         # Update the label with the selected file path
         if file_path:
             self.selected_file_path.set(file_path)
-            debug.log(f"Selected file: {file_path}", text_color="blue")
+            debug.log(f"[Interface] Selected file: {file_path}", text_color="blue")
             self.show_first_frame_details(file_path)
             video_file_path = file_path
             prev_video_path = video_file_path
         else:
-            debug.log("No file selected", text_color="red")
+            debug.log("[Interface] No file selected", text_color="red")
             if prev_video_path:
-                debug.log("Selecting previous video", text_color="blue")
+                debug.log("[Interface] Selecting previous video", text_color="blue")
                 self.opened_file_label.config(text=prev_video_path)
                 self.show_first_frame_details(prev_video_path)
 
@@ -382,7 +378,7 @@ class Interface:
         """
 
         # Creating a labeled frame to contain video details
-        debug.log("[5/1] Creating video details wrapper...", text_color="yellow")
+        debug.log("[Interface] [5/1] Creating video details wrapper...", text_color="yellow")
         self.frame_wrapper = custom_ui.CustomLabelFrame(self.win,
                                                         text=self.lang["video_data"],
                                                         fill=ACCENT,
@@ -391,16 +387,16 @@ class Interface:
                                                         width=780,
                                                         height=320)
         self.frame_wrapper.canvas.place(x=10, y=100)
-        debug.log("[5/2] Video details wrapper created!", text_color="yellow")
+        debug.log("[Interface] [5/2] Video details wrapper created!", text_color="yellow")
 
         # Creating a label to display the first frame of the video
-        debug.log("[5/3] Creating placeholder label for first frame...", text_color="yellow")
+        debug.log("[Interface] [5/3] Creating placeholder label for first frame...", text_color="yellow")
         frame_label = Label(self.frame_wrapper.canvas)
         frame_label.place(x=10, y=self.frame_wrapper.get_label_height() + 10)
-        debug.log("[5/4] First frame placeholder created!", text_color="yellow")
+        debug.log("[Interface] [5/4] First frame placeholder created!", text_color="yellow")
 
         # Opening the video and extracting details from the first frame
-        debug.log("[5/5] Opening video file and getting first frame data...", text_color="yellow")
+        debug.log("[Interface] [5/5] Opening video file and getting first frame data...", text_color="yellow")
 
         cap = cv2.VideoCapture(path)
         fps = "{:.0f}".format(cap.get(cv2.CAP_PROP_FPS))
@@ -410,7 +406,7 @@ class Interface:
 
         ret, frame = cap.read()
         cap.release()
-        debug.log("[5/6] First frame data gathered!", text_color="yellow")
+        debug.log("[Interface] [5/6] First frame data gathered!", text_color="yellow")
 
         if ret:
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -435,18 +431,18 @@ class Interface:
                            f"{self.lang["bitrate"]}: {bitrate} kbps")
 
             # Resizing the first frame to fit within the frame wrapper
-            debug.log("[5/7] Calculating first frame information...", text_color="yellow")
+            debug.log("[Interface] [5/7] Calculating first frame information...", text_color="yellow")
             new_width = self.frame_wrapper.get_width() // 2
             new_height = int(new_width / aspect_ratio)
             image = image.resize((new_width, new_height), Image.BILINEAR)
             image_file = ImageTk.PhotoImage(image)
-            debug.log("[5/8] First image information set!", text_color="yellow")
+            debug.log("[Interface] [5/8] First image information set!", text_color="yellow")
 
             # Configuring the frame label with the resized first frame
-            debug.log("[5/9] Configuring image...", text_color="yellow")
+            debug.log("[Interface] [5/9] Configuring image...", text_color="yellow")
             frame_label.config(image=image_file)
             frame_label.image = image_file
-            debug.log("[5/10] Image configured!", text_color="yellow")
+            debug.log("[Interface] [5/10] Image configured!", text_color="yellow")
 
         # Creating button to open the video with VLC
         self.media_player_button = custom_button.CustomButton(self.frame_wrapper.canvas,
@@ -469,7 +465,7 @@ class Interface:
         self.process_video_button.canvas.place(x=self.media_player_button.winfo_reqwidth() + 20, y=new_height + 40)
 
         # Creating labels to display video details
-        debug.log("[5/11] Creating labels to display video details...", text_color="yellow")
+        debug.log("[Interface] [5/11] Creating labels to display video details...", text_color="yellow")
         self.frame_details_header = Label(self.frame_wrapper.canvas,
                                           text=self.lang["video_det"],
                                           fg=FONT_COLOR,
@@ -487,7 +483,7 @@ class Interface:
                                    )
         self.image_details.place(x=new_width + 30,
                                  y=self.frame_details_header.winfo_y() + self.frame_details_header.winfo_reqheight() + 20)
-        debug.log("[5/12] Labels to display video details created!", text_color="yellow")
+        debug.log("[Interface] [5/12] Labels to display video details created!\n", text_color="yellow")
 
         # stab_checkbox_var = tkinter.BooleanVar
         # self.stab_checkbox = tkinter.Checkbutton(self.frame_wrapper.canvas,
@@ -553,10 +549,10 @@ class Interface:
 
             # Start video processing in a separate thread
             self.win.after(150, self.schedule_periodic_processing_execution)
-            debug.log(f"Starting processing of {video_file_path}.\n"
-                      f"Preprocessing: {self.prepass_toggle_button.get_state()}\n"
-                      f"Stabilization: {self.stab_toggle_button.get_state()}\n"
-                      f"Plotting: {self.plotting_toggle_button.get_state()}")
+            debug.log(f"[Interface] Preprocessing: {self.prepass_toggle_button.get_state()}")
+            debug.log(f"[Interface] Stabilization: {self.stab_toggle_button.get_state()}")
+            debug.log(f"[Interface] Plotting: {self.plotting_toggle_button.get_state()}\n")
+
             processing.process_video_thread(video_file_path,
                                             self.prepass_toggle_button.get_state(),
                                             self.stab_toggle_button.get_state(),
@@ -612,7 +608,7 @@ class Interface:
         self.stab_progress_label = Label(self.stab_progress_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT,
                                          font=BOLD_FONT)
         self.stab_progress_label.place(x=720, y=30)
-        debug.log("[6/6] Progress label created!", text_color="magenta")
+        debug.log("[Interface] [6/6] Progress label created!", text_color="magenta")
 
         # Create an overlay frame for the progress bar to hide flickering bug
         self.stab_pbar_overlay = custom_ui.CustomLabelFrame(self.stab_progress_wrapper.canvas, width=705, height=30,
@@ -623,7 +619,7 @@ class Interface:
         """
         Creates and displays a custom progress bar with a progress label.
         """
-        debug.log("[6/1] Creating progress wrapper...", text_color="magenta")
+        debug.log("[Interface] [6/1] Creating progress wrapper...", text_color="magenta")
         # Create a wrapper frame for the progress bar
         self.proc_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
                                                                 text=self.lang["progress"],
@@ -633,10 +629,10 @@ class Interface:
                                                                 radius=15,
                                                                 bg=BGCOLOR)
         self.proc_progress_wrapper.canvas.place(x=10, y=590)
-        debug.log("[6/2] Progress wrapper created!", text_color="magenta")
+        debug.log("[Interface] [6/2] Progress wrapper created!", text_color="magenta")
 
         # Create the custom progress bar
-        debug.log("[6/3] Creating custom progress bar...", text_color="magenta")
+        debug.log("[Interface] [6/3] Creating custom progress bar...", text_color="magenta")
         self.proc_progress_bar = custom_ui.CustomProgressBar(self.proc_progress_wrapper.canvas,
                                                              width=705,
                                                              height=30,
@@ -645,14 +641,14 @@ class Interface:
                                                              bar_bg_accent=BAR_BG_ACCENT,
                                                              pr_bar=PB_COLOR)
         self.proc_progress_bar.canvas.place(x=10, y=self.proc_progress_wrapper.get_height() // 2 - 5)
-        debug.log("[6/4] Custom progress bar created!", text_color="magenta")
+        debug.log("[Interface] [6/4] Custom progress bar created!", text_color="magenta")
 
         # Create and place the progress label
-        debug.log("[6/5] Creating progress label...", text_color="magenta")
+        debug.log("[Interface] [6/5] Creating progress label...", text_color="magenta")
         self.proc_progress_label = Label(self.proc_progress_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT,
                                          font=BOLD_FONT)
         self.proc_progress_label.place(x=720, y=30)
-        debug.log("[6/6] Progress label created!", text_color="magenta")
+        debug.log("[Interface] [6/6] Progress label created!\n", text_color="magenta")
 
         # Create an overlay frame for the progress bar to hide flickering bug
         self.proc_pbar_overlay = custom_ui.CustomLabelFrame(self.proc_progress_wrapper.canvas, width=705, height=30,
@@ -686,7 +682,7 @@ class Interface:
         # Check if processing has finished
         if processing.finished:
             # Log the processing difference in the debug console
-            debug.log(f"{self.lang['diff']}: {processing.total_difference}", text_color="blue")
+            debug.log(f"[Interface] {self.lang['diff']}: {processing.total_difference}", text_color="blue")
 
             # Create and display the finished window
             # self.create_finished_window()
@@ -749,7 +745,7 @@ class Interface:
         self.process_video_button.enable()
         self.ok_button.destroy()
         self.finished_window.destroy()
-        debug.log("Finished window closed!", text_color="cyan")
+        debug.log("[Interface] Finished window closed!", text_color="cyan")
 
     def create_settings_window(self):
         """
@@ -899,7 +895,8 @@ class Interface:
                 self.update_colors()
 
             # Save selected options to configuration file
-            debug.log(f"Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}", text_color="yellow")
+            debug.log(f"[Interface] Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}",
+                      text_color="yellow")
             config.save_settings([chosen_lang_option, chosen_theme_option])
 
         # Add a button to save the selected options
@@ -1021,13 +1018,13 @@ class Interface:
             self.history_exit_button.destroy()  # Destroy exit button
             self.history_window.destroy()  # Destroy history window
             self.history_window_opened = False  # Set status flag to closed
-            debug.log(f"History window opened status: {self.history_window_opened}")
+            debug.log(f"[Interface] History window opened status: {self.history_window_opened}")
 
             # Check if the window still exists
             if self.history_window.winfo_exists():
-                debug.log("History window still exists.")
+                debug.log("[Interface] History window still exists.")
             else:
-                debug.log("History window has been destroyed.")
+                debug.log("[Interface] History window has been destroyed.")
 
     def change_language(self):
         """
@@ -1106,6 +1103,8 @@ class Interface:
             self.settings_label.place(
                 x=self.settings_wrapper.get_width() // 2 - self.settings_label.winfo_reqwidth() // 2,
                 y=10)
+
+        debug.log("[Interface] Texts updated!", text_color="blue")
 
     def change_button_text(self, button: custom_button.CustomButton):
         """
@@ -1227,3 +1226,4 @@ class Interface:
 
         # Set background color for the main window
         self.win["bg"] = BGCOLOR
+        debug.log("[Interface] Colors updated!", text_color="blue")
