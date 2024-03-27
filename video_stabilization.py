@@ -39,7 +39,7 @@ def stabilize_video(video_path, to_plot, p_callback=None):
     if not is_finished:
         # Read video input
         cap = cv2.VideoCapture(video_path)
-        cv2.setNumThreads(2)
+        cv2.setNumThreads(16)
         output = video_path[:-4] + "_stabilized.mp4"
 
         # Read the first frame
