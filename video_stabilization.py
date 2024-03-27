@@ -8,6 +8,7 @@ import numpy as np
 import debug
 import plotting
 import processing
+import table_print
 
 progress_callback = None
 is_finished = False
@@ -33,6 +34,7 @@ def set_progress_callback(callback):
 def stabilize_video(video_path, to_plot, p_callback=None):
     global is_finished, stop_thread, stop_thread_event
     stop_thread_event = threading.Event()
+    is_finished = False
 
     if not is_finished:
         # Read video input
@@ -60,8 +62,8 @@ def stabilize_video(video_path, to_plot, p_callback=None):
         movement_data = []
 
         while not stop_thread_event.is_set():
-            print(f"Frames: {curr_frame_index}/{total_frames}")
-
+            # print(f"Frames: {curr_frame_index}/{total_frames}")
+            table_print.stab_table_print(curr_frame_index, total_frames)
             if (curr_frame_index % 10) % 5 == 0:
                 processing.callback_queue.put(
                     lambda: p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames))))

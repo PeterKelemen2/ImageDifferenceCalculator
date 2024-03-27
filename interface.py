@@ -238,6 +238,7 @@ class Interface:
         if processing.is_finished:
             processing.execute_callbacks()
             self.stop_periodic_progress_update()
+            processing.thread.join()
             self.create_finished_window()
 
     def stop_periodic_progress_update(self):
@@ -551,6 +552,11 @@ class Interface:
             # prepass.set_progress_callback(self.update_bar)
 
             # Start video processing in a separate thread
+            self.win.after(150, self.schedule_periodic_processing_execution)
+            debug.log(f"Starting processing of {video_file_path}.\n"
+                      f"Preprocessing: {self.prepass_toggle_button.get_state()}\n"
+                      f"Stabilization: {self.stab_toggle_button.get_state()}\n"
+                      f"Plotting: {self.plotting_toggle_button.get_state()}")
             processing.process_video_thread(video_file_path,
                                             self.prepass_toggle_button.get_state(),
                                             self.stab_toggle_button.get_state(),

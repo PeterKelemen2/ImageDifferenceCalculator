@@ -135,7 +135,7 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             is_finished = True
             write_to_history(path, total_difference)
             debug.log(f"Processing finished in {"{:.2f}s".format(time.time() - start_time)}", text_color="cyan")
-
+            new_frame = path
     debug.log("End of processing method")
 
 

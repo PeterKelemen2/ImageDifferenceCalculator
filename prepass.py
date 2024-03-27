@@ -11,6 +11,7 @@ import numpy as np
 
 import plotting
 import processing
+import table_print
 
 is_finished = False
 progress_callback = None
@@ -50,6 +51,7 @@ def preprocess(path, to_plot):
     global is_finished, stop_thread_event, progress_callback
     p_callback = progress_callback
     stop_thread_event = threading.Event()
+    is_finished = False
 
     if not is_finished:
         debug.log("Entered preprocess method")
@@ -71,6 +73,10 @@ def preprocess(path, to_plot):
 
         debug.log("Starting preprocessing...")
 
+        if not stop_thread_event.is_set():
+            table_print.prepass_table_print("Frame", "Brightness value", "Reference brightness",
+                                            "Brightness ratio")
+
         while not stop_thread_event.is_set():
             ret, frame = cap.read()
             if not ret:
@@ -85,7 +91,9 @@ def preprocess(path, to_plot):
             if curr_brightness - first_frame_brightness == 0:
                 delta_brightness = 1
 
-            print_as_table_row(curr_index, curr_brightness, first_frame_brightness, delta_brightness, to_debug=True)
+            table_print.prepass_table_print(curr_index, curr_brightness, first_frame_brightness, delta_brightness)
+
+            # table_print.table_print([curr_index, curr_brightness, first_frame_brightness, delta_brightness])
 
             frame = cv2.convertScaleAbs(frame, alpha=delta_brightness, beta=0)
             prepass_b_list.append(calculate_avg_brightness(frame))
