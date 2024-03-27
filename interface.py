@@ -238,12 +238,13 @@ class Interface:
         if processing.is_finished:
             processing.execute_callbacks()
             self.stop_periodic_progress_update()
+            self.create_finished_window()
 
     def stop_periodic_progress_update(self):
         if self.periodic_exec_id is not None:
             self.win.after_cancel(self.periodic_exec_id)
             self.periodic_exec_id = None
-            self.create_finished_window()
+            # self.create_finished_window()
 
     def on_window_close(self):
         # self.terminate_program = True
@@ -942,6 +943,7 @@ class Interface:
                                                               height=40,
                                                               fill=ACCENT,
                                                               bg=BGCOLOR)
+
         self.history_title_frame.canvas.place(x=HIS_WIN_WIDTH // 2 - self.history_title_frame.get_width() // 2, y=15)
 
         # Create label for history title
@@ -1219,25 +1221,3 @@ class Interface:
 
         # Set background color for the main window
         self.win["bg"] = BGCOLOR
-
-    def change_colors(self, widget):
-        """
-        Recursively update the background and foreground colors of the given widget
-        and its children widgets to match the current theme settings.
-
-        :param widget: The parent widget whose colors need to be updated.
-        :type widget: tkinter.Widget or None
-        """
-        if widget is not None:
-            # Update colors for the current widget
-            for elem in widget.winfo_children():
-                if elem is not None:
-                    # Set background color if available
-                    if "bg" in elem.keys():
-                        elem.config(bg=BGCOLOR)
-                    # Set foreground color if available
-                    if "fg" in elem.keys():
-                        elem.config(fg=FONT_COLOR)
-                    # Recursively update colors for children widgets
-                    if elem.winfo_children() is not None:
-                        self.change_colors(elem)
