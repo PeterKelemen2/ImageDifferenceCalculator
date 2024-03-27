@@ -60,7 +60,7 @@ def stabilize_video(video_path, to_plot, p_callback=None):
 
         curr_frame_index = 1
         movement_data = []
-
+        table_print.stab_table_print("Frame", "Total")
         while not stop_thread_event.is_set():
             # print(f"Frames: {curr_frame_index}/{total_frames}")
             table_print.stab_table_print(curr_frame_index, total_frames)

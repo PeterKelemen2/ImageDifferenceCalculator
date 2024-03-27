@@ -15,8 +15,11 @@ def print_table_line(*args):
 
 
 def stab_table_print(curr, total):
-    percent = f"{(curr * 100) // total}%"
-    print_table_line((curr, 4), (total, 5), (percent, 6))
+    if type(curr) == int:
+        percent = f"{(curr * 100) // total}%"
+        print_table_line((curr, 7), (total, 7), (percent, 10))
+    else:
+        print_table_line((curr, 7), (total, 7), ("Progress", 10))
 
 
 def prepass_table_print(i, curr, first, delta):
