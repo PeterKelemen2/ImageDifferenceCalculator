@@ -158,28 +158,27 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             # processed_video_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
             prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-
+            # debug.log(f"[Processing] Previous gray: {prev_gray.shape[:2]}")
             prev_gray = prev_gray[y:y + h, x:x + w]
+            # debug.log(f"[Processing] Previous gray after crop: {prev_gray.shape[:2]}")
 
-            diff_threshold = 30
-            max_light_value = 255
+            diff_threshold = 60
 
             while not stop_thread_event.is_set():
                 ret, frame = processed_video_cap.read()
                 if not ret:
                     break
-
                 cropped_frame = frame[y:y + h, x:x + w]
-
                 gray = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2GRAY)
-                diff = cv2.absdiff(prev_gray, gray)
+                diff = cv2.absdiff(gray, prev_gray)
 
-                _, threshold = cv2.threshold(diff, diff_threshold, max_light_value, cv2.THRESH_BINARY)
+                _, threshold_diff = cv2.threshold(diff, 1, 255, cv2.THRESH_BINARY)
+
                 cropped_video_writer.write(diff)
 
                 prev_gray = gray
 
-                # cv2.imshow("Cropped frame", cropped_frame)
+                cv2.imshow("Cropped frame", threshold_diff)
 
                 key = cv2.waitKey(1) & 0xFF
                 if key == ord('q'):
