@@ -37,8 +37,6 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
 
     if not is_finished:
         start_time = time.time()
-        current_frame_index = 0
-        frames_since_last_callback = 0
 
         new_path = path
         if preprocess:
@@ -85,10 +83,14 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
 
         total_mean = 0
 
+        current_frame_index = 0
+
         while not stop_thread_event.is_set():
             ret, frame = cap.read()
             if not ret:
                 break
+
+            current_frame_index += 1
 
             gray_cropped = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
             diff = cv2.absdiff(gray_cropped, prev_gray_cropped)
@@ -97,10 +99,13 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             # Calculate Mean Squared Error (MSE)
             total_mean += np.mean((diff / 255.0) ** 2)
 
+            if current_frame_index % 2 == 0:
+                callback_queue.put(lambda: p_callback("processing", (current_frame_index * 100) // total_frames))
+
         video_writer.release()
         cap.release()
         cv2.destroyAllWindows()
-
+        callback_queue.put(lambda: p_callback("processing", 100))
         total_difference = total_mean / total_frames
         debug.log(f"[Processing] Total difference: {total_difference}")
 
