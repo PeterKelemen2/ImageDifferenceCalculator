@@ -695,3 +695,11 @@ File: sample_prepass_stabilized.mp4;Result: 0
 File: sample_prepass_stabilized.mp4;Result: 0
 File: sample_prepass_stabilized.mp4;Result: 0
 File: sample_prepass_stabilized.mp4;Result: 0
+File: sample.mp4;Result: 0
+File: sample.mp4;Result: 0
+File: sample.mp4;Result: 0
+File: sample.mp4;Result: 0
+File: sample_prepass_stabilized.mp4;Result: 0
+File: sample_prepass_stabilized.mp4;Result: 0
+File: sample_prepass_stabilized.mp4;Result: 0
+File: sample_prepass_stabilized.mp4;Result: 0

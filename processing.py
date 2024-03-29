@@ -66,128 +66,172 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         debug.log(f"[Processing] Started processing {new_path}", text_color="blue")
 
         cap = cv2.VideoCapture(new_path)
-        ret, first_frame = cap.read()
-        if first_frame is not None or not stop_thread_event.is_set():
-            avg_light_level = first_frame.sum() // first_frame.size
+        ret, prev_frame = cap.read()
+        if not ret:
+            debug.log(f"[Processing] Unable to read the video file.")
 
-            threshold_lower_light = 0
-            threshold_upper_light = int(avg_light_level + avg_light_level * 0.18)
-            threshold_lower_dark = int(avg_light_level - avg_light_level * 0.18)
-            threshold_upper_dark = 255
+        new_roi = cv2.selectROI("Select ROI", prev_frame)
+        cv2.destroyWindow("Select ROI")
 
-            debug.log(f"{avg_light_level} {threshold_upper_light} {threshold_lower_dark}")
+        debug.log(f"[Processing] ROI: {new_roi}")
 
-            first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
-            gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
-            binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
-            binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
+        x, y, w, h = new_roi
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        cropped_output_path = new_path[:-4] + "_processed.mp4"
+        codec = cv2.VideoWriter_fourcc('F', 'F', 'V', '1')
+        video_writer = cv2.VideoWriter(cropped_output_path, codec, 95, (w, h))
 
-            height, width = first_frame.shape[:2]
-            accumulated_frame = np.zeros((height, width, 3), dtype=np.float32)
-            new_path = new_path[:-4] + "_processed.mp4"
-            video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95,
-                                           (width, height))
-            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        prev_gray_cropped = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
 
-        if not cap.isOpened():
-            debug.log("[Processing] Could not open video", text_color="red")
-            is_finished = True
-            stop_thread_event.set()
-            cap.release()
-            video_output.release()
-            return
-        else:
-            average1 = np.float32(first_frame)
+        total_mean = 0
 
+        while not stop_thread_event.is_set():
+            ret, frame = cap.read()
             if not ret:
-                debug.log("[Processing] Could not read video frames", text_color="red")
-                is_finished = True  # Ensure is_finished is updated even if an error occurs
-                stop_thread_event.set()  # Set stop event in case of error
-                cap.release()
-                video_output.release()
-                return
+                break
 
-            while not stop_thread_event.is_set():
-                current_frame_index += 1
+            gray_cropped = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
+            diff = cv2.absdiff(gray_cropped, prev_gray_cropped)
+            video_writer.write(diff)
 
-                ret, frame = cap.read()
-                if not ret:
-                    break
-                frames_since_last_callback += 1
+            # Calculate Mean Squared Error (MSE)
+            total_mean += np.mean((diff / 255.0) ** 2)
 
-                first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
-                second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
+        video_writer.release()
+        cap.release()
+        cv2.destroyAllWindows()
 
-                cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
-                frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
-                video_output.write(frame_delta)
+        total_difference = total_mean / total_frames
+        debug.log(f"[Processing] Total difference: {total_difference}")
 
-                if frames_since_last_callback == 5:
-                    progress_percentage = "{:.0f}".format(
-                        (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
-                    callback_queue.put(lambda: p_callback("processing", int(progress_percentage)))
-                    frames_since_last_callback = 0
-                    debug.log(f"[Processing] Processing {progress_percentage}%")
+        is_finished = True
 
-            cap.release()
-            video_output.release()
-            cv2.destroyAllWindows()
-
-            callback_queue.put(lambda: p_callback("processing", 100))
-            # is_finished = True
-            write_to_history(path, total_difference)
-            debug.log(f"[Processing] Processing finished in {"{:.2f}s".format(time.time() - start_time)}",
-                      text_color="cyan")
-            new_frame = path
-
-            processed_video_cap = cv2.VideoCapture("C:/diff_video.mp4")
-            ret, prev_frame = processed_video_cap.read()
-            if not ret:
-                debug.log(f"[Processing] Unable to read the video file.")
-
-            new_roi = cv2.selectROI("Select ROI", prev_frame)
-            cv2.destroyWindow("Select ROI")
-
-            debug.log(f"[Processing] ROI: {new_roi}")
-
-            x, y, w, h = new_roi
-            cropped_output_path = "C:/cropped.mp4"
-            codec = cv2.VideoWriter_fourcc('F', 'F', 'V', '1')
-            cropped_video_writer = cv2.VideoWriter(cropped_output_path, codec, 95, (w, h))
-
-            # processed_video_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-
-            prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-            # debug.log(f"[Processing] Previous gray: {prev_gray.shape[:2]}")
-            prev_gray = prev_gray[y:y + h, x:x + w]
-            # debug.log(f"[Processing] Previous gray after crop: {prev_gray.shape[:2]}")
-
-            diff_threshold = 60
-
-            while not stop_thread_event.is_set():
-                ret, frame = processed_video_cap.read()
-                if not ret:
-                    break
-                cropped_frame = frame[y:y + h, x:x + w]
-                gray = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2GRAY)
-                diff = cv2.absdiff(gray, prev_gray)
-
-                _, threshold_diff = cv2.threshold(diff, 1, 255, cv2.THRESH_BINARY)
-
-                cropped_video_writer.write(diff)
-
-                prev_gray = gray
-
-                cv2.imshow("Cropped frame", threshold_diff)
-
-                key = cv2.waitKey(1) & 0xFF
-                if key == ord('q'):
-                    break
-
-            cropped_video_writer.release()
-            processed_video_cap.release()
-
-            is_finished = True
+        # cap = cv2.VideoCapture(new_path)
+        # ret, first_frame = cap.read()
+        # if first_frame is not None or not stop_thread_event.is_set():
+        #     avg_light_level = first_frame.sum() // first_frame.size
+        #
+        #     threshold_lower_light = 0
+        #     threshold_upper_light = int(avg_light_level + avg_light_level * 0.18)
+        #     threshold_lower_dark = int(avg_light_level - avg_light_level * 0.18)
+        #     threshold_upper_dark = 255
+        #
+        #     debug.log(f"{avg_light_level} {threshold_upper_light} {threshold_lower_dark}")
+        #
+        #     first_frame_blurred = cv2.GaussianBlur(first_frame, (21, 21), 0)
+        #     gray_frame = cv2.cvtColor(first_frame_blurred, cv2.COLOR_BGR2GRAY)
+        #     binary_mask_light = cv2.inRange(gray_frame, threshold_lower_light, threshold_upper_light)
+        #     binary_mask_dark = cv2.inRange(gray_frame, threshold_lower_dark, threshold_upper_dark)
+        #
+        #     height, width = first_frame.shape[:2]
+        #     accumulated_frame = np.zeros((height, width, 3), dtype=np.float32)
+        #     new_path = new_path[:-4] + "_processed.mp4"
+        #     video_output = cv2.VideoWriter("C:/diff_video.mp4", cv2.VideoWriter_fourcc('F', 'F', 'V', '1'), 95,
+        #                                    (width, height))
+        #     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        #
+        # if not cap.isOpened():
+        #     debug.log("[Processing] Could not open video", text_color="red")
+        #     is_finished = True
+        #     stop_thread_event.set()
+        #     cap.release()
+        #     video_output.release()
+        #     return
+        # else:
+        #     average1 = np.float32(first_frame)
+        #
+        #     if not ret:
+        #         debug.log("[Processing] Could not read video frames", text_color="red")
+        #         is_finished = True  # Ensure is_finished is updated even if an error occurs
+        #         stop_thread_event.set()  # Set stop event in case of error
+        #         cap.release()
+        #         video_output.release()
+        #         return
+        #
+        #     while not stop_thread_event.is_set():
+        #         current_frame_index += 1
+        #
+        #         ret, frame = cap.read()
+        #         if not ret:
+        #             break
+        #         frames_since_last_callback += 1
+        #
+        #         first_mask_pass = cv2.bitwise_and(frame, frame, mask=binary_mask_light)
+        #         second_mask_pass = cv2.bitwise_and(first_mask_pass, frame, mask=binary_mask_dark)
+        #
+        #         cv2.accumulateWeighted(second_mask_pass, average1, 0.04)
+        #         frame_delta = cv2.absdiff(second_mask_pass, cv2.convertScaleAbs(accumulated_frame))
+        #         # video_output.write(frame_delta)
+        #         video_output.write(frame)
+        #
+        #         if frames_since_last_callback == 5:
+        #             progress_percentage = "{:.0f}".format(
+        #                 (cap.get(cv2.CAP_PROP_POS_FRAMES) * 100) / total_frames)
+        #             callback_queue.put(lambda: p_callback("processing", int(progress_percentage)))
+        #             frames_since_last_callback = 0
+        #             debug.log(f"[Processing] Processing {progress_percentage}%")
+        #
+        #     cap.release()
+        #     video_output.release()
+        #     cv2.destroyAllWindows()
+        #
+        #     callback_queue.put(lambda: p_callback("processing", 100))
+        #     # is_finished = True
+        #
+        #     write_to_history(path, total_difference)
+        #     debug.log(f"[Processing] Processing finished in {"{:.2f}s".format(time.time() - start_time)}",
+        #               text_color="cyan")
+        #     # new_frame = path
+        #
+        #     processed_video_cap = cv2.VideoCapture("C:/diff_video.mp4")
+        #     ret, prev_frame = processed_video_cap.read()
+        #     if not ret:
+        #         debug.log(f"[Processing] Unable to read the video file.")
+        #
+        #     new_roi = cv2.selectROI("Select ROI", prev_frame)
+        #     cv2.destroyWindow("Select ROI")
+        #
+        #     debug.log(f"[Processing] ROI: {new_roi}")
+        #
+        #     x, y, w, h = new_roi
+        #     cropped_output_path = "C:/cropped.mp4"
+        #     codec = cv2.VideoWriter_fourcc('F', 'F', 'V', '1')
+        #     cropped_video_writer = cv2.VideoWriter(cropped_output_path, codec, 95, (w, h))
+        #
+        #     # processed_video_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        #
+        #     prev_gray_cropped = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
+        #     # debug.log(f"[Processing] Previous gray: {prev_gray.shape[:2]}")
+        #     # prev_gray = prev_gray[y:y + h, x:x + w]  # Cropped
+        #     # debug.log(f"[Processing] Previous gray after crop: {prev_gray.shape[:2]}")
+        #
+        #     while not stop_thread_event.is_set():
+        #         ret, frame = processed_video_cap.read()
+        #         if not ret:
+        #             break
+        #         # cropped_frame = frame[y:y + h, x:x + w]
+        #         # gray_cropped = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2GRAY)
+        #
+        #         gray_cropped = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
+        #         diff = cv2.absdiff(gray_cropped, prev_gray_cropped)
+        #
+        #         _, threshold_diff = cv2.threshold(diff, int(avg_light_level), 255, cv2.THRESH_BINARY)
+        #
+        #         prev_gray_cropped = gray_cropped
+        #
+        #         cropped_video_writer.write(diff)
+        #
+        #         cv2.imshow("Cropped frame", threshold_diff)
+        #         # cv2.imshow("Cropped frame", diff)
+        #
+        #         key = cv2.waitKey(1) & 0xFF
+        #         if key == ord('q'):
+        #             break
+        #
+        #     cropped_video_writer.release()
+        #     processed_video_cap.release()
+        #
+        #     is_finished = True
     debug.log("[Processing] End of processing method")
 
 
