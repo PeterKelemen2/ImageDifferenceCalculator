@@ -36,6 +36,8 @@ def stabilize_video(video_path, to_plot, p_callback=None):
     stop_thread_event = threading.Event()
     is_finished = False
 
+    start_time = time.time()
+
     if not is_finished:
         # Read video input
         cap = cv2.VideoCapture(video_path)
@@ -105,6 +107,8 @@ def stabilize_video(video_path, to_plot, p_callback=None):
             lambda: p_callback("stabilization", 100))
         # execute_callbacks()
         is_finished = True
+        debug.log(f"[Stabilization] Stabilization finished in {"{:.2f}s".format(time.time() - start_time)}\n",
+                  text_color="cyan")
         if to_plot:
             plotting.plot_stabilization_movement(movement_data=movement_data,
                                                  title="Stabilization movement",

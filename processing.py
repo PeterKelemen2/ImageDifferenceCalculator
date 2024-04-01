@@ -23,6 +23,10 @@ stop_thread_event: threading.Event = None
 callback_queue: Queue = Queue()
 
 
+def get_result():
+    return total_difference
+
+
 def set_progress_callback(callback):
     global progress_callback
     progress_callback = callback
@@ -40,13 +44,14 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
 
         new_path = path
         if preprocess:
+            prep_start_time = time.time()
             prepass.set_progress_callback(p_callback)
             prepass.preprocess_video_thread(path, to_plot)
             debug.log("[Processing] Started preprocessing thread!")
             while not prepass.is_finished:
                 time.sleep(0.02)
             prepass.thread.join()
-            debug.log("[Processing] Preprocessing finished!")
+            debug.log(f"[Processing] Preprocessing!")
             new_path = new_path[:-4] + "_prepass.mp4"
 
         if stabilize:
@@ -110,6 +115,9 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         debug.log(f"[Processing] Total difference: {total_difference}")
 
         is_finished = True
+        write_to_history(path, total_difference)
+        debug.log(f"[Processing] Processing finished in {"{:.2f}s".format(time.time() - start_time)}",
+                  text_color="cyan")
 
         # cap = cv2.VideoCapture(new_path)
         # ret, first_frame = cap.read()
@@ -268,7 +276,7 @@ def stop_processing_thread():
 
 
 def execute_callbacks():
-    debug.log("[Processing] Executing processing callbacks...", text_color="blue")
+    # debug.log("[Processing] Executing processing callbacks...", text_color="blue")
     while not callback_queue.empty():
         callback = callback_queue.get()
         callback()

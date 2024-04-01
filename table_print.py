@@ -22,11 +22,11 @@ def stab_table_print(curr, total):
         print_table_line((curr, 7), (total, 7), ("Progress", 10))
 
 
-def prepass_table_print(i, curr, first, delta):
+def prepass_table_print(i, curr, delta):
     if type(curr) == int:
-        print_table_line((i, 6), (curr, 22), (curr - first, 22), (delta, 22))
+        print_table_line((i, 6), (curr, 22), (delta, 22))
     else:
-        print_table_line((i, 6), (curr, 22), (first, 22), (delta, 22))
+        print_table_line((i, 6), (curr, 22), (delta, 22))
 
 # def stab_table_print(curr, total):
 #     percent = str((curr * 100) // total) + "%"

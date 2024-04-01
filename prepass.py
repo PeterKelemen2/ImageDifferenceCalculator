@@ -73,8 +73,7 @@ def preprocess(path, to_plot):
 
         if not stop_thread_event.is_set():
             debug.log("[Preprocessing] Preprocessing started")
-            table_print.prepass_table_print("Frame", "Brightness value", "Reference brightness",
-                                            "Brightness ratio")
+            table_print.prepass_table_print("Frame", "Brightness value", "Brightness ratio")
 
         frame_since_callback = 0
         while not stop_thread_event.is_set():
@@ -92,7 +91,7 @@ def preprocess(path, to_plot):
             if curr_brightness - first_frame_brightness == 0:
                 delta_brightness = 1
 
-            table_print.prepass_table_print(curr_index, curr_brightness, first_frame_brightness, delta_brightness)
+            table_print.prepass_table_print(curr_index, curr_brightness, delta_brightness)
 
             # table_print.table_print([curr_index, curr_brightness, first_frame_brightness, delta_brightness])
 

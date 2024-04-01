@@ -62,13 +62,14 @@ BIG_FONT_SIZE = 14
 # FONT = ("Helvetica", TIME_FONT_SIZE)
 # BOLD_FONT = ("Helvetica", TIME_FONT_SIZE, "bold")
 FONT = ("Ubuntu", TIME_FONT_SIZE)
+JET_FONT = ("JetBrains Mono", TIME_FONT_SIZE - 3)
 BOLD_FONT = ("Ubuntu", TIME_FONT_SIZE, "bold")
 BIG_FONT = ("Ubuntu", BIG_FONT_SIZE)
 BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 
 TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 80
-WIN_WIDTH = 800
+WIN_WIDTH = 1300
 WIN_HEIGHT = 670
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
@@ -84,6 +85,8 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.terminal_wrapper = None
+        self.terminal_text = None
         self.prepass_toggle_button = None
         self.stab_toggle_button = None
         self.periodic_exec_id = None
@@ -169,9 +172,50 @@ class Interface:
         self.create_history_button()
         self.create_browser()
 
+        self.create_terminal()
+
         debug.log("[Interface] [1/2] Interface created", text_color="blue")
 
         self.win.mainloop()
+
+    def create_terminal(self):
+        self.terminal_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                           width=490,
+                                                           height=WIN_HEIGHT - 20,
+                                                           radius=15,
+                                                           fill=ACCENT,
+                                                           bg=BGCOLOR)
+        self.terminal_wrapper.canvas.place(x=800, y=10)
+
+        self.terminal_text = Label(self.terminal_wrapper.canvas, justify="left", text="Image Difference", font=JET_FONT,
+                                   fg=FONT_COLOR,
+                                   bg=ACCENT)
+        self.terminal_text.place(x=10, y=10)
+
+        self.update_terminal_text()
+
+    def update_terminal_text(self):
+        content_list = []
+        chunk_size = 67
+
+        try:
+            with open(debug.log_file_path, 'r') as log_file:
+                for line in log_file:
+                    # Extract the portion of the line after the second "]"
+                    adjusted_line = line.split("]", 2)[-1]
+                    # Split the adjusted line into chunks of chunk_size characters
+                    chunks = [adjusted_line[i:i + chunk_size] for i in range(0, len(adjusted_line), chunk_size)]
+                    # Join the chunks with newline characters and append to the content list
+                    content_list.extend("\n".join(chunks[i:i + 2]) for i in range(0, len(chunks), 2))
+                    # Limit the content list to store only the last 38 lines
+                    if len(content_list) > 38:
+                        content_list = content_list[-38:]
+
+            content = "".join(content_list)
+        except FileNotFoundError:
+            debug.log("[Interface] Log file not found")
+
+        self.terminal_text.config(text=content)
 
     def create_font(self):
         global FONT
@@ -225,6 +269,11 @@ class Interface:
         debug.log("[Interface] [2/2] Properties set!\n", text_color="magenta")
 
         self.win.after(150, self.schedule_periodic_processing_execution)
+        self.win.after(150, self.schedule_terminal_update)
+
+    def schedule_terminal_update(self):
+        self.update_terminal_text()
+        self.win.after(150, self.schedule_terminal_update)
 
     def schedule_periodic_processing_execution(self):
         if processing.initialized and processing.callback_queue.qsize() > 0:
@@ -396,7 +445,7 @@ class Interface:
         debug.log("[Interface] [5/4] First frame placeholder created!", text_color="yellow")
 
         # Opening the video and extracting details from the first frame
-        debug.log("[Interface] [5/5] Opening video file and getting first frame data...", text_color="yellow")
+        debug.log("[Interface] [5/5] Opening video and getting first frame data...", text_color="yellow")
 
         cap = cv2.VideoCapture(path)
         fps = "{:.0f}".format(cap.get(cv2.CAP_PROP_FPS))
@@ -695,7 +744,7 @@ class Interface:
         """
         # Close existing finished window if it exists
         if self.finished_window is not None:
-            self.close_finished_windows()
+            self.close_finished_windows(to_debug=False)
 
         # Create a new Toplevel window for displaying processing result
         self.finished_window = Toplevel(self.win)
@@ -703,6 +752,7 @@ class Interface:
         self.finished_window.geometry(str(FIN_WIN_WIDTH) + "x" + str(FIN_WIN_HEIGHT))
         self.finished_window.configure(background=ACCENT)
         self.finished_window.resizable(False, False)
+        debug.log(f"[Interface] Finished window opened!")
 
         # Center the finished window on the screen
         screen_width = self.finished_window.winfo_screenwidth()
@@ -720,7 +770,7 @@ class Interface:
         self.finished_title_label.pack(pady=20)
 
         self.result_label = Label(self.finished_window,
-                                  text=f"{self.lang['diff']}: {processing.total_difference}",
+                                  text=f"{self.lang['diff']}: {processing.get_result()}",
                                   fg=FONT_COLOR,
                                   bg=ACCENT,
                                   font=FONT)
@@ -740,12 +790,13 @@ class Interface:
         self.stab_toggle_button.enable()
         self.plotting_toggle_button.enable()
 
-    def close_finished_windows(self):
+    def close_finished_windows(self, to_debug=True):
         self.browse_button.enable()
         self.process_video_button.enable()
         self.ok_button.destroy()
         self.finished_window.destroy()
-        debug.log("[Interface] Finished window closed!", text_color="cyan")
+        if to_debug:
+            debug.log("[Interface] Finished window closed!", text_color="cyan")
 
     def create_settings_window(self):
         """

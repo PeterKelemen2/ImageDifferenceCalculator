@@ -703,3 +703,7 @@ File: sample_prepass_stabilized.mp4;Result: 0
 File: sample_prepass_stabilized.mp4;Result: 0
 File: sample_prepass_stabilized.mp4;Result: 0
 File: sample_prepass_stabilized.mp4;Result: 0
+File: sample.mp4;Result: 0.00048662962474066125
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.005462113145881084
+File: sample.mp4;Result: 0.0005026296278284305

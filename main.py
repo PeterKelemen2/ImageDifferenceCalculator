@@ -18,6 +18,7 @@ def main():
     vlc_handler.vlc_installer()
     font_handler.install_font("Ubuntu-Regular.ttf")
     font_handler.install_font("Ubuntu-Bold.ttf")
+    font_handler.install_font("JetBrainsMono-Regular.ttf")
     config.init_settings()
     processing.init_history()
 
