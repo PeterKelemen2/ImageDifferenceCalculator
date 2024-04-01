@@ -23,3 +23,5 @@ def install_font(font_filename):
             debug.log(f"[Font] Font {font_filename[:-4]} installed successfully.", text_color="cyan")
         except Exception as e:
             debug.log(f"[Font] Error installing font: {e}", text_color="red")
+    else:
+        debug.log(f"[Font] Unsupported platform: {platform.system()}")

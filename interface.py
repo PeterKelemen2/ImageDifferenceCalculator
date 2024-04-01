@@ -180,6 +180,7 @@ class Interface:
 
     def create_terminal(self):
         self.terminal_wrapper = custom_ui.CustomLabelFrame(self.win,
+                                                           text="Log",
                                                            width=490,
                                                            height=WIN_HEIGHT - 20,
                                                            radius=15,
@@ -190,37 +191,32 @@ class Interface:
         self.terminal_text = Label(self.terminal_wrapper.canvas, justify="left", text="Image Difference", font=JET_FONT,
                                    fg=FONT_COLOR,
                                    bg=ACCENT)
-        self.terminal_text.place(x=10, y=10)
+        self.terminal_text.place(x=10, y=30)
 
         self.update_terminal_text()
 
     def update_terminal_text(self):
         content_list = []
         chunk_size = 67
-
+        lines_to_display = 37
         try:
             with open(debug.log_file_path, 'r') as log_file:
                 for line in log_file:
-                    # Extract the portion of the line after the second "]"
+                    # Extract the portion of the line after the second ']'
                     adjusted_line = line.split("]", 2)[-1]
                     # Split the adjusted line into chunks of chunk_size characters
                     chunks = [adjusted_line[i:i + chunk_size] for i in range(0, len(adjusted_line), chunk_size)]
                     # Join the chunks with newline characters and append to the content list
                     content_list.extend("\n".join(chunks[i:i + 2]) for i in range(0, len(chunks), 2))
                     # Limit the content list to store only the last 38 lines
-                    if len(content_list) > 38:
-                        content_list = content_list[-38:]
+                    if len(content_list) > lines_to_display:
+                        content_list = content_list[-lines_to_display:]
 
             content = "".join(content_list)
         except FileNotFoundError:
             debug.log("[Interface] Log file not found")
 
         self.terminal_text.config(text=content)
-
-    def create_font(self):
-        global FONT
-        font_file = "assets/fonts/Ubuntu-Regular.ttf"
-        FONT = font.Font(family="Ubuntu", file=font_file, size=10)
 
     def set_color(self):
         """
@@ -586,9 +582,9 @@ class Interface:
             self.plotting_toggle_button.disable()
 
             # Create and display a progress bar
+            self.create_preprocess_progress_bar()
             self.create_stabilization_progress_bar()
             self.create_processing_progress_bar()
-            self.create_preprocess_progress_bar()
 
             # Set the progress callback functions
             # processing.set_progress_callback(self.update_bar)
@@ -628,12 +624,16 @@ class Interface:
 
         self.prep_progress_bar.canvas.place(x=10, y=self.prep_wrapper.get_height() // 2 - 5)
 
-        self.prep_progress_label = Label(self.prep_wrapper.canvas, text="0%", fg=FONT_COLOR, bg=ACCENT, font=BOLD_FONT)
+        self.prep_progress_label = Label(self.prep_wrapper.canvas,
+                                         text="0%",
+                                         fg=FONT_COLOR,
+                                         bg=ACCENT,
+                                         font=BOLD_FONT)
         self.prep_progress_label.place(x=720, y=30)
 
-        self.prep_pbar_overlay = custom_ui.CustomLabelFrame(self.prep_wrapper.canvas, width=705, height=30,
+        self.prep_pbar_overlay = custom_ui.CustomLabelFrame(self.prep_wrapper.canvas, width=690, height=30,
                                                             bg=ACCENT, fill=ACCENT)
-        self.prep_pbar_overlay.canvas.place(x=10, y=self.prep_progress_bar.get_height() * 2)
+        self.prep_pbar_overlay.canvas.place(x=20, y=self.prep_progress_bar.get_height() * 2)
 
     def create_stabilization_progress_bar(self):
         self.stab_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
@@ -660,9 +660,9 @@ class Interface:
         debug.log("[Interface] [6/6] Progress label created!", text_color="magenta")
 
         # Create an overlay frame for the progress bar to hide flickering bug
-        self.stab_pbar_overlay = custom_ui.CustomLabelFrame(self.stab_progress_wrapper.canvas, width=705, height=30,
+        self.stab_pbar_overlay = custom_ui.CustomLabelFrame(self.stab_progress_wrapper.canvas, width=690, height=30,
                                                             bg=ACCENT, fill=ACCENT)
-        self.stab_pbar_overlay.canvas.place(x=10, y=self.stab_progress_bar.get_height() * 2)
+        self.stab_pbar_overlay.canvas.place(x=20, y=self.stab_progress_bar.get_height() * 2)
 
     def create_processing_progress_bar(self):
         """
@@ -700,17 +700,17 @@ class Interface:
         debug.log("[Interface] [6/6] Progress label created!\n", text_color="magenta")
 
         # Create an overlay frame for the progress bar to hide flickering bug
-        self.proc_pbar_overlay = custom_ui.CustomLabelFrame(self.proc_progress_wrapper.canvas, width=705, height=30,
+        self.proc_pbar_overlay = custom_ui.CustomLabelFrame(self.proc_progress_wrapper.canvas, width=690, height=30,
                                                             bg=ACCENT, fill=ACCENT)
-        self.proc_pbar_overlay.canvas.place(x=10, y=self.proc_progress_bar.get_height() * 2)
+        self.proc_pbar_overlay.canvas.place(x=20, y=self.proc_progress_bar.get_height() * 2)
 
     def update_bar(self, bar: str, value: int):
         if bar == "preprocessing":
             self.prep_progress_bar.set_percentage(value)
-            self.prep_progress_label['text'] = f"{value} %\n"
+            self.prep_progress_label['text'] = f"{value} %"
         elif bar == "stabilization":
             self.stab_progress_bar.set_percentage(value)
-            self.stab_progress_label['text'] = f"{value} %\n"
+            self.stab_progress_label['text'] = f"{value} %"
         elif bar == "processing":
             self.proc_progress_bar.set_percentage(value)
             self.proc_progress_label['text'] = f"{value} %"
@@ -1233,6 +1233,9 @@ class Interface:
             self.prepass_toggle_button.config(fg=FONT_COLOR, bg=ACCENT)
             self.stab_toggle_button.config(fg=FONT_COLOR, bg=ACCENT)
             self.plotting_toggle_button.config(fg=FONT_COLOR, bg=ACCENT)
+
+        if self.terminal_wrapper is not None:
+            self.terminal_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.terminal_text])
 
         if self.proc_progress_wrapper is not None:
             self.proc_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.proc_progress_label])

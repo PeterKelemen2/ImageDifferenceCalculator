@@ -65,59 +65,60 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             new_path = path[:-4] + "_prepass_stabilized.mp4"
 
         total_difference = 0
+        if not stop_thread_event.is_set():
+            debug.log(f"[Processing] Started processing {new_path}", text_color="blue")
 
-        debug.log(f"[Processing] Started processing {new_path}", text_color="blue")
-
-        cap = cv2.VideoCapture(new_path)
-        ret, prev_frame = cap.read()
-        if not ret:
-            debug.log(f"[Processing] Unable to read the video file.")
-
-        new_roi = cv2.selectROI("Select ROI", prev_frame)
-        cv2.destroyWindow("Select ROI")
-
-        debug.log(f"[Processing] ROI: {new_roi}")
-
-        x, y, w, h = new_roi
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        cropped_output_path = new_path[:-4] + "_processed.mp4"
-        codec = cv2.VideoWriter_fourcc('F', 'F', 'V', '1')
-        video_writer = cv2.VideoWriter(cropped_output_path, codec, 95, (w, h))
-
-        prev_gray_cropped = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
-
-        total_mean = 0
-
-        current_frame_index = 0
-
-        while not stop_thread_event.is_set():
-            ret, frame = cap.read()
+            cap = cv2.VideoCapture(new_path)
+            ret, prev_frame = cap.read()
             if not ret:
-                break
+                debug.log(f"[Processing] Unable to read the video file.")
 
-            current_frame_index += 1
+            new_roi = cv2.selectROI("Select ROI", prev_frame)
+            # new_roi = (387, 491, 271, 256)
+            cv2.destroyWindow("Select ROI")
 
-            gray_cropped = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
-            diff = cv2.absdiff(gray_cropped, prev_gray_cropped)
-            video_writer.write(diff)
+            debug.log(f"[Processing] ROI: {new_roi}")
 
-            # Calculate Mean Squared Error (MSE)
-            total_mean += np.mean((diff / 255.0) ** 2)
+            x, y, w, h = new_roi
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            cropped_output_path = new_path[:-4] + "_processed.mp4"
+            codec = cv2.VideoWriter_fourcc('F', 'F', 'V', '1')
+            video_writer = cv2.VideoWriter(cropped_output_path, codec, 95, (w, h))
 
-            if current_frame_index % 2 == 0:
-                callback_queue.put(lambda: p_callback("processing", (current_frame_index * 100) // total_frames))
+            prev_gray_cropped = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
 
-        video_writer.release()
-        cap.release()
-        cv2.destroyAllWindows()
-        callback_queue.put(lambda: p_callback("processing", 100))
-        total_difference = total_mean / total_frames
-        debug.log(f"[Processing] Total difference: {total_difference}")
+            total_mean = 0
 
-        is_finished = True
-        write_to_history(path, total_difference)
-        debug.log(f"[Processing] Processing finished in {"{:.2f}s".format(time.time() - start_time)}",
-                  text_color="cyan")
+            current_frame_index = 0
+
+            while not stop_thread_event.is_set():
+                ret, frame = cap.read()
+                if not ret:
+                    break
+
+                current_frame_index += 1
+
+                gray_cropped = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
+                diff = cv2.absdiff(gray_cropped, prev_gray_cropped)
+                video_writer.write(diff)
+
+                # Calculate Mean Squared Error (MSE)
+                total_mean += np.mean((diff / 255.0) ** 2)
+
+                if current_frame_index % 2 == 0:
+                    callback_queue.put(lambda: p_callback("processing", (current_frame_index * 100) // total_frames))
+
+            video_writer.release()
+            cap.release()
+            cv2.destroyAllWindows()
+            callback_queue.put(lambda: p_callback("processing", 100))
+            total_difference = total_mean / total_frames
+            debug.log(f"[Processing] Total difference: {total_difference}")
+
+            is_finished = True
+            write_to_history(path, total_difference)
+            debug.log(f"[Processing] Processing finished in {"{:.2f}s".format(time.time() - start_time)}",
+                      text_color="cyan")
 
         # cap = cv2.VideoCapture(new_path)
         # ret, first_frame = cap.read()

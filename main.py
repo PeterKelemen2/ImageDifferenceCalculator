@@ -24,13 +24,6 @@ def main():
 
     debug.log("[Main] Session started!", text_color="cyan")
     my_interface = interface.Interface()
-    while True and not my_interface.terminate_program:
-        pass
-    sys.exit()
-
-    debug.log(f"[Main] Application terminated, {e}")
-    # del my_interface
-    sys.exit(11)
 
 
 if __name__ == "__main__":
