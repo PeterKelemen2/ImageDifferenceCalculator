@@ -723,3 +723,16 @@ File: sample.mp4;Result: 0.0
 File: sample.mp4;Result: 0.0
 File: sample.mp4;Result: 0.0
 File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0004911488241915507
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0004943047669940736
+File: sample.mp4;Result: 0.0

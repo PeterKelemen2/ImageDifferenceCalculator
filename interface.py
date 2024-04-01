@@ -191,13 +191,13 @@ class Interface:
         self.terminal_text = Label(self.terminal_wrapper.canvas, justify="left", text="Image Difference", font=JET_FONT,
                                    fg=FONT_COLOR,
                                    bg=ACCENT)
-        self.terminal_text.place(x=10, y=30)
+        self.terminal_text.place(x=15, y=30)
 
         self.update_terminal_text()
 
     def update_terminal_text(self):
         content_list = []
-        chunk_size = 67
+        chunk_size = 65
         lines_to_display = 37
         try:
             with open(debug.log_file_path, 'r') as log_file:
