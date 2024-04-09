@@ -86,8 +86,8 @@ def preprocess(path, to_plot):
             curr_brightness = calculate_avg_brightness(frame)
             b_list.append(curr_brightness)
 
-            delta_brightness = 1 - ((curr_brightness - first_frame_brightness) / curr_brightness)
-            # delta_brightness = round(1 - ((curr_brightness - first_frame_brightness) / curr_brightness), 4)
+            # delta_brightness = 1 - ((curr_brightness - first_frame_brightness) / curr_brightness)
+            delta_brightness = first_frame_brightness / curr_brightness
             if curr_brightness - first_frame_brightness == 0:
                 delta_brightness = 1
 
@@ -113,7 +113,6 @@ def preprocess(path, to_plot):
             debug.log("[Preprocessing] Creating graph for brightness regulation...", text_color="yellow")
             plotting.plot_average_brightness(before_list=b_list,
                                              after_list=prepass_b_list,
-                                             title="Brightness regulation",
                                              path=path)
             debug.log("[Preprocessing] Plot created!", text_color="yellow")
         debug.log(f"[Preprocessing] Preprocessing finished in {"{:.2f}s".format(time.time() - start_time)}\n",

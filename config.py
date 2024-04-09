@@ -19,7 +19,7 @@ def init_settings():
         try:
             with open(config_path, "w") as f:
                 debug.log("[Config] Created config file")
-                f.write("lang=english\ntheme=palenight")
+                f.write("lang=english\ntheme=palenight\nlog=On")
                 debug.log("[Config] Default settings written to config file")
         except Exception as e:
             debug.log(str(e), text_color="red")
@@ -36,6 +36,7 @@ def save_settings(settings: list):
     with open(config_path, 'w', encoding="utf-8") as file:
         file.write("lang=" + settings[0] + "\n")
         file.write("theme=" + settings[1] + "\n")
+        file.write("log=" + settings[2] + "\n")
     debug.log("[Config] Saved settings to " + config_path, text_color="cyan")
 
 

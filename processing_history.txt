@@ -736,3 +736,9 @@ File: sample.mp4;Result: 0.0
 File: sample.mp4;Result: 0.0
 File: sample.mp4;Result: 0.0004943047669940736
 File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.00220643944191977
+File: sample.mp4;Result: 0.0023968055117074825
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: 0.00048351997081293565
+File: sample.mp4;Result: 0.0058759744875953035

@@ -1,6 +1,7 @@
 import gc
 import sys
 import module_handler
+import test_interface
 
 
 # pyinstaller --onefile --add-data "assets;assets" main.py
@@ -23,6 +24,7 @@ def main():
     processing.init_history()
 
     debug.log("[Main] Session started!", text_color="cyan")
+    # my_interface = test_interface.Interface()
     my_interface = interface.Interface()
 
 

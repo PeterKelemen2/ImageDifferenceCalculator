@@ -111,7 +111,6 @@ def stabilize_video(video_path, to_plot, p_callback=None):
                   text_color="cyan")
         if to_plot:
             plotting.plot_stabilization_movement(movement_data=movement_data,
-                                                 title="Stabilization movement",
                                                  path=video_path[:-4] + "stabilization_plot.png")
             debug.log("[Stabilization] Stabilization movement plotted")
 

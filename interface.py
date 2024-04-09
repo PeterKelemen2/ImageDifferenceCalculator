@@ -78,6 +78,8 @@ SET_WIN_HEIGHT = 300
 HIS_WIN_WIDTH = 750
 HIS_WIN_HEIGHT = 800
 
+LOG_STATE = "On"
+
 call_nr = 0
 video_file_path = None
 prev_video_path = None
@@ -156,6 +158,7 @@ class Interface:
         self.settings = config.load_settings()
         self.curr_lang = self.settings[0]
         self.curr_theme = self.settings[1]
+        self.log_state = self.settings[2]
         self.image_detail_dict = None
         self.browse_wrapper = None
         self.browse_button = None
@@ -249,6 +252,14 @@ class Interface:
         if self.curr_theme in theme_colors:
             BGCOLOR, FONT_COLOR, ACCENT, PB_COLOR = theme_colors[self.curr_theme]
 
+    def toggle_log(self):
+        if self.log_state == "On":
+            self.win.geometry(str(WIN_WIDTH) + "x" + str(WIN_HEIGHT))
+        elif self.log_state == "Off":
+            self.win.geometry("800x" + str(WIN_HEIGHT))
+        else:
+            debug.log("Couldn't toggle log")
+
     def set_properties(self):
         # Set windows properties
         debug.log("[Interface] [2/1] Setting properties...", text_color="magenta")
@@ -256,7 +267,10 @@ class Interface:
         self.win = Tk()
         self.win["bg"] = BGCOLOR
         self.win.title(self.lang["title"])
-        self.win.geometry(str(WIN_WIDTH) + "x" + str(WIN_HEIGHT))
+        if self.log_state == "On":
+            self.win.geometry(str(WIN_WIDTH) + "x" + str(WIN_HEIGHT))
+        else:
+            self.win.geometry("800x" + str(WIN_HEIGHT))
         self.win.resizable(False, False)
         # self.win.protocol(self.on_window_close)
         self.win.protocol("WM_DELETE_WINDOW", self.on_window_close)
@@ -906,6 +920,13 @@ class Interface:
         self.theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                      y=self.lang_label.winfo_reqheight() * 4)
 
+        self.log_options = ["On", "Off"]
+        selected_log_option = StringVar(self.settings_wrapper.canvas)
+        selected_log_option.set(self.log_options[0])
+        self.log_option_menu = OptionMenu(self.settings_wrapper.canvas, selected_log_option, *self.log_options)
+        self.log_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
+                                   y=self.lang_label.winfo_reqheight() * 6)
+
         self.settings_window_opened = True
 
         def save_option():
@@ -920,6 +941,7 @@ class Interface:
             # Retrieve selected language and theme option
             chosen_lang_option = self.lang_selected_option.get()
             chosen_theme_option = self.theme_selected_option.get()
+            chosen_log_state = selected_log_option.get()
 
             # Map language options to standard format
             chosen_lang_option = "hungarian" if chosen_lang_option in ("Magyar", "Hungarian") else "english"
@@ -945,10 +967,13 @@ class Interface:
                 self.curr_theme = chosen_theme_option
                 self.update_colors()
 
+            if chosen_log_state != self.log_state:
+                self.toggle_log()
+
             # Save selected options to configuration file
             debug.log(f"[Interface] Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}",
                       text_color="yellow")
-            config.save_settings([chosen_lang_option, chosen_theme_option])
+            config.save_settings([chosen_lang_option, chosen_theme_option, chosen_log_state])
 
         # Add a button to save the selected options
         self.save_button = custom_button.CustomButton(self.settings_wrapper.canvas,
