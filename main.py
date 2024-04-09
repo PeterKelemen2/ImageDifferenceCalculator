@@ -1,7 +1,6 @@
 import gc
 import sys
 import module_handler
-import test_interface
 
 
 # pyinstaller --onefile --add-data "assets;assets" main.py

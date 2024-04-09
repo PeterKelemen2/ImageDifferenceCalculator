@@ -4,7 +4,6 @@ import threading
 import time
 import tkinter
 from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button
-from tkinter.ttk import Progressbar
 
 import cv2
 
@@ -20,7 +19,6 @@ import custom_button
 import lang
 import prepass
 import video_stabilization
-# import opencv_stabilization
 import processing
 import vlc_handler
 
@@ -87,6 +85,9 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.log_label = None
+        self.log_option_menu = None
+        self.log_options = None
         self.terminal_wrapper = None
         self.terminal_text = None
         self.prepass_toggle_button = None
@@ -252,13 +253,13 @@ class Interface:
         if self.curr_theme in theme_colors:
             BGCOLOR, FONT_COLOR, ACCENT, PB_COLOR = theme_colors[self.curr_theme]
 
-    def toggle_log(self):
-        if self.log_state == "On":
+    def toggle_log(self, to_state):
+        if to_state == "On":
             self.win.geometry(str(WIN_WIDTH) + "x" + str(WIN_HEIGHT))
-        elif self.log_state == "Off":
+            self.log_state = "On"
+        if to_state == "Off":
             self.win.geometry("800x" + str(WIN_HEIGHT))
-        else:
-            debug.log("Couldn't toggle log")
+            self.log_state = "Off"
 
     def set_properties(self):
         # Set windows properties
@@ -920,10 +921,25 @@ class Interface:
         self.theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                      y=self.lang_label.winfo_reqheight() * 4)
 
+        self.log_label = Label(self.settings_wrapper.canvas,
+                               text="Log",
+                               fg=FONT_COLOR,
+                               bg=ACCENT,
+                               font=FONT,
+                               anchor="center")
+        self.log_label.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 - 40,
+                             y=self.lang_label.winfo_reqheight() * 6)
+
         self.log_options = ["On", "Off"]
         selected_log_option = StringVar(self.settings_wrapper.canvas)
         selected_log_option.set(self.log_options[0])
         self.log_option_menu = OptionMenu(self.settings_wrapper.canvas, selected_log_option, *self.log_options)
+        self.log_option_menu.config(anchor="center",
+                                    bg=BGCOLOR,
+                                    fg=FONT_COLOR,
+                                    activebackground=ACCENT,
+                                    activeforeground=FONT_COLOR,
+                                    highlightbackground=ACCENT)
         self.log_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                    y=self.lang_label.winfo_reqheight() * 6)
 
@@ -968,11 +984,12 @@ class Interface:
                 self.update_colors()
 
             if chosen_log_state != self.log_state:
-                self.toggle_log()
+                self.toggle_log(chosen_log_state)
 
             # Save selected options to configuration file
-            debug.log(f"[Interface] Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}",
-                      text_color="yellow")
+            debug.log(
+                f"[Interface] Settings - Language: {chosen_lang_option}, Theme: {chosen_theme_option}, Log: {chosen_log_state}",
+                text_color="yellow")
             config.save_settings([chosen_lang_option, chosen_theme_option, chosen_log_state])
 
         # Add a button to save the selected options
@@ -1280,8 +1297,9 @@ class Interface:
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)
             self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, buttons=[self.save_button],
-                                               labels=[self.settings_label, self.lang_label, self.theme_label])
-            for option_menu in [self.theme_option_menu, self.lang_option_menu]:
+                                               labels=[self.settings_label, self.lang_label, self.theme_label,
+                                                       self.log_label])
+            for option_menu in [self.theme_option_menu, self.lang_option_menu, self.log_option_menu]:
                 option_menu.config(anchor="center", bg=ACCENT, fg=FONT_COLOR, activebackground=ACCENT,
                                    activeforeground=FONT_COLOR, highlightbackground=BGCOLOR)
 
