@@ -207,7 +207,7 @@ class Interface:
             with open(debug.log_file_path, 'r') as log_file:
                 for line in log_file:
                     # Extract the portion of the line after the second ']'
-                    adjusted_line = line.split("]", 2)[-1]
+                    adjusted_line = line.split("]", 2)[-1].lstrip()
                     # Split the adjusted line into chunks of chunk_size characters
                     chunks = [adjusted_line[i:i + chunk_size] for i in range(0, len(adjusted_line), chunk_size)]
                     # Join the chunks with newline characters and append to the content list
@@ -932,7 +932,10 @@ class Interface:
 
         self.log_options = ["On", "Off"]
         selected_log_option = StringVar(self.settings_wrapper.canvas)
-        selected_log_option.set(self.log_options[0])
+        if self.log_state == "On":
+            selected_log_option.set(self.log_options[0])
+        else:
+            selected_log_option.set(self.log_options[1])
         self.log_option_menu = OptionMenu(self.settings_wrapper.canvas, selected_log_option, *self.log_options)
         self.log_option_menu.config(anchor="center",
                                     bg=BGCOLOR,
