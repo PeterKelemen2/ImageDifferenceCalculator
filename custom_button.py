@@ -56,7 +56,8 @@ class CustomButton:
                                                        image=self.button_image)
 
         # Create text on top of the background
-        self.text_item = self.canvas.create_text(width // 2, height // 2, text=text, fill=fg, font=font)
+        self.text_item = self.canvas.create_text(width // 2, height // 2, anchor="center", text=text, fill=fg,
+                                                 font=font)
 
         # Bind click event
         if self.image_item:

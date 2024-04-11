@@ -1001,7 +1001,10 @@ class Interface:
                                                       command=save_option,
                                                       button_type=custom_button.button,
                                                       bg=ACCENT)
-        self.save_button.canvas.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2,
+        # self.save_button.canvas.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2,
+        #                               y=200)
+
+        self.save_button.canvas.place(x=self.save_button.winfo_reqwidth() * 1.5,
                                       y=200)
 
     def close_settings_window(self):

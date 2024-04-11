@@ -742,3 +742,9 @@ File: sample.mp4;Result: 0.0023968055117074825
 File: sample.mp4;Result: 0.0
 File: sample.mp4;Result: 0.00048351997081293565
 File: sample.mp4;Result: 0.0058759744875953035
+File: sample.mp4;Result: 0.0
+File: sample.mp4;Result: Aborted.
+File: sample_small.mp4;Result: 0.0002506367735141502
+File: sample_small.mp4;Result: 0.0011089704181215078
+File: sample.mp4;Result: 0.00037518570808860256
+File: sample.mp4;Result: 0.006082223646772309

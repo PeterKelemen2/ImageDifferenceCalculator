@@ -76,7 +76,7 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             new_roi = cv2.selectROI("Select ROI", prev_frame)
             # new_roi = (387, 491, 271, 256)
             cv2.destroyWindow("Select ROI")
-
+            proc_time = time.time()
             debug.log(f"[Processing] ROI: {new_roi}")
 
             x, y, w, h = new_roi
@@ -116,8 +116,14 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             debug.log(f"[Processing] Total difference: {total_difference}")
 
             is_finished = True
-            write_to_history(path, total_difference)
-            debug.log(f"[Processing] Processing finished in {"{:.2f}s".format(time.time() - start_time)}",
+            if total_difference > 0:
+                write_to_history(path, total_difference)
+            else:
+                write_to_history(path, "Aborted.")
+            debug.log(
+                f"[Processing] Image difference calculation finished in {"{:.2f}s".format(time.time() - proc_time)}",
+                text_color="cyan")
+            debug.log(f"[Processing] Total processing finished in {"{:.2f}s".format(time.time() - start_time)}",
                       text_color="cyan")
 
         # cap = cv2.VideoCapture(new_path)
