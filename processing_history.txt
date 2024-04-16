@@ -752,3 +752,4 @@ File: sample.mp4;Result: 0.00046934422686559425
 File: sample.mp4;Result: 0.0004997279151151394
 File: sample.mp4;Result: 0.0009146622125020521
 File: sample.mp4;Result: 0.0004816397335373172
+File: sample.mp4;Result: 0.0005001804622334434

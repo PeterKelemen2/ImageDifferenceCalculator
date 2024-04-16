@@ -62,12 +62,16 @@ def preprocess(path, to_plot):
         new_path = path[:-4] + '_prepass.mp4'
         ret, first_frame = cap.read()
         frame_height, frame_width = first_frame.shape[:2]
+
+        resized_frame_height, resized_frame_width = frame_width // 2, frame_height // 2
+        resized_first_frame = cv2.resize(first_frame, (resized_frame_width, resized_frame_height))
+
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         codec = cv2.VideoWriter_fourcc(*'H264')
         output = cv2.VideoWriter(new_path, codec, 95, (frame_width, frame_height))
 
         curr_index = 0
-        first_frame_brightness = calculate_avg_brightness(first_frame)
+        first_frame_brightness = calculate_avg_brightness(resized_first_frame)
 
         b_list, prepass_b_list = [], []
 
@@ -78,12 +82,14 @@ def preprocess(path, to_plot):
         frame_since_callback = 0
         while not stop_thread_event.is_set():
             ret, frame = cap.read()
-            if not ret:
+            if ret:
+                resized_frame = cv2.resize(frame, (resized_frame_width, resized_frame_height))
+            else:
                 break
             curr_index += 1
 
             frame_since_callback += 1
-            curr_brightness = calculate_avg_brightness(frame)
+            curr_brightness = calculate_avg_brightness(resized_frame)
             b_list.append(curr_brightness)
 
             # delta_brightness = 1 - ((curr_brightness - first_frame_brightness) / curr_brightness)
