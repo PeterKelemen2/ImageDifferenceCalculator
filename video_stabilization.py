@@ -46,15 +46,20 @@ def stabilize_video(video_path, to_plot, p_callback=None):
 
         # Read the first frame
         ret, first_frame = cap.read()
-
-        # Get the dimensions of the first frame
         frame_height, frame_width = first_frame.shape[:2]
+
+        resized_first_frame = cv2.resize(first_frame, (frame_width // 2, frame_height // 2))
+        resized_frame_height, resized_frame_width = resized_first_frame.shape[:2]
+
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         # Calculate the position and dimensions of the ROI
-        roi_width, roi_height = frame_width // 4, frame_height // 4
-        roi_x = (frame_width - roi_width) // 2
-        roi_y = (frame_height - roi_height) // 2
+        roi_width, roi_height = resized_frame_width // 4, resized_frame_height // 4
+        roi_x = (resized_frame_width - roi_width) // 2
+        roi_y = (resized_frame_height - roi_height) // 2
+
+        # Crop the ROI from the first frame
+        template = resized_first_frame[roi_y:roi_y + roi_height, roi_x:roi_x + roi_width]
 
         # Define the output video codec and create a VideoWriter object
         codec = cv2.VideoWriter_fourcc(*'H264')
@@ -75,22 +80,23 @@ def stabilize_video(video_path, to_plot, p_callback=None):
 
             # Read the current frame
             ret, frame = cap.read()
-
-            if not ret:
+            if ret:
+                # Creating a half sized frame to use for the template matching
+                resized_frame = cv2.resize(frame, (resized_frame_width, resized_frame_height))
+            else:
                 break
 
             # Draw the ROI rectangle on the current frame
             # cv2.rectangle(frame, (roi_x, roi_y), (roi_x + roi_width, roi_y + roi_height), (0, 255, 0), 2)
 
-            # Crop the ROI from the first frame
-            template = first_frame[roi_y:roi_y + roi_height, roi_x:roi_x + roi_width]
-
             # Use template matching to find the template in the current frame
-            result = cv2.matchTemplate(frame, template, cv2.TM_CCOEFF_NORMED)
+            # result = cv2.matchTemplate(frame, template, cv2.TM_CCOEFF_NORMED)
+            result = cv2.matchTemplate(resized_frame, template, cv2.TM_CCOEFF_NORMED)
             _, _, _, max_loc = cv2.minMaxLoc(result)
 
             # Calculate the offset with scaling factor and negate the values
-            offset = (-1 * (max_loc[0] - roi_x), -1 * (max_loc[1] - roi_y))
+            offset = (-2 * (max_loc[0] - roi_x), -2 * (max_loc[1] - roi_y))
+            # offset = (-1 * (max_loc[0] - roi_x), -1 * (max_loc[1] - roi_y))
             movement_data.append(offset)
             # Move the frame by applying the offset
             M = np.float32([[1, 0, offset[0]], [0, 1, offset[1]]])
