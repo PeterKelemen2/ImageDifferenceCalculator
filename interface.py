@@ -405,6 +405,13 @@ class Interface:
         self.opened_file_label.place(x=85, y=self.browse_button.winfo_reqheight())
         debug.log("[Interface] [4/6] File path Label created!\n", text_color="magenta")
 
+    def set_selected_file_path(self, path):
+        global video_file_path, prev_video_path
+        self.selected_file_path.set(path)
+        self.show_first_frame_details(path)
+        video_file_path = path
+        prev_video_path = video_file_path
+
     def browse_files(self):
         # Open a file dialog and get the selected file path
         global video_file_path
@@ -416,7 +423,8 @@ class Interface:
 
         # Update the label with the selected file path
         if file_path:
-            self.selected_file_path.set(file_path)
+            # self.selected_file_path.set(file_path)
+            self.set_selected_file_path(file_path)
             debug.log(f"[Interface] Selected file: {file_path}", text_color="blue")
             self.show_first_frame_details(file_path)
             video_file_path = file_path
@@ -1050,7 +1058,7 @@ class Interface:
         self.scroll_canvas.pack(side="left", fill="both", expand=True)
 
         # Create a scrollbar for the Canvas
-        self.scrollbar = Scrollbar(self.history_window, orient="vertical", command=self.scroll_canvas.yview)
+        self.scrollbar = Scrollbar(self.history_window, orient="vertical", command=self.scroll_canvas.yview, bg=BGCOLOR)
         self.scrollbar.pack(side="right", fill="y")
 
         # Configure the Canvas to use the scrollbar
@@ -1068,7 +1076,7 @@ class Interface:
         self.history_entries = history_handler.load_entries()
 
         for entry in self.history_entries:
-            card = custom_ui.CardItem(self.frame, width=800 - self.scrollbar.winfo_reqwidth() * 2, height=200, title="",
+            card = custom_ui.CardItem(self.frame, width=790 - self.scrollbar.winfo_reqwidth() * 2, height=200, title="",
                                       img_path=entry["first_frame_path"],
                                       video_path=entry["video_path"],
                                       result=entry["result"],

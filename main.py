@@ -2,8 +2,10 @@ import gc
 import sys
 import module_handler
 
-
 # pyinstaller --onefile --add-data "assets;assets" main.py
+
+my_interface = None
+
 
 def main():
     module_handler.module_handler()
@@ -24,6 +26,7 @@ def main():
 
     debug.log("[Main] Session started!", text_color="cyan")
     # my_interface = test_interface.Interface()
+    global my_interface
     my_interface = interface.Interface()
 
 

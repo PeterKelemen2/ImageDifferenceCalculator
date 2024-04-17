@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 
 import custom_button
 import interface
+import main
 
 # import debug
 # import interface
@@ -42,6 +43,7 @@ class CardItem:
         self.result = None
         self.text = None
         self.custom_path = video_path
+        self.video_path = video_path
         self.width = width
         self.height = height
         self.bg = bg
@@ -61,10 +63,14 @@ class CardItem:
         self.create_text(video_path, result)
 
         self.process_button = custom_button.CustomButton(self.container.canvas, text="Load video", bg=ACCENT,
-                                                         button_type=custom_button.wide_button)
+                                                         button_type=custom_button.wide_button, command=self.load_video)
         self.process_button.canvas.place(
             x=self.width - self.process_button.canvas.winfo_reqwidth() - self.container.get_radius() * 2,
             y=self.height - self.process_button.canvas.winfo_reqheight() - self.container.get_radius() * 2)
+
+    def load_video(self):
+        print(self.video_path)
+        main.my_interface.set_selected_file_path()
 
     def create_photo(self, img_path):
         if img_path is None:
@@ -137,7 +143,7 @@ class CustomToggleButton:
 
         self.text_item = tkinter.Label(self.canvas, text=self.text, height=0, anchor="center", fg=FONT_COLOR,
                                        font=FONT,
-                                       bg=ACCENT)
+                                       bg=interface.ACCENT)
         self.canvas.config(width=self.width + self.text_item.winfo_reqwidth() + 20)
         self.text_item.place(x=self.width + 10, y=5)
 

@@ -8,5 +8,10 @@
         "video_path": "C:/sample.mp4",
         "result": "0.0004963363131212985",
         "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample_small.mp4",
+        "result": "0.00023690171940005475",
+        "first_frame_path": "history/sample_small.mp4.jpg"
     }
 ]
