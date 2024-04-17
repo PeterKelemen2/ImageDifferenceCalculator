@@ -6,8 +6,10 @@ import PIL.ImageOps
 from PIL import Image, ImageTk
 
 import custom_button
-import debug
 import interface
+
+# import debug
+# import interface
 
 bg_path = "assets/rounded_frame.png"
 circle = "assets/frame_circle.png"
@@ -15,11 +17,13 @@ rect = "assets/frame_square.png"
 toggled_on = "assets/toggle_button/toggle_on.png"
 toggled_off = "assets/toggle_button/toggle_off.png"
 
+ACCENT = "#3a3a3a"
 BGCOLOR = "#3a3a3a"
-DARKER_BG = "#292929"
 WHITE = "#ffffff"
 BLACK = "#000000"
 
+DARK_FONT_COLOR = "#ffffff"
+LIGHT_FONT_COLOR = "#000000"
 FONT_COLOR = "#ffffff"
 TIME_FONT_SIZE = 12
 BIG_FONT_SIZE = 14
@@ -27,6 +31,86 @@ FONT = ("Ubuntu", TIME_FONT_SIZE)
 BOLD_FONT = ("Ubuntu", TIME_FONT_SIZE, "bold")
 BIG_FONT = ("Ubuntu", BIG_FONT_SIZE)
 BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
+
+
+class CardItem:
+    def __init__(self, master, width, height, bg=BLACK, title="", img_path=None, video_path=None,
+                 result=None):
+        self.diff_text = None
+        self.diff_title = None
+        self.path_text = None
+        self.result = None
+        self.text = None
+        self.custom_path = video_path
+        self.width = width
+        self.height = height
+        self.bg = bg
+        self.title = title
+        self.image_padding = 20
+        self.canvas = Canvas(master, width=self.width, height=self.height, bg=interface.BGCOLOR, highlightthickness=0)
+        self.canvas.pack()
+
+        self.container = CustomLabelFrame(self.canvas, width=self.width, height=self.height, text=self.title,
+                                          bg=interface.BGCOLOR, fill=interface.ACCENT)
+        self.container.canvas.place(x=0, y=0)
+
+        self.photo = ImageTk.PhotoImage(self.create_photo(img_path))
+        self.photo_label = (tkinter.Label(self.container.canvas, image=self.photo))
+        self.photo_label.place(x=self.image_padding, y=self.image_padding)
+
+        self.create_text(video_path, result)
+
+        self.process_button = custom_button.CustomButton(self.container.canvas, text="Load video", bg=ACCENT,
+                                                         button_type=custom_button.wide_button)
+        self.process_button.canvas.place(
+            x=self.width - self.process_button.canvas.winfo_reqwidth() - self.container.get_radius() * 2,
+            y=self.height - self.process_button.canvas.winfo_reqheight() - self.container.get_radius() * 2)
+
+    def create_photo(self, img_path):
+        if img_path is None:
+            image = Image.open("assets/no_photo.png")
+        else:
+            image = Image.open(img_path)
+        width, height = image.size
+        new_height = self.container.get_height() - 50
+        aspect_ratio = new_height / height
+        new_width = int(width * aspect_ratio)
+
+        image = image.resize((new_width, new_height), Image.BILINEAR)
+
+        self.image_padding = (self.container.get_height() - new_height) // 2
+        return image
+
+    def create_text(self, path=None, result=""):
+        self.path_text, self.text, self.diff_text, self.diff_title = None, None, None, None
+        title_x = self.photo.width() + self.image_padding * 2
+        self.path_text = tkinter.Label(self.container.canvas, text="Path:", font=BOLD_FONT, fg=DARK_FONT_COLOR,
+                                       bg=interface.ACCENT)
+        self.path_text.place(x=title_x, y=self.image_padding)
+        text = ""
+        if path is None:
+            text = "Couldn't locate video."
+        else:
+            text = path
+        self.text = tkinter.Label(self.container.canvas,
+                                  text=text,
+                                  justify="left",
+                                  font=FONT,
+                                  wraplength=self.width - self.image_padding * 3 - self.photo.width() - self.path_text.winfo_reqwidth(),
+                                  fg=DARK_FONT_COLOR,
+                                  bg=interface.ACCENT)
+        text_x = self.photo.width() + self.image_padding * 2 + self.path_text.winfo_reqwidth()
+        self.text.place(x=text_x, y=self.image_padding)
+
+        self.diff_title = tkinter.Label(self.container.canvas, text="Result:", font=BOLD_FONT, fg=DARK_FONT_COLOR,
+                                        bg=interface.ACCENT)
+
+        # Binding y coordinate to self.text in case it becomes more lines than one
+        self.diff_title.place(x=title_x, y=self.image_padding + self.text.winfo_reqheight() + 10)
+        self.diff_text = tkinter.Label(self.container.canvas, text=result, font=FONT,
+                                       fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+        self.diff_text.place(x=self.photo.width() + self.image_padding * 2 + self.diff_title.winfo_reqwidth(),
+                             y=self.image_padding + self.text.winfo_reqheight() + 10)
 
 
 class CustomToggleButton:
@@ -51,11 +135,11 @@ class CustomToggleButton:
         self.toggled_on_image = ImageTk.PhotoImage(self.t_on_im)
         self.toggled_off_image = ImageTk.PhotoImage(self.t_off_im)
 
-        self.text_item = tkinter.Label(self.canvas, text=self.text, anchor="center", fg=interface.FONT_COLOR,
-                                       font=interface.FONT,
-                                       bg=interface.ACCENT)
+        self.text_item = tkinter.Label(self.canvas, text=self.text, height=0, anchor="center", fg=FONT_COLOR,
+                                       font=FONT,
+                                       bg=ACCENT)
         self.canvas.config(width=self.width + self.text_item.winfo_reqwidth() + 20)
-        self.text_item.place(x=self.width + 10, y=0)
+        self.text_item.place(x=self.width + 10, y=5)
 
         if self.state:
             self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
@@ -78,9 +162,6 @@ class CustomToggleButton:
                 self.image_item = None
                 self.image_item = self.canvas.create_image(self.width // 2, self.height // 2, anchor="center",
                                                            image=self.toggled_off_image)
-            debug.log(f"[ToggleButton] {self.text} button toggled. State: {self.state}")
-        else:
-            debug.log(f"[ToggleButton] {self.text} button currently disabled!", text_color="red")
 
     def disable(self):
         self.disabled = True
@@ -108,7 +189,7 @@ class CustomLabelFrame:
         self.width = width
         self.height = height
         self.fill = fill
-        self.fg = interface.FONT_COLOR
+        self.fg = FONT_COLOR
         self.bg = bg
         self.text = text
         self.radius = radius
@@ -279,6 +360,9 @@ class CustomLabelFrame:
     def get_height(self):
         return self.height
 
+    def get_radius(self):
+        return self.radius
+
     def destroy(self):
         self.canvas.destroy()
 
@@ -303,7 +387,7 @@ class CustomProgressBar:
         self.pr_bar = pr_bar
         self.width = width
         self.height = height
-        self.fg = interface.FONT_COLOR
+        self.fg = FONT_COLOR
         self.radius = radius
         self.padding = padding
         self.canvas = Canvas(master, width=width, height=height, bg=bg, highlightthickness=0)

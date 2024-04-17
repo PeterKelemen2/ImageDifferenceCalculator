@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 
 import debug
+import history_handler
 import interface
 import prepass
 import video_stabilization
@@ -117,9 +118,11 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
 
             is_finished = True
             if total_difference > 0:
-                write_to_history(path, total_difference)
+                # write_to_history(path, total_difference)
+                history_handler.save_entry(history_handler.HistoryEntry(video_path=path, result=total_difference))
             else:
-                write_to_history(path, "Aborted.")
+                # write_to_history(path, "Aborted.")
+                history_handler.save_entry(history_handler.HistoryEntry(video_path=path, result="Aborted."))
             debug.log(
                 f"[Processing] Image difference calculation finished in {"{:.2f}s".format(time.time() - proc_time)}",
                 text_color="cyan")

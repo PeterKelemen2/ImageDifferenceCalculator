@@ -3,7 +3,8 @@ import sys
 import threading
 import time
 import tkinter
-from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button
+from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button, Scrollbar, Canvas, \
+    Entry, Frame, LabelFrame
 
 import cv2
 
@@ -16,6 +17,7 @@ import custom_ui
 import debug
 
 import custom_button
+import history_handler
 import lang
 import prepass
 import video_stabilization
@@ -73,7 +75,7 @@ FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 300
 SET_WIN_HEIGHT = 300
-HIS_WIN_WIDTH = 750
+HIS_WIN_WIDTH = 800
 HIS_WIN_HEIGHT = 800
 
 LOG_STATE = "On"
@@ -1020,6 +1022,10 @@ class Interface:
 
         The history window displays previous processing data and provides an option to exit.
         """
+
+        def on_mousewheel(event):
+            self.scroll_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
         if self.history_window is not None:  # Check if history window already exists
             if self.history_window.winfo_exists():  # Check if the window is open
                 self.history_window.focus_set()  # Bring existing window to focus
@@ -1029,7 +1035,7 @@ class Interface:
         self.history_window_opened = True
 
         # Retrieve previous processing data
-        history_list = processing.read_from_history()
+        # history_list = processing.read_from_history()
 
         # Create a new history window
         self.history_window = Toplevel(self.win)
@@ -1037,71 +1043,106 @@ class Interface:
         self.history_window.configure(background=BGCOLOR)
         self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
         self.history_window.resizable(False, False)
-        # self.history_window.bind("<Destroy>", lambda e: self.history_window.destroy())
+        self.history_window.focus_set()
 
-        # Create frame for the history title label
-        self.history_title_frame = custom_ui.CustomLabelFrame(self.history_window,
-                                                              width=200,
-                                                              height=40,
-                                                              fill=ACCENT,
-                                                              bg=BGCOLOR)
+        # Create a Canvas widget inside the Toplevel window
+        self.scroll_canvas = Canvas(self.history_window, bg=BGCOLOR)
+        self.scroll_canvas.pack(side="left", fill="both", expand=True)
 
-        self.history_title_frame.canvas.place(x=HIS_WIN_WIDTH // 2 - self.history_title_frame.get_width() // 2, y=15)
+        # Create a scrollbar for the Canvas
+        self.scrollbar = Scrollbar(self.history_window, orient="vertical", command=self.scroll_canvas.yview)
+        self.scrollbar.pack(side="right", fill="y")
 
-        # Create label for history title
-        self.history_title = Label(self.history_title_frame.canvas,
-                                   text=self.lang["history"],
-                                   fg=FONT_COLOR,
-                                   bg=ACCENT,
-                                   font=BIG_FONT_BOLD)
-        self.history_title.place(x=self.history_title_frame.get_width() // 2 - self.history_title.winfo_reqwidth() // 2,
-                                 y=self.history_title_frame.get_height() // 2 - self.history_title.winfo_reqheight() // 2)
+        # Configure the Canvas to use the scrollbar
+        self.scroll_canvas.configure(yscrollcommand=self.scrollbar.set)
 
-        # Create outline frame for the history content
-        self.history_outline_frame = custom_ui.CustomLabelFrame(self.history_window,
-                                                                width=HIS_WIN_WIDTH - 30,
-                                                                height=HIS_WIN_HEIGHT - 155,
-                                                                radius=15,
-                                                                fill=ACCENT,
-                                                                bg=BGCOLOR)
-        self.history_outline_frame.canvas.place(x=20, y=70)
+        # Create a Frame widget inside the Canvas to contain the scrollable content
+        self.frame = Frame(self.history_window, bg=BGCOLOR)
+        self.scroll_canvas.create_window((0, 0), window=self.frame, anchor="nw")
 
-        # Populate history content
-        self.history_content_list = list()
-        y_pos = 10
-        y_offset = 40
-        for line in history_list:
-            new_line = line.split(";")
-            self.history_content_list.append(Label(self.history_outline_frame.canvas,
-                                                   text=new_line[0],
-                                                   font=FONT,
-                                                   wraplength=HIS_WIN_WIDTH - 40,
-                                                   fg=FONT_COLOR,
-                                                   bg=ACCENT))
-            self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
+        # Bind mouse wheel scrolling to the Canvas
+        self.scroll_canvas.bind_all("<MouseWheel>", on_mousewheel)
 
-            y_pos += 25
-            self.history_content_list.append(Label(self.history_outline_frame.canvas,
-                                                   text=new_line[1],
-                                                   fg=FONT_COLOR,
-                                                   bg=ACCENT,
-                                                   font=BOLD_FONT))
-            self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
-            y_pos += y_offset
+        # Add CardItem widgets to the Frame for each history entry
+        self.cards_list = []
+        self.history_entries = history_handler.load_entries()
 
-        # Create exit button for the history window
-        self.history_exit_button = custom_button.CustomButton(self.history_window,
-                                                              text=self.lang["exit"],
-                                                              command=self.close_history_window,
-                                                              button_type=custom_button.button,
-                                                              bg=BGCOLOR)
-        self.history_exit_button.canvas.place(
-            x=HIS_WIN_WIDTH // 2 - self.history_exit_button.winfo_reqwidth() // 2,
-            y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
+        for entry in self.history_entries:
+            card = custom_ui.CardItem(self.frame, width=800 - self.scrollbar.winfo_reqwidth() * 2, height=200, title="",
+                                      img_path=entry["first_frame_path"],
+                                      video_path=entry["video_path"],
+                                      result=entry["result"],
+                                      bg=BGCOLOR)
+            self.cards_list.append(card)
+            self.cards_list[len(self.cards_list) - 1].canvas.pack(padx=10, pady=10)
 
-        # Update the layout of the history window
-        self.history_window.update_idletasks()
-        self.history_window.geometry(f"{self.history_outline_frame.get_width() + 40}x{HIS_WIN_HEIGHT}")
+        # Update the scroll region of the Canvas
+        self.frame.update_idletasks()
+        self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
+
+        # # Create frame for the history title label
+        # self.history_title_frame = custom_ui.CustomLabelFrame(self.history_window,
+        #                                                       width=200,
+        #                                                       height=40,
+        #                                                       fill=ACCENT,
+        #                                                       bg=BGCOLOR)
+        #
+        # self.history_title_frame.canvas.place(x=HIS_WIN_WIDTH // 2 - self.history_title_frame.get_width() // 2, y=15)
+        #
+        # # Create label for history title
+        # self.history_title = Label(self.history_title_frame.canvas,
+        #                            text=self.lang["history"],
+        #                            fg=FONT_COLOR,
+        #                            bg=ACCENT,
+        #                            font=BIG_FONT_BOLD)
+        # self.history_title.place(x=self.history_title_frame.get_width() // 2 - self.history_title.winfo_reqwidth() // 2,
+        #                          y=self.history_title_frame.get_height() // 2 - self.history_title.winfo_reqheight() // 2)
+        #
+        # # Create outline frame for the history content
+        # self.history_outline_frame = custom_ui.CustomLabelFrame(self.history_window,
+        #                                                         width=HIS_WIN_WIDTH - 30,
+        #                                                         height=HIS_WIN_HEIGHT - 155,
+        #                                                         radius=15,
+        #                                                         fill=ACCENT,
+        #                                                         bg=BGCOLOR)
+        # self.history_outline_frame.canvas.place(x=20, y=70)
+        #
+        # # Populate history content
+        # self.history_content_list = list()
+        # y_pos = 10
+        # y_offset = 40
+        # for line in history_list:
+        #     new_line = line.split(";")
+        #     self.history_content_list.append(Label(self.history_outline_frame.canvas,
+        #                                            text=new_line[0],
+        #                                            font=FONT,
+        #                                            wraplength=HIS_WIN_WIDTH - 40,
+        #                                            fg=FONT_COLOR,
+        #                                            bg=ACCENT))
+        #     self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
+        #
+        #     y_pos += 25
+        #     self.history_content_list.append(Label(self.history_outline_frame.canvas,
+        #                                            text=new_line[1],
+        #                                            fg=FONT_COLOR,
+        #                                            bg=ACCENT,
+        #                                            font=BOLD_FONT))
+        #     self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
+        #     y_pos += y_offset
+        #
+        # # Create exit button for the history window
+        # self.history_exit_button = custom_button.CustomButton(self.history_window,
+        #                                                       text=self.lang["exit"],
+        #                                                       command=self.close_history_window,
+        #                                                       button_type=custom_button.button,
+        #                                                       bg=BGCOLOR)
+        # self.history_exit_button.canvas.place(
+        #     x=HIS_WIN_WIDTH // 2 - self.history_exit_button.winfo_reqwidth() // 2,
+        #     y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
+        #
+        # # Update the layout of the history window
+        # self.history_window.update_idletasks()
+        # self.history_window.geometry(f"{self.history_outline_frame.get_width() + 40}x{HIS_WIN_HEIGHT}")
 
     def close_history_window(self):
         """
