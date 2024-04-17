@@ -1068,7 +1068,7 @@ class Interface:
         self.history_window.focus_set()
 
         # Create a Canvas widget inside the Toplevel window
-        self.scroll_canvas = Canvas(self.history_window, bg=BGCOLOR)
+        self.scroll_canvas = Canvas(self.history_window, bg=BGCOLOR, highlightthickness=0)
         self.scroll_canvas.pack(side="left", fill="both", expand=True)
 
         # Create a scrollbar for the Canvas
