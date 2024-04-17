@@ -28,6 +28,8 @@ def main():
     # my_interface = test_interface.Interface()
     global my_interface
     my_interface = interface.Interface()
+    my_interface.mainloop()
+    debug.log("[Main] Interface initialized!", text_color="cyan")
 
 
 if __name__ == "__main__":

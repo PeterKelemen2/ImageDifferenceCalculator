@@ -69,8 +69,10 @@ class CardItem:
             y=self.height - self.process_button.canvas.winfo_reqheight() - self.container.get_radius() * 2)
 
     def load_video(self):
-        print(self.video_path)
-        main.my_interface.set_selected_file_path()
+        if main.my_interface is not None:
+            main.my_interface.set_selected_file_path(self.video_path)
+        else:
+            print("my_interface is not initialized yet.")
 
     def create_photo(self, img_path):
         if img_path is None:
