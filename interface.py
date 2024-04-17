@@ -1102,70 +1102,6 @@ class Interface:
         self.frame.update_idletasks()
         self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
 
-        # # Create frame for the history title label
-        # self.history_title_frame = custom_ui.CustomLabelFrame(self.history_window,
-        #                                                       width=200,
-        #                                                       height=40,
-        #                                                       fill=ACCENT,
-        #                                                       bg=BGCOLOR)
-        #
-        # self.history_title_frame.canvas.place(x=HIS_WIN_WIDTH // 2 - self.history_title_frame.get_width() // 2, y=15)
-        #
-        # # Create label for history title
-        # self.history_title = Label(self.history_title_frame.canvas,
-        #                            text=self.lang["history"],
-        #                            fg=FONT_COLOR,
-        #                            bg=ACCENT,
-        #                            font=BIG_FONT_BOLD)
-        # self.history_title.place(x=self.history_title_frame.get_width() // 2 - self.history_title.winfo_reqwidth() // 2,
-        #                          y=self.history_title_frame.get_height() // 2 - self.history_title.winfo_reqheight() // 2)
-        #
-        # # Create outline frame for the history content
-        # self.history_outline_frame = custom_ui.CustomLabelFrame(self.history_window,
-        #                                                         width=HIS_WIN_WIDTH - 30,
-        #                                                         height=HIS_WIN_HEIGHT - 155,
-        #                                                         radius=15,
-        #                                                         fill=ACCENT,
-        #                                                         bg=BGCOLOR)
-        # self.history_outline_frame.canvas.place(x=20, y=70)
-        #
-        # # Populate history content
-        # self.history_content_list = list()
-        # y_pos = 10
-        # y_offset = 40
-        # for line in history_list:
-        #     new_line = line.split(";")
-        #     self.history_content_list.append(Label(self.history_outline_frame.canvas,
-        #                                            text=new_line[0],
-        #                                            font=FONT,
-        #                                            wraplength=HIS_WIN_WIDTH - 40,
-        #                                            fg=FONT_COLOR,
-        #                                            bg=ACCENT))
-        #     self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
-        #
-        #     y_pos += 25
-        #     self.history_content_list.append(Label(self.history_outline_frame.canvas,
-        #                                            text=new_line[1],
-        #                                            fg=FONT_COLOR,
-        #                                            bg=ACCENT,
-        #                                            font=BOLD_FONT))
-        #     self.history_content_list[len(self.history_content_list) - 1].place(x=10, y=y_pos)
-        #     y_pos += y_offset
-        #
-        # # Create exit button for the history window
-        # self.history_exit_button = custom_button.CustomButton(self.history_window,
-        #                                                       text=self.lang["exit"],
-        #                                                       command=self.close_history_window,
-        #                                                       button_type=custom_button.button,
-        #                                                       bg=BGCOLOR)
-        # self.history_exit_button.canvas.place(
-        #     x=HIS_WIN_WIDTH // 2 - self.history_exit_button.winfo_reqwidth() // 2,
-        #     y=HIS_WIN_HEIGHT - self.history_exit_button.winfo_reqheight() * 2)
-        #
-        # # Update the layout of the history window
-        # self.history_window.update_idletasks()
-        # self.history_window.geometry(f"{self.history_outline_frame.get_width() + 40}x{HIS_WIN_HEIGHT}")
-
     def close_history_window(self):
         """
         Closes the history window if it exists and logs its status.
@@ -1215,9 +1151,7 @@ class Interface:
         # Update text of history window
         if self.history_window is not None:
             if self.history_window.winfo_exists():
-                self.history_title.place(
-                    x=self.history_title_frame.get_width() // 2 - self.history_title.winfo_reqwidth() // 2,
-                    y=self.history_title_frame.get_height() // 2 - self.history_title.winfo_reqheight() // 2)
+                pass
 
         # Update text of finished window
         if self.finished_window is not None:
@@ -1373,13 +1307,19 @@ class Interface:
                                    activeforeground=FONT_COLOR, highlightbackground=BGCOLOR)
 
         if self.history_window is not None and self.history_window.winfo_exists():
-            self.history_title.config(bg=ACCENT, fg=FONT_COLOR)
-            self.history_title_frame.config(fill=ACCENT, bg=BGCOLOR)
-            self.history_outline_frame.config(fill=ACCENT, bg=BGCOLOR)
-            for entry in self.history_content_list:
-                entry.config(bg=ACCENT, fg=FONT_COLOR)
-            self.history_window.configure(bg=BGCOLOR)
-            self.history_exit_button.config(bg=BGCOLOR)
+            # self.history_title.config(bg=ACCENT, fg=FONT_COLOR)
+            # self.history_title_frame.config(fill=ACCENT, bg=BGCOLOR)
+            # self.history_outline_frame.config(fill=ACCENT, bg=BGCOLOR)
+            # for entry in self.history_content_list:
+            #     entry.config(bg=ACCENT, fg=FONT_COLOR)
+            # self.history_window.configure(bg=BGCOLOR)
+            # self.history_exit_button.config(bg=BGCOLOR)
+            self.scroll_canvas.config(bg=BGCOLOR)
+            self.frame.config(bg=BGCOLOR)
+            for card in self.cards_list:
+                card.container.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
+                                            labels=[card.diff_text, card.diff_title, card.path_text, card.text],
+                                            buttons=[card.process_button])
         else:
             if self.history_window is not None:
                 self.history_window.destroy()
