@@ -35,3 +35,6 @@ stabilization=Stabilizáció
 preprocessing=Előfeldolgozás
 to_plot=Ábra készítése
 progress=Feldolgozás
+load_video=Betöltés
+path=Út:
+result=Eredmény:

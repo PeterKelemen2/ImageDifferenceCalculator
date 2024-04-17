@@ -48,7 +48,7 @@ class CardItem:
         self.diff_text = None
         self.diff_title = None
         self.path_text = None
-        self.result = None
+        self.result = result
         self.text = None
         self.custom_path = video_path
         self.video_path = video_path
@@ -70,7 +70,7 @@ class CardItem:
 
         self.create_text(video_path, result)
 
-        self.process_button = custom_button.CustomButton(self.container.canvas, text="Load video", bg=ACCENT,
+        self.process_button = custom_button.CustomButton(self.container.canvas, text=ui.lang["load_video"], bg=ACCENT,
                                                          button_type=custom_button.wide_button, command=self.load_video)
         self.process_button.canvas.place(
             x=self.width - self.process_button.canvas.winfo_reqwidth() - self.container.get_radius() * 2,
@@ -103,11 +103,11 @@ class CardItem:
     def create_text(self, path=None, result=""):
         self.path_text, self.text, self.diff_text, self.diff_title = None, None, None, None
         title_x = self.photo.width() + self.image_padding * 2
-        self.path_text = tkinter.Label(self.container.canvas, text="Path:", font=BOLD_FONT, fg=DARK_FONT_COLOR,
+        self.path_text = tkinter.Label(self.container.canvas, text=ui.lang["path"], font=BOLD_FONT, fg=DARK_FONT_COLOR,
                                        bg=interface.ACCENT)
         self.path_text.place(x=title_x, y=self.image_padding)
         text = ""
-        if path is None:
+        if path is None or not os.path.exists(path):
             text = "Couldn't locate video."
         else:
             text = path
@@ -121,7 +121,8 @@ class CardItem:
         text_x = self.photo.width() + self.image_padding * 2 + self.path_text.winfo_reqwidth()
         self.text.place(x=text_x, y=self.image_padding)
 
-        self.diff_title = tkinter.Label(self.container.canvas, text="Result:", font=BOLD_FONT, fg=DARK_FONT_COLOR,
+        self.diff_title = tkinter.Label(self.container.canvas, text=ui.lang["result"], font=BOLD_FONT,
+                                        fg=DARK_FONT_COLOR,
                                         bg=interface.ACCENT)
 
         # Binding y coordinate to self.text in case it becomes more lines than one

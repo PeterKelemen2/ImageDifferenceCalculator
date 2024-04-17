@@ -1151,7 +1151,13 @@ class Interface:
         # Update text of history window
         if self.history_window is not None:
             if self.history_window.winfo_exists():
-                pass
+                for card in self.cards_list:
+                    card.path_text.config(text="")
+                    card.text.config(text="")
+                    card.diff_text.config(text="")
+                    card.diff_title.config(text="")
+                    card.create_text(card.video_path, card.result)
+                    card.process_button.set_text(self.lang["load_video"])
 
         # Update text of finished window
         if self.finished_window is not None:
@@ -1307,13 +1313,6 @@ class Interface:
                                    activeforeground=FONT_COLOR, highlightbackground=BGCOLOR)
 
         if self.history_window is not None and self.history_window.winfo_exists():
-            # self.history_title.config(bg=ACCENT, fg=FONT_COLOR)
-            # self.history_title_frame.config(fill=ACCENT, bg=BGCOLOR)
-            # self.history_outline_frame.config(fill=ACCENT, bg=BGCOLOR)
-            # for entry in self.history_content_list:
-            #     entry.config(bg=ACCENT, fg=FONT_COLOR)
-            # self.history_window.configure(bg=BGCOLOR)
-            # self.history_exit_button.config(bg=BGCOLOR)
             self.scroll_canvas.config(bg=BGCOLOR)
             self.frame.config(bg=BGCOLOR)
             for card in self.cards_list:

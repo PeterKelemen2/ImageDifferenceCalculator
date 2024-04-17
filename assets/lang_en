@@ -35,3 +35,6 @@ stabilization=Stabilization
 preprocessing=Preproccessing
 to_plot=Create plot
 progress=Processing
+load_video=Load Video
+path=Path:
+result=Result:
