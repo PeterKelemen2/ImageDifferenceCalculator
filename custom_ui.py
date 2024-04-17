@@ -1,3 +1,4 @@
+import os
 import time
 import tkinter
 from tkinter import PhotoImage, Canvas
@@ -32,6 +33,13 @@ FONT = ("Ubuntu", TIME_FONT_SIZE)
 BOLD_FONT = ("Ubuntu", TIME_FONT_SIZE, "bold")
 BIG_FONT = ("Ubuntu", BIG_FONT_SIZE)
 BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
+
+ui: interface = None
+
+
+def set_interface_instance(inter):
+    global ui
+    ui = inter
 
 
 class CardItem:
@@ -69,13 +77,16 @@ class CardItem:
             y=self.height - self.process_button.canvas.winfo_reqheight() - self.container.get_radius() * 2)
 
     def load_video(self):
-        if main.my_interface is not None:
-            main.my_interface.set_selected_file_path(self.video_path)
-        else:
-            print("my_interface is not initialized yet.")
+        global ui
+        # if main.get_interface() is not None:
+        #     main.get_interface().set_selected_file_path(self.video_path)
+        # else:
+        #     print("my_interface is not initialized yet.")
+        if ui is not None:
+            ui.set_selected_file_path(self.video_path)
 
-    def create_photo(self, img_path):
-        if img_path is None:
+    def create_photo(self, img_path=None):
+        if img_path is None or not os.path.exists(img_path):
             image = Image.open("assets/no_photo.png")
         else:
             image = Image.open(img_path)

@@ -3,6 +3,7 @@ import sys
 import time
 
 import debug
+import main
 
 modules = ["opencv-python", "pillow", "matplotlib", "numpy"]
 
@@ -49,9 +50,8 @@ def module_handler():
                             text=True)
     installed_modules = {line.split()[0]
                          for line in result.stdout.strip().split('\n')[2:]}
-    # for module in installed_modules:
-    #     debug.log(f"Module installed: {module}")
-    # Install missing modules
+
+    # Installing missing modules
     missing_modules = [module for module in modules if module not in installed_modules]
     if missing_modules:
         subprocess.run(["py", "-m", "pip", "install", *missing_modules, "--quiet"],
@@ -59,6 +59,7 @@ def module_handler():
                        shell=True)
 
     check_if_modules_installed(installed_modules)
+
     debug.log("[Modules] All modules installed!", text_color="cyan")
 
     debug.log("[Modules] Executed in {:.2f}s".format(time.time() - start_time), text_color="cyan")

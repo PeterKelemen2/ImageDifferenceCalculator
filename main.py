@@ -1,13 +1,17 @@
 import gc
 import sys
+
+import debug
 import module_handler
+import threading
+import interface
 
 # pyinstaller --onefile --add-data "assets;assets" main.py
 
 my_interface = None
 
 
-def main():
+def initialize():
     module_handler.module_handler()
 
     import vlc_handler
@@ -15,7 +19,6 @@ def main():
     import config
     import processing
     import debug
-    import interface
 
     vlc_handler.vlc_installer()
     font_handler.install_font("Ubuntu-Regular.ttf")
@@ -25,13 +28,19 @@ def main():
     processing.init_history()
 
     debug.log("[Main] Session started!", text_color="cyan")
-    # my_interface = test_interface.Interface()
+
+
+def get_interface():
+    return my_interface
+
+
+def main():
+    initialize()
+
     global my_interface
     my_interface = interface.Interface()
-    my_interface.mainloop()
     debug.log("[Main] Interface initialized!", text_color="cyan")
 
 
 if __name__ == "__main__":
-    # Starting program
     main()

@@ -1,4 +1,5 @@
 import gc
+import os.path
 import sys
 import threading
 import time
@@ -19,6 +20,7 @@ import debug
 import custom_button
 import history_handler
 import lang
+import main
 import prepass
 import video_stabilization
 import processing
@@ -181,8 +183,12 @@ class Interface:
         self.create_terminal()
 
         debug.log("[Interface] [1/2] Interface created", text_color="blue")
-
+        self.set_interface()
         self.win.mainloop()
+
+    def set_interface(self):
+        print(self)
+        custom_ui.set_interface_instance(self)
 
     def create_terminal(self):
         self.terminal_wrapper = custom_ui.CustomLabelFrame(self.win,
@@ -406,11 +412,14 @@ class Interface:
         debug.log("[Interface] [4/6] File path Label created!\n", text_color="magenta")
 
     def set_selected_file_path(self, path):
-        global video_file_path, prev_video_path
-        self.selected_file_path.set(path)
-        self.show_first_frame_details(path)
-        video_file_path = path
-        prev_video_path = video_file_path
+        if os.path.exists(path):
+            global video_file_path, prev_video_path
+            self.selected_file_path.set(path)
+            self.show_first_frame_details(path)
+            video_file_path = path
+            prev_video_path = video_file_path
+        else:
+            debug.log("[Interface] [-] File path does not exist!", text_color="red")
 
     def browse_files(self):
         # Open a file dialog and get the selected file path
@@ -1032,7 +1041,12 @@ class Interface:
         """
 
         def on_mousewheel(event):
-            self.scroll_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+            if event.num == 5 or event.delta == -120:
+                if self.scroll_canvas.yview()[1] < 1.0:
+                    self.scroll_canvas.yview_scroll(1, "units")
+            elif event.num == 4 or event.delta == 120:
+                if self.scroll_canvas.yview()[0] > 0.0:
+                    self.scroll_canvas.yview_scroll(-1, "units")
 
         if self.history_window is not None:  # Check if history window already exists
             if self.history_window.winfo_exists():  # Check if the window is open
