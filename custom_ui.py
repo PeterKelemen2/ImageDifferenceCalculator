@@ -87,7 +87,7 @@ class CardItem:
 
     def create_photo(self, img_path=None):
         if img_path is None or not os.path.exists(img_path):
-            image = Image.open("assets/no_photo.png")
+            image = Image.open("assets/no_photo3.png")
         else:
             image = Image.open(img_path)
         width, height = image.size
