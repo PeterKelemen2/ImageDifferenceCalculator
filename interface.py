@@ -1094,6 +1094,8 @@ class Interface:
                                       img_path=entry["first_frame_path"],
                                       video_path=entry["video_path"],
                                       result=entry["result"],
+                                      norm=entry["normalize"],
+                                      stab=entry["stabilize"],
                                       bg=BGCOLOR)
             self.cards_list.append(card)
             self.cards_list[len(self.cards_list) - 1].canvas.pack(padx=10, pady=10)

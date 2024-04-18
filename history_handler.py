@@ -20,8 +20,10 @@ class HistoryEntry:
                 cv2.imwrite("history/" + self.video_path.split("/")[-1] + ".jpg", frame_to_write)
                 self.first_frame_path = "history/" + self.video_path.split("/")[-1] + ".jpg"
 
-        if normalize: self.normalize = normalize
-        if stabilize: self.stabilize = stabilize
+        if normalize is not None:
+            self.normalize = normalize
+        if stabilize is not None:
+            self.stabilize = stabilize
 
     def to_dict(self):
         return self.__dict__

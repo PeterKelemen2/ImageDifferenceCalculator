@@ -39,3 +39,7 @@ load_video=Load Video
 path=Path:
 result=Result:
 no_path=Couldn't locate video.
+norm=Normalization:
+stab=Stabilization:
+yes=Yes
+no=No

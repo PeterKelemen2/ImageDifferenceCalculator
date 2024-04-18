@@ -1,84 +1,23 @@
 [
     {
-        "video_path": "C:/sample.mp4",
-        "result": "0.0004963363131212985",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.0004963363131212985",
-        "first_frame_path": "history/sampleasdasd.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample_small.mp4",
-        "result": "0.00023690171940005475",
-        "first_frame_path": "history/sample_small.mp4.jpg"
-    },
-    {
-        "video_path": "C:/Users/Administrator/Downloads/sample.mp4",
-        "result": "0.000469792814248778",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/Users/Administrator/Downloads/sample.mp4",
-        "result": "Aborted.",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.000457021878674655",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.0004714004978856464",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.0008968180422115284",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.0035164274966072544",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.0009152846059318677",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.0005164744555508259",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.003617165829183194",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.0023725591478468097",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.00049221258454085",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
-        "video_path": "C:/sample.mp4",
-        "result": "0.003606642979266954",
-        "first_frame_path": "history/sample.mp4.jpg"
-    },
-    {
         "video_path": "C:/sample_small.mp4",
         "result": "0.0002271142636613686",
         "first_frame_path": "history/sample_small.mp4.jpg",
         "normalize": true,
         "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.0027160051807778402",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": false
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.003115450395978971",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": false
     }
 ]

@@ -44,10 +44,12 @@ def set_interface_instance(inter):
 
 class CardItem:
     def __init__(self, master, width, height, bg=BLACK, title="", img_path=None, video_path=None,
-                 result=None):
+                 result=None, norm=None, stab=None):
         self.diff_text = None
         self.diff_title = None
         self.path_text = None
+        self.norm = norm
+        self.stab = stab
         self.result = result
         self.text = None
         self.custom_path = video_path
@@ -126,11 +128,39 @@ class CardItem:
                                         bg=interface.ACCENT)
 
         # Binding y coordinate to self.text in case it becomes more lines than one
-        self.diff_title.place(x=title_x, y=self.image_padding + self.text.winfo_reqheight() + 10)
+        self.diff_title.place(x=title_x, y=self.image_padding + self.text.winfo_reqheight())
         self.diff_text = tkinter.Label(self.container.canvas, text=result, font=FONT,
                                        fg=DARK_FONT_COLOR, bg=interface.ACCENT)
         self.diff_text.place(x=self.photo.width() + self.image_padding * 2 + self.diff_title.winfo_reqwidth(),
-                             y=self.image_padding + self.text.winfo_reqheight() + 10)
+                             y=self.image_padding + self.text.winfo_reqheight())
+
+        if self.norm is False:
+            norm_text_to_show = ui.lang["no"]
+        elif self.norm is True:
+            norm_text_to_show = ui.lang["yes"]
+        else:
+            norm_text_to_show = ""
+        self.norm_title = tkinter.Label(self.container.canvas, text=ui.lang["norm"], font=BOLD_FONT,
+                                        fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+        self.norm_text = tkinter.Label(self.container.canvas, text=norm_text_to_show, font=FONT,
+                                       fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+        self.norm_title.place(x=title_x, y=self.image_padding * 2 + self.text.winfo_reqheight())
+        self.norm_text.place(x=self.photo.width() + self.image_padding * 2 + self.norm_title.winfo_reqwidth(),
+                             y=self.image_padding * 2 + self.text.winfo_reqheight())
+
+        if self.stab is False:
+            stab_text_to_show = ui.lang["no"]
+        elif self.norm is True:
+            stab_text_to_show = ui.lang["yes"]
+        else:
+            stab_text_to_show = ""
+        self.stab_title = tkinter.Label(self.container.canvas, text=ui.lang["stab"], font=BOLD_FONT,
+                                        fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+        self.stab_text = tkinter.Label(self.container.canvas, text=stab_text_to_show, font=FONT,
+                                       fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+        self.stab_title.place(x=title_x, y=self.image_padding * 3 + self.text.winfo_reqheight())
+        self.stab_text.place(x=self.photo.width() + self.image_padding * 2 + self.stab_title.winfo_reqwidth(),
+                             y=self.image_padding * 3 + self.text.winfo_reqheight())
 
 
 class CustomToggleButton:
