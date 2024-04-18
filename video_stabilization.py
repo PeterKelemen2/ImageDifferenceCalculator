@@ -32,7 +32,7 @@ def set_progress_callback(callback):
 
 
 # Function to find offset and move the frame
-def stabilize_video(video_path, to_plot, normalize, p_callback=None):
+def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
     global is_finished, stop_thread, stop_thread_event
     stop_thread_event = threading.Event()
     is_finished = False
@@ -96,25 +96,29 @@ def stabilize_video(video_path, to_plot, normalize, p_callback=None):
             else:
                 break
 
-            # Draw the ROI rectangle on the current frame
-            # cv2.rectangle(frame, (roi_x, roi_y), (roi_x + roi_width, roi_y + roi_height), (0, 255, 0), 2)
+            if stabilize:
+                # Draw the ROI rectangle on the current frame
+                # cv2.rectangle(frame, (roi_x, roi_y), (roi_x + roi_width, roi_y + roi_height), (0, 255, 0), 2)
 
-            # Use template matching to find the template in the current frame
-            # result = cv2.matchTemplate(frame, template, cv2.TM_CCOEFF_NORMED)
-            result = cv2.matchTemplate(resized_frame, template, cv2.TM_CCOEFF_NORMED)
-            _, _, _, max_loc = cv2.minMaxLoc(result)
+                # Use template matching to find the template in the current frame
+                # result = cv2.matchTemplate(frame, template, cv2.TM_CCOEFF_NORMED)
+                result = cv2.matchTemplate(resized_frame, template, cv2.TM_CCOEFF_NORMED)
+                _, _, _, max_loc = cv2.minMaxLoc(result)
 
-            # Calculate the offset with scaling factor and negate the values
-            offset = (-2 * (max_loc[0] - roi_x), -2 * (max_loc[1] - roi_y))
-            # offset = (-1 * (max_loc[0] - roi_x), -1 * (max_loc[1] - roi_y))
-            movement_data.append(offset)
-            # Move the frame by applying the offset
-            M = np.float32([[1, 0, offset[0]], [0, 1, offset[1]]])
-            moved_frame = cv2.warpAffine(normalized_frame, M, (normalized_frame.shape[1], normalized_frame.shape[0]))
-            # moved_frame = cv2.warpAffine(frame, M, (frame.shape[1], frame.shape[0]))
+                # Calculate the offset with scaling factor and negate the values
+                offset = (-2 * (max_loc[0] - roi_x), -2 * (max_loc[1] - roi_y))
+                # offset = (-1 * (max_loc[0] - roi_x), -1 * (max_loc[1] - roi_y))
+                movement_data.append(offset)
+                # Move the frame by applying the offset
+                M = np.float32([[1, 0, offset[0]], [0, 1, offset[1]]])
+                moved_frame = cv2.warpAffine(normalized_frame, M,
+                                             (normalized_frame.shape[1], normalized_frame.shape[0]))
+                # moved_frame = cv2.warpAffine(frame, M, (frame.shape[1], frame.shape[0]))
 
-            # Write the processed frame to the output video file
-            out.write(moved_frame)
+                # Write the processed frame to the output video file
+                out.write(moved_frame)
+            else:
+                out.write(normalized_frame)
             curr_frame_index += 1
 
         cap.release()
@@ -149,7 +153,7 @@ def stop_stabilization_thread():
     debug.log("[Stabilization] Stopped stabilization thread!", text_color="blue")
 
 
-def stab_video_thread(path, to_plot, normalize):
+def stab_video_thread(path, to_plot, stabilize, normalize):
     """
     Creates a thread for video processing.
 
@@ -162,5 +166,5 @@ def stab_video_thread(path, to_plot, normalize):
     # if progress_callback is None:
     #     debug.log("Progress callback not set. Aborting video processing.", text_color="red")
     #     return
-    thread = threading.Thread(target=stabilize_video, args=(path, to_plot, normalize, progress_callback))
+    thread = threading.Thread(target=stabilize_video, args=(path, to_plot, stabilize, normalize, progress_callback))
     thread.start()

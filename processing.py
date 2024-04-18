@@ -55,10 +55,10 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         #     debug.log(f"[Processing] Preprocessing!")
         #     new_path = new_path[:-4] + "_prepass.mp4"
 
-        if stabilize:
+        if stabilize or preprocess:
             video_stabilization.set_progress_callback(p_callback)
             debug.log("[Processing] Starting stabilization thread...")
-            video_stabilization.stab_video_thread(new_path, to_plot, preprocess)
+            video_stabilization.stab_video_thread(new_path, to_plot, stabilize, preprocess)
             while not video_stabilization.is_finished:
                 time.sleep(0.02)
             video_stabilization.thread.join()
