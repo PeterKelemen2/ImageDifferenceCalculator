@@ -7,6 +7,7 @@ import numpy as np
 
 import debug
 import plotting
+import prepass
 import processing
 import table_print
 
@@ -31,7 +32,7 @@ def set_progress_callback(callback):
 
 
 # Function to find offset and move the frame
-def stabilize_video(video_path, to_plot, p_callback=None):
+def stabilize_video(video_path, to_plot, normalize, p_callback=None):
     global is_finished, stop_thread, stop_thread_event
     stop_thread_event = threading.Event()
     is_finished = False
@@ -65,6 +66,11 @@ def stabilize_video(video_path, to_plot, p_callback=None):
         codec = cv2.VideoWriter_fourcc(*'H264')
         out = cv2.VideoWriter(output, codec, int(cap.get(cv2.CAP_PROP_FPS)), (frame_width, frame_height))
 
+        if normalize:
+            brightness_value = 0
+            brightness_value = prepass.calculate_avg_brightness(first_frame)
+            print(brightness_value)
+
         curr_frame_index = 1
         movement_data = []
         table_print.stab_table_print("Frame", "Total")
@@ -81,8 +87,12 @@ def stabilize_video(video_path, to_plot, p_callback=None):
             # Read the current frame
             ret, frame = cap.read()
             if ret:
+                if normalize:
+                    normalized_frame = prepass.normalized_frame(frame, brightness_value)
+                else:
+                    normalized_frame = frame
                 # Creating a half sized frame to use for the template matching
-                resized_frame = cv2.resize(frame, (resized_frame_width, resized_frame_height))
+                resized_frame = cv2.resize(normalized_frame, (resized_frame_width, resized_frame_height))
             else:
                 break
 
@@ -100,7 +110,8 @@ def stabilize_video(video_path, to_plot, p_callback=None):
             movement_data.append(offset)
             # Move the frame by applying the offset
             M = np.float32([[1, 0, offset[0]], [0, 1, offset[1]]])
-            moved_frame = cv2.warpAffine(frame, M, (frame.shape[1], frame.shape[0]))
+            moved_frame = cv2.warpAffine(normalized_frame, M, (normalized_frame.shape[1], normalized_frame.shape[0]))
+            # moved_frame = cv2.warpAffine(frame, M, (frame.shape[1], frame.shape[0]))
 
             # Write the processed frame to the output video file
             out.write(moved_frame)
@@ -138,7 +149,7 @@ def stop_stabilization_thread():
     debug.log("[Stabilization] Stopped stabilization thread!", text_color="blue")
 
 
-def stab_video_thread(path, to_plot):
+def stab_video_thread(path, to_plot, normalize):
     """
     Creates a thread for video processing.
 
@@ -151,5 +162,5 @@ def stab_video_thread(path, to_plot):
     # if progress_callback is None:
     #     debug.log("Progress callback not set. Aborting video processing.", text_color="red")
     #     return
-    thread = threading.Thread(target=stabilize_video, args=(path, to_plot, progress_callback))
+    thread = threading.Thread(target=stabilize_video, args=(path, to_plot, normalize, progress_callback))
     thread.start()

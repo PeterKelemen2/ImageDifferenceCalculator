@@ -17,11 +17,19 @@ is_finished = False
 progress_callback = None
 thread: threading.Thread = None
 stop_thread_event: threading.Event = None
+first_frame_brightness: np.double = None
 
 
 def calculate_avg_brightness(frame):
     # return frame.sum() // frame.size
     return np.mean(frame)
+
+
+def normalized_frame(frame, b_value):
+    delta_brightness = b_value / calculate_avg_brightness(frame)
+    print(delta_brightness)
+    new_frame = cv2.convertScaleAbs(frame, alpha=delta_brightness, beta=0)
+    return new_frame
 
 
 def print_as_table_row(i, curr, first, delta, to_debug=False):

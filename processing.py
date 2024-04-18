@@ -44,26 +44,27 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         start_time = time.time()
 
         new_path = path
-        if preprocess:
-            prep_start_time = time.time()
-            prepass.set_progress_callback(p_callback)
-            prepass.preprocess_video_thread(path, to_plot)
-            debug.log("[Processing] Started preprocessing thread!")
-            while not prepass.is_finished:
-                time.sleep(0.02)
-            prepass.thread.join()
-            debug.log(f"[Processing] Preprocessing!")
-            new_path = new_path[:-4] + "_prepass.mp4"
+        # if preprocess:
+        #     prep_start_time = time.time()
+        #     prepass.set_progress_callback(p_callback)
+        #     prepass.preprocess_video_thread(path, to_plot)
+        #     debug.log("[Processing] Started preprocessing thread!")
+        #     while not prepass.is_finished:
+        #         time.sleep(0.02)
+        #     prepass.thread.join()
+        #     debug.log(f"[Processing] Preprocessing!")
+        #     new_path = new_path[:-4] + "_prepass.mp4"
 
         if stabilize:
             video_stabilization.set_progress_callback(p_callback)
             debug.log("[Processing] Starting stabilization thread...")
-            video_stabilization.stab_video_thread(new_path, to_plot)
+            video_stabilization.stab_video_thread(new_path, to_plot, preprocess)
             while not video_stabilization.is_finished:
                 time.sleep(0.02)
             video_stabilization.thread.join()
             debug.log("[Processing] Stabilization finished!")
-            new_path = path[:-4] + "_prepass_stabilized.mp4"
+            # new_path = path[:-4] + "_prepass_stabilized.mp4"
+            new_path = path[:-4] + "_stabilized.mp4"
 
         total_difference = 0
         if not stop_thread_event.is_set():
