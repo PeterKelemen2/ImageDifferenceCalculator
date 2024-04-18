@@ -1090,18 +1090,14 @@ class Interface:
         self.history_entries = history_handler.load_entries()
 
         for entry in self.history_entries:
-            norm_text = self.lang["no_data"]
-            stab_text = self.lang["no_data"]
-            if "normalize" in entry:
-                norm_text = entry["normalize"]
-            if "stabilize" in entry:
-                stab_text = entry["stabilize"]
+            if "normalize" not in entry: entry["normalize"] = self.lang["no_data"]
+            if "stabilize" not in entry: entry["stabilize"] = self.lang["no_data"]
             card = custom_ui.CardItem(self.frame, width=790 - self.scrollbar.winfo_reqwidth() * 2, height=200, title="",
                                       img_path=entry["first_frame_path"],
                                       video_path=entry["video_path"],
                                       result=entry["result"],
-                                      norm=norm_text,
-                                      stab=stab_text,
+                                      norm=entry["normalize"],
+                                      stab=entry["stabilize"],
                                       bg=BGCOLOR)
             self.cards_list.append(card)
             self.cards_list[len(self.cards_list) - 1].canvas.pack(padx=10, pady=10)
