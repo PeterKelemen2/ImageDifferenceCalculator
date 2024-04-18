@@ -1090,6 +1090,7 @@ class Interface:
         self.history_entries = history_handler.load_entries()
 
         for entry in self.history_entries:
+            # TODO: if norm and stab entries don't exist, set no_data value
             card = custom_ui.CardItem(self.frame, width=790 - self.scrollbar.winfo_reqwidth() * 2, height=200, title="",
                                       img_path=entry["first_frame_path"],
                                       video_path=entry["video_path"],

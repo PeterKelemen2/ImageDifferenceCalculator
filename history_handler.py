@@ -2,6 +2,8 @@ import json
 
 import cv2
 
+from custom_ui import ui
+
 
 class HistoryEntry:
     def __init__(self, video_path=None, result=None, normalize=None, stabilize=None):
@@ -22,6 +24,7 @@ class HistoryEntry:
 
         if normalize is not None:
             self.normalize = normalize
+            
         if stabilize is not None:
             self.stabilize = stabilize
 

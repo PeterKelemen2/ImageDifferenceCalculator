@@ -139,7 +139,7 @@ class CardItem:
         elif self.norm is True:
             norm_text_to_show = ui.lang["yes"]
         else:
-            norm_text_to_show = ""
+            norm_text_to_show = ui.lang["no_data"]
         self.norm_title = tkinter.Label(self.container.canvas, text=ui.lang["norm"], font=BOLD_FONT,
                                         fg=DARK_FONT_COLOR, bg=interface.ACCENT)
         self.norm_text = tkinter.Label(self.container.canvas, text=norm_text_to_show, font=FONT,
@@ -153,7 +153,7 @@ class CardItem:
         elif self.norm is True:
             stab_text_to_show = ui.lang["yes"]
         else:
-            stab_text_to_show = ""
+            stab_text_to_show = ui.lang["no_data"]
         self.stab_title = tkinter.Label(self.container.canvas, text=ui.lang["stab"], font=BOLD_FONT,
                                         fg=DARK_FONT_COLOR, bg=interface.ACCENT)
         self.stab_text = tkinter.Label(self.container.canvas, text=stab_text_to_show, font=FONT,
