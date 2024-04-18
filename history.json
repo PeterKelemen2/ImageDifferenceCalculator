@@ -73,5 +73,12 @@
         "video_path": "C:/sample.mp4",
         "result": "0.003606642979266954",
         "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample_small.mp4",
+        "result": "0.0002271142636613686",
+        "first_frame_path": "history/sample_small.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
     }
 ]

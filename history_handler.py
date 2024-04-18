@@ -4,7 +4,7 @@ import cv2
 
 
 class HistoryEntry:
-    def __init__(self, video_path=None, result=None):
+    def __init__(self, video_path=None, result=None, normalize=None, stabilize=None):
         self.video_path = video_path
         if result is None:
             self.result = "Aborted."
@@ -19,6 +19,9 @@ class HistoryEntry:
                 frame_to_write = cv2.resize(first_frame, (height // 4, width // 4))
                 cv2.imwrite("history/" + self.video_path.split("/")[-1] + ".jpg", frame_to_write)
                 self.first_frame_path = "history/" + self.video_path.split("/")[-1] + ".jpg"
+
+        if normalize: self.normalize = normalize
+        if stabilize: self.stabilize = stabilize
 
     def to_dict(self):
         return self.__dict__

@@ -120,7 +120,9 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             is_finished = True
             if total_difference > 0:
                 # write_to_history(path, total_difference)
-                history_handler.save_entry(history_handler.HistoryEntry(video_path=path, result=total_difference))
+                history_handler.save_entry(
+                    history_handler.HistoryEntry(video_path=path, result=total_difference, normalize=preprocess,
+                                                 stabilize=stabilize))
             else:
                 # write_to_history(path, "Aborted.")
                 history_handler.save_entry(history_handler.HistoryEntry(video_path=path, result="Aborted."))

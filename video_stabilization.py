@@ -67,7 +67,6 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
         out = cv2.VideoWriter(output, codec, int(cap.get(cv2.CAP_PROP_FPS)), (frame_width, frame_height))
 
         if normalize:
-            brightness_value = 0
             brightness_value = prepass.calculate_avg_brightness(first_frame)
             print(brightness_value)
 
