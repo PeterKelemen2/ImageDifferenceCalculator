@@ -26,5 +26,17 @@
         "first_frame_path": "history/sample.mp4.jpg",
         "normalize": false,
         "stabilize": false
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.0004421162308905245",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
+    },
+    {
+        "video_path": "C:/Users/Administrator/Downloads/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
     }
 ]

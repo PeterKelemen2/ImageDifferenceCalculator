@@ -43,4 +43,4 @@ norm=Normalizálás:
 stab=Stabilizálás:
 yes=Igen
 no=Nem
-missing=Nincs adat.
+no_data=Nincs adat.
