@@ -1158,6 +1158,8 @@ class Interface:
                     card.text.config(text="")
                     card.diff_text.config(text="")
                     card.diff_title.config(text="")
+                    card.norm_text.config(text="")
+                    card.stab_text.config(text="")
                     card.create_text(card.video_path, card.result)
                     card.process_button.set_text(self.lang["load_video"])
 
