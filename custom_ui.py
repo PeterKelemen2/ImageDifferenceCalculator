@@ -65,7 +65,7 @@ class CardItem:
         self.container.canvas.place(x=0, y=0)
 
         self.photo = ImageTk.PhotoImage(self.create_photo(img_path))
-        self.photo_label = (tkinter.Label(self.container.canvas, image=self.photo))
+        self.photo_label = (tkinter.Label(self.container.canvas, image=self.photo, bg="#000000"))
         self.photo_label.place(x=self.image_padding, y=self.image_padding)
 
         self.create_text(video_path, result)
@@ -108,7 +108,7 @@ class CardItem:
         self.path_text.place(x=title_x, y=self.image_padding)
         text = ""
         if path is None or not os.path.exists(path):
-            text = "Couldn't locate video."
+            text = ui.lang["no_path"]
         else:
             text = path
         self.text = tkinter.Label(self.container.canvas,

@@ -38,3 +38,4 @@ progress=Processing
 load_video=Load Video
 path=Path:
 result=Result:
+no_path=Couldn't locate video.

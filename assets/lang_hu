@@ -38,3 +38,4 @@ progress=Feldolgozás
 load_video=Betöltés
 path=Út:
 result=Eredmény:
+no_path=Nem található út.
