@@ -180,5 +180,12 @@
         "first_frame_path": "history/sample.mp4.jpg",
         "normalize": true,
         "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.00046378031064965103",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
     }
 ]

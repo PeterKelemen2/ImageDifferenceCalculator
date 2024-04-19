@@ -66,9 +66,10 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
         codec = cv2.VideoWriter_fourcc(*'H264')
         out = cv2.VideoWriter(output, codec, int(cap.get(cv2.CAP_PROP_FPS)), (frame_width, frame_height))
 
+        b_list, prepass_b_list = [], []
         if normalize:
             brightness_value = prepass.calculate_avg_brightness(first_frame)
-            print(brightness_value)
+            # print(brightness_value)
 
         curr_frame_index = 1
         movement_data = []
@@ -89,6 +90,9 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
             if ret:
                 if normalize:
                     normalized_frame = prepass.normalized_frame(frame, brightness_value)
+                    if to_plot:
+                        b_list.append(prepass.calculate_avg_brightness(frame))
+                        prepass_b_list.append(prepass.calculate_avg_brightness(normalized_frame))
                 else:
                     normalized_frame = frame
                 # Creating a half sized frame to use for the template matching
@@ -108,7 +112,8 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
                 # Calculate the offset with scaling factor and negate the values
                 offset = (-2 * (max_loc[0] - roi_x), -2 * (max_loc[1] - roi_y))
                 # offset = (-1 * (max_loc[0] - roi_x), -1 * (max_loc[1] - roi_y))
-                movement_data.append(offset)
+                if to_plot:
+                    movement_data.append(offset)
                 # Move the frame by applying the offset
                 M = np.float32([[1, 0, offset[0]], [0, 1, offset[1]]])
                 moved_frame = cv2.warpAffine(normalized_frame, M,
@@ -134,6 +139,13 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
             plotting.plot_stabilization_movement(movement_data=movement_data,
                                                  path=video_path[:-4] + "stabilization_plot.png")
             debug.log("[Stabilization] Stabilization movement plotted")
+
+            debug.log("[Preprocessing] Creating graph for brightness regulation...", text_color="yellow")
+            plotting.plot_average_brightness(before_list=b_list,
+                                             after_list=prepass_b_list,
+                                             path=video_path[:-4] + "normalization_plot.png")
+
+            debug.log("[Preprocessing] Plot created!", text_color="yellow")
 
 
 def stop_stabilization_thread():
