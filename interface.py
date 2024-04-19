@@ -94,6 +94,7 @@ scroll_threshold = 0.96
 
 class Interface:
     def __init__(self):
+        self.log_label_text = None
         self.log_canvas = None
         self.log_scrollbar = None
         self.log_frame = None
@@ -262,9 +263,10 @@ class Interface:
         self.log_canvas.create_window((0, 0), window=self.log_frame, anchor="nw")
 
         self.log_text = StringVar()
-        self.log_label = Label(self.log_frame, textvariable=self.log_text, bg=ACCENT, wraplength=465, justify="left",
-                               font=JET_FONT)
-        self.log_label.pack()
+        self.log_label_text = Label(self.log_frame, textvariable=self.log_text, bg=ACCENT, fg=FONT_COLOR,
+                                    wraplength=468, justify="left",
+                                    font=JET_FONT)
+        self.log_label_text.pack()
 
         self.log_canvas.bind_all("<MouseWheel>", self.on_mousewheel)
 
@@ -1442,7 +1444,9 @@ class Interface:
             self.plotting_toggle_button.config(fg=FONT_COLOR, bg=ACCENT)
 
         if self.terminal_wrapper is not None:
-            self.terminal_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.terminal_text])
+            self.terminal_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR)
+            self.log_label_text.config(bg=ACCENT, fg=FONT_COLOR)
+            self.log_canvas.config(bg=ACCENT)
 
         if self.proc_progress_wrapper is not None:
             self.proc_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.proc_progress_label])
