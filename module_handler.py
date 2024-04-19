@@ -5,7 +5,7 @@ import time
 import debug
 import main
 
-modules = ["opencv-python", "pillow", "matplotlib", "numpy"]
+modules = ["opencv-python", "pillow", "matplotlib", "numpy", "tkcolorpicker"]
 
 
 def check_if_modules_installed(installed_modules):
