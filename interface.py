@@ -328,7 +328,6 @@ class Interface:
         self.win.after(150, self.schedule_periodic_processing_execution)
         self.win.after(150, self.schedule_terminal_update)
 
-    # Todo: 315-ös sorból komment ki
     def schedule_terminal_update(self):
         # self.update_terminal_text()
         self.set_log_text()
