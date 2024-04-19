@@ -932,10 +932,10 @@ class Interface:
         # Add language OptionMenu
         self.lang_option_menu = OptionMenu(self.settings_wrapper.canvas, self.lang_selected_option, *self.lang_options)
         self.lang_option_menu.config(anchor="center",
-                                     bg=BGCOLOR,
+                                     bg=ACCENT,
                                      fg=FONT_COLOR,
                                      activebackground=ACCENT,
-                                     activeforeground=FONT_COLOR,
+                                     # activeforeground=FONT_COLOR,
                                      highlightbackground=ACCENT)
         self.lang_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                     y=self.lang_label.winfo_reqheight() * 2)
@@ -972,7 +972,7 @@ class Interface:
         self.theme_option_menu = OptionMenu(self.settings_wrapper.canvas, self.theme_selected_option,
                                             *self.theme_options)
         self.theme_option_menu.config(anchor="center",
-                                      bg=BGCOLOR,
+                                      bg=ACCENT,
                                       fg=FONT_COLOR,
                                       activebackground=ACCENT,
                                       activeforeground=FONT_COLOR,
@@ -997,7 +997,7 @@ class Interface:
             selected_log_option.set(self.log_options[1])
         self.log_option_menu = OptionMenu(self.settings_wrapper.canvas, selected_log_option, *self.log_options)
         self.log_option_menu.config(anchor="center",
-                                    bg=BGCOLOR,
+                                    bg=ACCENT,
                                     fg=FONT_COLOR,
                                     activebackground=ACCENT,
                                     activeforeground=FONT_COLOR,
@@ -1471,7 +1471,7 @@ class Interface:
                                                        self.log_label])
             for option_menu in [self.theme_option_menu, self.lang_option_menu, self.log_option_menu]:
                 option_menu.config(anchor="center", bg=ACCENT, fg=FONT_COLOR, activebackground=ACCENT,
-                                   activeforeground=FONT_COLOR, highlightbackground=BGCOLOR)
+                                   activeforeground=FONT_COLOR, highlightbackground=ACCENT)
 
             if self.color_picker_items is not None:
                 for item in self.color_picker_items:
