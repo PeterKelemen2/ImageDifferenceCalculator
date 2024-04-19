@@ -94,6 +94,7 @@ scroll_threshold = 0.96
 
 class Interface:
     def __init__(self):
+        self.apply_user_theme_button = None
         self.cards_list = None
         self.history_entries = None
         self.history_scroll_canvas = None
@@ -1500,17 +1501,22 @@ class Interface:
             if self.color_picker_items is not None:
                 for item in self.color_picker_items:
                     if item is not None:
-                        if isinstance(item, Toplevel) or isinstance(item, Canvas):
-                            item.config(bg=ACCENT)
-                        else:
-                            item.config(bg=ACCENT, fg=FONT_COLOR)
+                        if item.winfo_exists():
+                            if isinstance(item, Toplevel) or isinstance(item, Canvas):
+                                item.config(bg=ACCENT)
+                            else:
+                                item.config(bg=ACCENT, fg=FONT_COLOR)
                 for item in self.color_picker_items_squares:
                     if item is not None:
-                        item.config(highlightbackground=FONT_COLOR)
+                        if item.winfo_exists():
+                            item.config(highlightbackground=FONT_COLOR)
+            if self.apply_user_theme_button is not None:
+                if self.apply_user_theme_button.canvas.winfo_exists():
+                    self.apply_user_theme_button.config(bg=ACCENT)
 
         if self.history_window is not None and self.history_window.winfo_exists():
-            self.scroll_canvas.config(bg=BGCOLOR)
-            self.frame.config(bg=BGCOLOR)
+            self.history_scroll_canvas.config(bg=BGCOLOR)
+            self.history_frame.config(bg=BGCOLOR)
             for card in self.cards_list:
                 card.container.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
                                             labels=[card.diff_text, card.diff_title, card.path_text, card.text,
