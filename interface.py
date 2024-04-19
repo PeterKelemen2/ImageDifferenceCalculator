@@ -1092,6 +1092,9 @@ class Interface:
         for entry in self.history_entries:
             if "normalize" not in entry: entry["normalize"] = self.lang["no_data"]
             if "stabilize" not in entry: entry["stabilize"] = self.lang["no_data"]
+            if "img_path" not in entry: entry["img_path"] = self.lang["no_data"]
+            if "video_path" not in entry: entry["img_path"] = self.lang["no_data"]
+            if "result_path" not in entry: entry["img_path"] = self.lang["no_data"]
             card = custom_ui.CardItem(self.frame, width=790 - self.scrollbar.winfo_reqwidth() * 2, height=200, title="",
                                       img_path=entry["first_frame_path"],
                                       video_path=entry["video_path"],
