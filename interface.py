@@ -270,6 +270,8 @@ class Interface:
 
         self.log_frame.update_idletasks()
 
+        self.log_scrollbar.grid_forget()
+
     def set_color(self):
         """
         Sets global color variables based on the current theme.
@@ -765,6 +767,8 @@ class Interface:
                                          font=BOLD_FONT)
         self.proc_progress_label.place(x=720, y=30)
         debug.log("[Interface] [6/6] Progress label created!\n", text_color="magenta")
+        if self.log_canvas is not None:
+            self.log_canvas.yview_moveto(1.0)
 
         # Create an overlay frame for the progress bar to hide flickering bug
         self.proc_pbar_overlay = custom_ui.CustomLabelFrame(self.proc_progress_wrapper.canvas, width=690, height=30,

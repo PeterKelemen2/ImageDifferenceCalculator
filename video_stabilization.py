@@ -76,9 +76,10 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
 
         frame_since_callback = 0
         while not stop_thread_event.is_set():
-            table_print.stab_table_print(curr_frame_index, total_frames)
+
             frame_since_callback += 1
-            if frame_since_callback == 2:
+            if frame_since_callback == 3:
+                table_print.stab_table_print(curr_frame_index, total_frames)
                 processing.callback_queue.put(
                     lambda: p_callback("stabilization", int("{:.0f}".format((curr_frame_index * 100) / total_frames))))
                 frame_since_callback = 0

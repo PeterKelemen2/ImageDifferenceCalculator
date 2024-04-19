@@ -150,5 +150,50 @@
         "first_frame_path": "history/sample.mp4.jpg",
         "normalize": true,
         "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.0004472741743802557",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.0004175804023626462",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.00043846270644614673",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.00042610166708976355",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.00041691596880070157",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
     }
 ]
