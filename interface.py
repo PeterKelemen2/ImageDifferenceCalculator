@@ -530,7 +530,7 @@ class Interface:
                                                         bg=BGCOLOR,
                                                         radius=15,
                                                         width=780,
-                                                        height=320)
+                                                        height=400)
         self.frame_wrapper.canvas.place(x=10, y=100)
         debug.log("[Interface] [5/2] Video details wrapper created!", text_color="yellow")
 
@@ -633,7 +633,7 @@ class Interface:
             self.log_canvas.yview_moveto(1.0)
 
         self.prepass_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
-                                                                  text=self.lang["preprocessing"],
+                                                                  text=self.lang["normalization"],
                                                                   width=60,
                                                                   height=30,
                                                                   bg=ACCENT)
@@ -670,7 +670,7 @@ class Interface:
             self.plotting_toggle_button.disable()
 
             # Create and display a progress bar
-            self.create_preprocess_progress_bar()
+            # self.create_preprocess_progress_bar()
             self.create_stabilization_progress_bar()
             self.create_processing_progress_bar()
 
@@ -727,7 +727,7 @@ class Interface:
 
     def create_stabilization_progress_bar(self):
         self.stab_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
-                                                                text=self.lang["stabilization"],
+                                                                text=self.lang["preprocessing"],
                                                                 width=780,
                                                                 height=70,
                                                                 fill=ACCENT,
@@ -1310,7 +1310,7 @@ class Interface:
         if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
         if self.frame_wrapper is not None:
             self.frame_wrapper.set_label_text(self.lang["video_data"])
-            self.prepass_toggle_button.config(text=self.lang["preprocessing"])
+            self.prepass_toggle_button.config(text=self.lang["normalization"])
             self.stab_toggle_button.config(text=self.lang["stabilization"])
             self.plotting_toggle_button.config(text=self.lang["to_plot"])
         if self.proc_progress_wrapper is not None: self.proc_progress_wrapper.set_label_text(self.lang["progress"])
