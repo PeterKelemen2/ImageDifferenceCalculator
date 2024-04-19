@@ -1,16 +1,13 @@
-import gc
 import os.path
 import sys
 import threading
-import time
 import tkinter
-from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button, Scrollbar, Canvas, \
-    Entry, Frame, LabelFrame
+from tkinter import Tk, Label, StringVar, filedialog, Toplevel, OptionMenu, Scrollbar, Canvas, \
+    Frame
 from tkcolorpicker import askcolor
 import cv2
 
 from PIL import Image, ImageTk
-from datetime import datetime
 
 import config
 import custom_ui
@@ -20,7 +17,6 @@ import debug
 import custom_button
 import history_handler
 import lang
-import main
 import prepass
 import user_theme_config
 import video_stabilization
@@ -92,9 +88,17 @@ call_nr = 0
 video_file_path = None
 prev_video_path = None
 
+manual_scroll = False
+scroll_threshold = 0.96
+
 
 class Interface:
     def __init__(self):
+        self.log_canvas = None
+        self.log_scrollbar = None
+        self.log_frame = None
+        self.log_text = None
+        self.empty_label = None
         self.color_picker_items_squares = None
         self.color_picker_text_items = None
         self.color_picker_items = None
@@ -160,7 +164,7 @@ class Interface:
         self.finished_window = None
         self.settings_wrapper = None
         self.selected_file_path = None
-        self.win = None
+        self.win: tkinter.Tk
         self.time_label = None
         self.time_wrapper = None
         self.progress_bar = None
@@ -200,6 +204,40 @@ class Interface:
         print(self)
         custom_ui.set_interface_instance(self)
 
+    def on_mousewheel(self, event):
+        global manual_scroll
+        # Set manual_scroll to True when the user manually scrolls
+        manual_scroll = True
+        # Perform the default scrolling behavior
+        self.log_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def set_log_text(self):
+        global manual_scroll
+        new_text = ""
+        curr_text = self.log_text.get()
+
+        with open(debug.log_file_path, 'r') as log_file:
+            for line in log_file:
+                new_text += line[32:]
+
+        if curr_text in new_text:
+            index = new_text.find(curr_text) + len(curr_text)
+            new_text = new_text[index:]
+        else:
+            new_text = new_text
+            print(new_text)
+
+        self.log_text.set(curr_text + new_text)
+
+        self.log_frame.update_idletasks()
+        self.log_canvas.config(scrollregion=self.log_canvas.bbox("all"))
+
+        if not manual_scroll:
+            self.log_canvas.yview_moveto(1.0)
+
+        if float(self.log_canvas.yview()[1]) >= scroll_threshold:
+            self.log_canvas.yview_moveto(1.0)
+
     def create_terminal(self):
         self.terminal_wrapper = custom_ui.CustomLabelFrame(self.win,
                                                            text="Log",
@@ -211,35 +249,26 @@ class Interface:
                                                            bg=BGCOLOR)
         self.terminal_wrapper.canvas.place(x=800, y=10)
 
-        self.terminal_text = Label(self.terminal_wrapper.canvas, justify="left", text="Image Difference", font=JET_FONT,
-                                   fg=FONT_COLOR,
-                                   bg=ACCENT)
-        self.terminal_text.place(x=15, y=30)
+        self.empty_label = Label(self.terminal_wrapper.canvas, width=1, height=1, bg=ACCENT, borderwidth=0)
+        self.empty_label.place(x=10, y=30)
 
-        self.update_terminal_text()
+        self.log_canvas = Canvas(self.empty_label, width=470, height=WIN_HEIGHT - 75, bg=ACCENT, highlightthickness=0)
+        self.log_scrollbar = Scrollbar(self.empty_label, orient="vertical", command=self.log_canvas.yview, width=5)
+        self.log_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.log_canvas.config(yscrollcommand=self.log_scrollbar.set)
+        self.log_canvas.grid(row=0, column=0, sticky="nsew")
 
-    def update_terminal_text(self):
-        content_list = []
-        chunk_size = 65
-        lines_to_display = 37
-        try:
-            with open(debug.log_file_path, 'r') as log_file:
-                for line in log_file:
-                    # Extract the portion of the line after the second ']'
-                    adjusted_line = line.split("]", 2)[-1].lstrip()
-                    # Split the adjusted line into chunks of chunk_size characters
-                    chunks = [adjusted_line[i:i + chunk_size] for i in range(0, len(adjusted_line), chunk_size)]
-                    # Join the chunks with newline characters and append to the content list
-                    content_list.extend("\n".join(chunks[i:i + 2]) for i in range(0, len(chunks), 2))
-                    # Limit the content list to store only the last 38 lines
-                    if len(content_list) > lines_to_display:
-                        content_list = content_list[-lines_to_display:]
+        self.log_frame = Frame(self.log_canvas, bg=ACCENT)
+        self.log_canvas.create_window((0, 0), window=self.log_frame, anchor="nw")
 
-            content = "".join(content_list)
-        except FileNotFoundError:
-            debug.log("[Interface] Log file not found")
+        self.log_text = StringVar()
+        self.log_label = Label(self.log_frame, textvariable=self.log_text, bg=ACCENT, wraplength=465, justify="left",
+                               font=JET_FONT)
+        self.log_label.pack()
 
-        self.terminal_text.config(text=content)
+        self.log_canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+
+        self.log_frame.update_idletasks()
 
     def set_color(self):
         """
@@ -299,8 +328,12 @@ class Interface:
         self.win.after(150, self.schedule_periodic_processing_execution)
         self.win.after(150, self.schedule_terminal_update)
 
+    # Todo: 315-ös sorból komment ki
     def schedule_terminal_update(self):
-        self.update_terminal_text()
+        # self.update_terminal_text()
+        self.set_log_text()
+        if float(self.log_canvas.yview()[1]) > scroll_threshold:
+            self.log_canvas.yview_moveto(1.0)
         self.win.after(150, self.schedule_terminal_update)
 
     def schedule_periodic_processing_execution(self):
@@ -573,6 +606,8 @@ class Interface:
         self.image_details.place(x=new_width + 30,
                                  y=self.frame_details_header.winfo_y() + self.frame_details_header.winfo_reqheight() + 20)
         debug.log("[Interface] [5/12] Labels to display video details created!\n", text_color="yellow")
+        if self.log_canvas is not None:
+            self.log_canvas.yview_moveto(1.0)
 
         self.prepass_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
                                                                   text=self.lang["preprocessing"],
