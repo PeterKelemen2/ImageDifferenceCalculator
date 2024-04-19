@@ -6,7 +6,7 @@ import time
 import tkinter
 from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button, Scrollbar, Canvas, \
     Entry, Frame, LabelFrame
-
+from tkcolorpicker import askcolor
 import cv2
 
 from PIL import Image, ImageTk
@@ -22,6 +22,7 @@ import history_handler
 import lang
 import main
 import prepass
+import user_theme_config
 import video_stabilization
 import processing
 import vlc_handler
@@ -75,7 +76,7 @@ WIN_WIDTH = 1300
 WIN_HEIGHT = 670
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
-SET_WIN_WIDTH = 300
+SET_WIN_WIDTH = 500
 SET_WIN_HEIGHT = 300
 HIS_WIN_WIDTH = 800
 HIS_WIN_HEIGHT = 800
@@ -89,6 +90,7 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.user_theme_button = None
         self.log_label = None
         self.log_option_menu = None
         self.log_options = None
@@ -844,7 +846,6 @@ class Interface:
         Returns:
             None
         """
-
         if self.settings_window_opened is True:
             self.settings_window.focus_set()
             return
@@ -913,7 +914,7 @@ class Interface:
 
         # Define theme options
         self.theme_options = [self.lang["dark"], self.lang["light"], self.lang["palenight"], self.lang["cherrywhite"],
-                              self.lang["brownorange"]]
+                              self.lang["brownorange"], self.lang["user_theme"]]
 
         # Set default theme option based on current theme setting
         self.theme_selected_option = StringVar(self.settings_wrapper.canvas)
@@ -924,7 +925,8 @@ class Interface:
             "light": 1,
             "palenight": 2,
             "cherrywhite": 3,
-            "brownorange": 4
+            "brownorange": 4,
+            "usertheme": 5
         }
         self.theme_selected_option.set(self.theme_options[theme_index_mapping.get(self.curr_theme, 0)])
 
@@ -989,7 +991,8 @@ class Interface:
                 "Light": "light",
                 "Palenight": "palenight",
                 "Cherry White": "cherrywhite",
-                "Brown Orange": "brownorange"
+                "Brown Orange": "brownorange",
+                "User Theme": "usertheme"
             }
             chosen_theme_option = theme_options_mapping.get(chosen_theme_option, chosen_theme_option.lower())
 
@@ -1001,9 +1004,18 @@ class Interface:
                 self.curr_lang = chosen_lang_option
                 self.change_language()
 
-            if chosen_theme_option != self.curr_theme:
+            if chosen_theme_option != self.curr_theme or chosen_theme_option == theme_options_mapping["User Theme"]:
                 self.curr_theme = chosen_theme_option
                 self.update_colors()
+                if chosen_theme_option == theme_options_mapping["User Theme"]:
+                    self.user_theme_button.canvas.place(x=360, y=self.lang_label.winfo_reqheight() * 4)
+                else:
+                    self.user_theme_button.canvas.place(x=1000, y=1000)
+
+            # if chosen_theme_option == theme_options_mapping["User Theme"]:
+            #     # self.user_theme_button.canvas.place(x=350, y=self.lang_label.winfo_reqheight() * 4)
+            # else:
+            #     # self.user_theme_button.canvas.place(x=200, y=200)
 
             if chosen_log_state != self.log_state:
                 self.toggle_log(chosen_log_state)
@@ -1020,11 +1032,76 @@ class Interface:
                                                       command=save_option,
                                                       button_type=custom_button.button,
                                                       bg=ACCENT)
-        # self.save_button.canvas.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2,
-        #                               y=200)
 
-        self.save_button.canvas.place(x=self.save_button.winfo_reqwidth() * 1.5,
+        self.save_button.canvas.place(x=HIS_WIN_WIDTH // 2 - self.save_button.winfo_reqwidth() // 2,
                                       y=200)
+        self.user_theme_button = custom_button.CustomButton(self.settings_wrapper.canvas, text="Configure", bg=ACCENT,
+                                                            command=self.show_color_configurer)
+        if self.curr_theme == "usertheme":
+            self.user_theme_button.canvas.place(x=360, y=self.lang_label.winfo_reqheight() * 4)
+        else:
+            self.user_theme_button.canvas.place(x=1000, y=1000)
+
+    def show_color_configurer(self):
+        def choose_color(lab, c_type):
+            # Open the color picker dialog
+            color = askcolor(title="Choose Color", parent=top)
+
+            # If a color is selected, update the label's background color
+            if color[1]:
+                lab.config(bg=color[1])
+                if c_type == "accent":
+                    user_theme["accent"] = color[1]
+                elif c_type == "bg":
+                    user_theme["bg"] = color[1]
+                elif c_type == "text":
+                    user_theme["text"] = color[1]
+
+                user_theme_config.save_theme(user_theme)
+
+        top = Toplevel()
+        top.geometry("430x165")
+        top.title("Color Configurer")
+        top.focus_set()
+
+        # Define a dictionary to store the user theme colors
+        user_theme = {
+            "bg": "white",
+            "accent": "gray",
+            "text": "black"
+        }
+
+        # Create labels for selecting colors
+        bg_label = Label(top, text=None, width=4, height=2, highlightthickness=2, highlightbackground="black",
+                         bg=user_theme["bg"])
+        bg_label.bind("<Button-1>", lambda event: choose_color(bg_label, "bg"))
+        bg_label.place(x=5, y=5)
+        bg_text = Label(top, text="Background", font=FONT)
+        bg_text.place(x=50, y=10)
+
+        accent_label = Label(top, text=None, width=4, height=2, highlightthickness=2, highlightbackground="black",
+                             bg=user_theme["accent"])
+        accent_label.bind("<Button-1>", lambda event: choose_color(accent_label, "accent"))
+        accent_label.place(x=5, y=bg_label.winfo_y() + accent_label.winfo_reqheight() + 10)
+        accent_text = Label(top, text="Foreground", font=FONT)
+        accent_text.place(x=50, y=55)
+
+        text_label = Label(top, text=None, width=4, height=2, highlightthickness=2, highlightbackground="black",
+                           bg=user_theme["text"])
+        text_label.bind("<Button-1>", lambda event: choose_color(text_label, "text"))
+        text_label.place(x=5, y=accent_label.winfo_y() + text_label.winfo_reqheight() + 55)
+        text_text = Label(top, text="Text", font=FONT)
+        text_text.place(x=50, y=100)
+
+        self.clf_canvas = Canvas(top, width=250, height=150, bg=BGCOLOR)
+        self.clf_canvas.place(x=170, y=5)
+        self.clf = custom_ui.CustomLabelFrame(self.clf_canvas, width=200, height=100, text="Sample text",
+                                              bg=BGCOLOR,
+                                              fill=ACCENT,
+                                              fg=FONT_COLOR)
+        self.clf.canvas.place(x=25, y=25)
+        self.clf_button = custom_button.CustomButton(self.clf.canvas, text="Button", bg=ACCENT)
+        self.clf_button.canvas.place(x=45, y=40)
 
     def close_settings_window(self):
         self.settings_window_opened = False
