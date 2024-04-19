@@ -74,7 +74,7 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 80
 WIN_WIDTH = 1300
-WIN_HEIGHT = 670
+WIN_HEIGHT = 590
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 500
@@ -400,6 +400,7 @@ class Interface:
         video_stabilization.stop_stabilization_thread()
         debug.log("[Interface] Stopped stabilization thread!", text_color="magenta")
 
+        processing.force_terminate = True
         processing.stop_processing_thread()
         debug.log("[Interface] Stopped threads")
         self.win.destroy()
@@ -530,7 +531,7 @@ class Interface:
                                                         bg=BGCOLOR,
                                                         radius=15,
                                                         width=780,
-                                                        height=400)
+                                                        height=320)
         self.frame_wrapper.canvas.place(x=10, y=100)
         debug.log("[Interface] [5/2] Video details wrapper created!", text_color="yellow")
 
@@ -734,7 +735,7 @@ class Interface:
                                                                 fg=FONT_COLOR,
                                                                 radius=15,
                                                                 bg=BGCOLOR)
-        self.stab_progress_wrapper.canvas.place(x=10, y=510)
+        self.stab_progress_wrapper.canvas.place(x=10, y=430)
 
         self.stab_progress_bar = custom_ui.CustomProgressBar(self.stab_progress_wrapper.canvas,
                                                              width=705,
@@ -769,7 +770,7 @@ class Interface:
                                                                 fg=FONT_COLOR,
                                                                 radius=15,
                                                                 bg=BGCOLOR)
-        self.proc_progress_wrapper.canvas.place(x=10, y=590)
+        self.proc_progress_wrapper.canvas.place(x=10, y=510)
         debug.log("[Interface] [6/2] Progress wrapper created!", text_color="magenta")
 
         # Create the custom progress bar

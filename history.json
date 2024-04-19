@@ -72,5 +72,113 @@
         "first_frame_path": "history/sample.mp4.jpg",
         "normalize": true,
         "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.0004040076796359032",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.0004293695525009612",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.0004393317113565483",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.00042846631314177137",
+        "first_frame_path": "history/sample.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
     }
 ]

@@ -22,6 +22,7 @@ thread: threading.Thread = None
 HISTORY_PATH = "processing_history.txt"
 stop_thread_event: threading.Event = None
 callback_queue: Queue = Queue()
+force_terminate = False
 
 
 def get_result():
@@ -77,7 +78,8 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             if not ret:
                 debug.log(f"[Processing] Unable to read the video file.")
 
-            new_roi = cv2.selectROI("Select ROI", prev_frame)
+            if force_terminate is False:
+                new_roi = cv2.selectROI("Select ROI", prev_frame)
             # new_roi = (387, 491, 271, 256)
             cv2.destroyWindow("Select ROI")
             proc_time = time.time()
@@ -151,6 +153,8 @@ def stop_processing_thread():
         debug.log("[Processing] Video stabilization stop event set!")
 
     if stop_thread_event is not None:
+        global force_terminate
+        force_terminate = True
         stop_thread_event.set()
         time.sleep(0.1)  # To wait for the current cycle to finish
         debug.log("[Processing] Main processing thread event set!")
