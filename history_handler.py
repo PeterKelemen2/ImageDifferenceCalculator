@@ -22,10 +22,10 @@ class HistoryEntry:
                 cv2.imwrite("history/" + self.video_path.split("/")[-1] + ".jpg", frame_to_write)
                 self.first_frame_path = "history/" + self.video_path.split("/")[-1] + ".jpg"
 
-        if normalize is not None:
+        if normalize is True or normalize is False:
             self.normalize = normalize
-            
-        if stabilize is not None:
+
+        if stabilize is True or stabilize is False:
             self.stabilize = stabilize
 
     def to_dict(self):
@@ -56,6 +56,7 @@ def load_entries():
     try:
         with open("history.json", "r") as json_file:
             history_data = json.load(json_file)
+            print(history_data)
         return history_data
     except FileNotFoundError:
         print("Error: History file not found.")

@@ -42,6 +42,7 @@ def set_interface_instance(inter):
     ui = inter
 
 
+# noinspection PyUnresolvedReferences
 class CardItem:
     def __init__(self, master, width, height, bg=BLACK, title="", img_path=None, video_path=None,
                  result=None, norm=None, stab=None):
@@ -61,7 +62,8 @@ class CardItem:
         self.image_padding = 20
         self.canvas = Canvas(master, width=self.width, height=self.height, bg=interface.BGCOLOR, highlightthickness=0)
         self.canvas.pack()
-
+        self.stab_text_to_show = ui.lang["no_data"]
+        self.norm_text_to_show = ui.lang["no_data"]
         self.container = CustomLabelFrame(self.canvas, width=self.width, height=self.height, text=self.title,
                                           bg=interface.BGCOLOR, fill=interface.ACCENT)
         self.container.canvas.place(x=0, y=0)
@@ -70,7 +72,7 @@ class CardItem:
         self.photo_label = (tkinter.Label(self.container.canvas, image=self.photo, bg=interface.FONT_COLOR))
         self.photo_label.place(x=self.image_padding, y=self.image_padding)
 
-        self.create_text(video_path, result)
+        self.create_text(video_path, result, self.stab, self.norm)
 
         self.process_button = custom_button.CustomButton(self.container.canvas, text=ui.lang["load_video"],
                                                          bg=interface.ACCENT,
@@ -81,10 +83,6 @@ class CardItem:
 
     def load_video(self):
         global ui
-        # if main.get_interface() is not None:
-        #     main.get_interface().set_selected_file_path(self.video_path)
-        # else:
-        #     print("my_interface is not initialized yet.")
         if ui is not None:
             ui.set_selected_file_path(self.video_path)
 
@@ -103,7 +101,8 @@ class CardItem:
         self.image_padding = (self.container.get_height() - new_height) // 2
         return image
 
-    def create_text(self, path=None, result=""):
+    def create_text(self, path=None, result="", stab=None, norm=None):
+        print("stab", stab, "norm", norm)
         self.path_text, self.text, self.diff_text, self.diff_title = None, None, None, None
         title_x = self.photo.width() + self.image_padding * 2
         self.path_text = tkinter.Label(self.container.canvas, text=ui.lang["path"], font=BOLD_FONT,
@@ -137,28 +136,26 @@ class CardItem:
                              y=self.image_padding + self.text.winfo_reqheight())
 
         if self.norm is False:
-            norm_text_to_show = ui.lang["no"]
+            self.norm_text_to_show = ui.lang["no"]
         elif self.norm is True:
-            norm_text_to_show = ui.lang["yes"]
-        else:
-            norm_text_to_show = ui.lang["no_data"]
+            self.norm_text_to_show = ui.lang["yes"]
+
         self.norm_title = tkinter.Label(self.container.canvas, text=ui.lang["norm"], font=BOLD_FONT,
                                         fg=interface.FONT_COLOR, bg=interface.ACCENT)
-        self.norm_text = tkinter.Label(self.container.canvas, text=norm_text_to_show, font=FONT,
+        self.norm_text = tkinter.Label(self.container.canvas, text=self.norm_text_to_show, font=FONT,
                                        fg=interface.FONT_COLOR, bg=interface.ACCENT)
         self.norm_title.place(x=title_x, y=self.image_padding * 2 + self.text.winfo_reqheight())
         self.norm_text.place(x=self.photo.width() + self.image_padding * 2 + self.norm_title.winfo_reqwidth(),
                              y=self.image_padding * 2 + self.text.winfo_reqheight())
 
+        if self.stab is True:
+            self.stab_text_to_show = ui.lang["yes"]
+
         if self.stab is False:
-            stab_text_to_show = ui.lang["no"]
-        elif self.norm is True:
-            stab_text_to_show = ui.lang["yes"]
-        else:
-            stab_text_to_show = ui.lang["no_data"]
+            self.stab_text_to_show = ui.lang["no"]
         self.stab_title = tkinter.Label(self.container.canvas, text=ui.lang["stab"], font=BOLD_FONT,
                                         fg=interface.FONT_COLOR, bg=interface.ACCENT)
-        self.stab_text = tkinter.Label(self.container.canvas, text=stab_text_to_show, font=FONT,
+        self.stab_text = tkinter.Label(self.container.canvas, text=self.stab_text_to_show, font=FONT,
                                        fg=interface.FONT_COLOR, bg=interface.ACCENT)
         self.stab_title.place(x=title_x, y=self.image_padding * 3 + self.text.winfo_reqheight())
         self.stab_text.place(x=self.photo.width() + self.image_padding * 2 + self.stab_title.winfo_reqwidth(),
