@@ -94,6 +94,11 @@ scroll_threshold = 0.96
 
 class Interface:
     def __init__(self):
+        self.cards_list = None
+        self.history_entries = None
+        self.history_scroll_canvas = None
+        self.history_scrollbar = None
+        self.history_frame = None
         self.log_label_text = None
         self.log_canvas = None
         self.log_scrollbar = None
@@ -205,13 +210,6 @@ class Interface:
         print(self)
         custom_ui.set_interface_instance(self)
 
-    def on_mousewheel(self, event):
-        global manual_scroll
-        # Set manual_scroll to True when the user manually scrolls
-        manual_scroll = True
-        # Perform the default scrolling behavior
-        self.log_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
     def set_log_text(self):
         global manual_scroll
         new_text = ""
@@ -254,8 +252,11 @@ class Interface:
         self.empty_label.place(x=10, y=30)
 
         self.log_canvas = Canvas(self.empty_label, width=470, height=WIN_HEIGHT - 75, bg=ACCENT, highlightthickness=0)
+
         self.log_scrollbar = Scrollbar(self.empty_label, orient="vertical", command=self.log_canvas.yview, width=5)
         self.log_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.log_scrollbar.grid_forget()
+
         self.log_canvas.config(yscrollcommand=self.log_scrollbar.set)
         self.log_canvas.grid(row=0, column=0, sticky="nsew")
 
@@ -268,11 +269,29 @@ class Interface:
                                     font=JET_FONT)
         self.log_label_text.pack()
 
-        self.log_canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+        self.log_scrollbar.bind("<MouseWheel>", self.on_mousewheel_log)
+        self.log_label_text.bind("<MouseWheel>", self.on_mousewheel_log)
+        self.log_canvas.bind("<MouseWheel>", self.on_mousewheel_log)
 
         self.log_frame.update_idletasks()
 
-        self.log_scrollbar.grid_forget()
+    def set_scroll_to_bottom(self):
+        self.log_canvas.yview_moveto(1.0)
+
+    def on_mousewheel_log(self, event):
+        print("on_mousewheel_log")
+        global manual_scroll
+        # Set manual_scroll to True when the user manually scrolls
+        manual_scroll = True
+        # Perform the default scrolling behavior
+        # self.log_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        if event.num == 5 or event.delta == -120:
+            if self.log_canvas.yview()[1] < 1.0:
+                self.log_canvas.yview_scroll(1, "units")
+        elif event.num == 4 or event.delta == 120:
+            if self.log_canvas.yview()[0] > 0.0:
+                self.log_canvas.yview_scroll(-1, "units")
 
     def set_color(self):
         """
@@ -671,6 +690,7 @@ class Interface:
                                             self.stab_toggle_button.get_state(),
                                             self.plotting_toggle_button.get_state(),
                                             self.update_bar)
+            self.set_scroll_to_bottom()
 
     def create_preprocess_progress_bar(self):
         self.prep_wrapper = custom_ui.CustomLabelFrame(self.win,
@@ -1071,7 +1091,7 @@ class Interface:
                                                       button_type=custom_button.button,
                                                       bg=ACCENT)
 
-        self.save_button.canvas.place(x=HIS_WIN_WIDTH // 2 - self.save_button.winfo_reqwidth() // 2,
+        self.save_button.canvas.place(x=SET_WIN_WIDTH // 2 - self.save_button.winfo_reqwidth() // 2 - 10,
                                       y=200)
         self.user_theme_button = custom_button.CustomButton(self.settings_wrapper.canvas, text="Configure", bg=ACCENT,
                                                             command=self.show_color_configurer)
@@ -1185,11 +1205,11 @@ class Interface:
 
         def on_mousewheel(event):
             if event.num == 5 or event.delta == -120:
-                if self.scroll_canvas.yview()[1] < 1.0:
-                    self.scroll_canvas.yview_scroll(1, "units")
+                if self.history_scroll_canvas.yview()[1] < 1.0:
+                    self.history_scroll_canvas.yview_scroll(1, "units")
             elif event.num == 4 or event.delta == 120:
-                if self.scroll_canvas.yview()[0] > 0.0:
-                    self.scroll_canvas.yview_scroll(-1, "units")
+                if self.history_scroll_canvas.yview()[0] > 0.0:
+                    self.history_scroll_canvas.yview_scroll(-1, "units")
 
         if self.history_window is not None:  # Check if history window already exists
             if self.history_window.winfo_exists():  # Check if the window is open
@@ -1211,22 +1231,25 @@ class Interface:
         self.history_window.focus_set()
 
         # Create a Canvas widget inside the Toplevel window
-        self.scroll_canvas = Canvas(self.history_window, bg=BGCOLOR, highlightthickness=0)
-        self.scroll_canvas.pack(side="left", fill="both", expand=True)
+        self.history_scroll_canvas = Canvas(self.history_window, bg=BGCOLOR, highlightthickness=0)
+        self.history_scroll_canvas.pack(side="left", fill="both", expand=True)
 
         # Create a scrollbar for the Canvas
-        self.scrollbar = Scrollbar(self.history_window, orient="vertical", command=self.scroll_canvas.yview, bg=BGCOLOR)
-        self.scrollbar.pack(side="right", fill="y")
+        self.history_scrollbar = Scrollbar(self.history_window, orient="vertical",
+                                           command=self.history_scroll_canvas.yview, bg=BGCOLOR)
+        self.history_scrollbar.pack(side="right", fill="y")
 
         # Configure the Canvas to use the scrollbar
-        self.scroll_canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.history_scroll_canvas.configure(yscrollcommand=self.history_scrollbar.set)
 
         # Create a Frame widget inside the Canvas to contain the scrollable content
-        self.frame = Frame(self.history_window, bg=BGCOLOR)
-        self.scroll_canvas.create_window((0, 0), window=self.frame, anchor="nw")
+        self.history_frame = Frame(self.history_window, bg=BGCOLOR)
+        self.history_scroll_canvas.create_window((0, 0), window=self.history_frame, anchor="nw")
 
-        # Bind mouse wheel scrolling to the Canvas
-        self.scroll_canvas.bind_all("<MouseWheel>", on_mousewheel)
+        # Bind mouse wheel scrolling to the window
+        self.history_scrollbar.bind("<MouseWheel>", on_mousewheel)
+        self.history_window.bind("<MouseWheel>", on_mousewheel)
+        self.history_scroll_canvas.bind("<MouseWheel>", on_mousewheel)
 
         # Add CardItem widgets to the Frame for each history entry
         self.cards_list = []
@@ -1238,7 +1261,8 @@ class Interface:
             if "img_path" not in entry: entry["img_path"] = self.lang["no_data"]
             if "video_path" not in entry: entry["img_path"] = self.lang["no_data"]
             if "result_path" not in entry: entry["img_path"] = self.lang["no_data"]
-            card = custom_ui.CardItem(self.frame, width=790 - self.scrollbar.winfo_reqwidth() * 2, height=200, title="",
+            card = custom_ui.CardItem(self.history_frame, width=790 - self.history_scrollbar.winfo_reqwidth() * 2,
+                                      height=200, title="",
                                       img_path=entry["first_frame_path"],
                                       video_path=entry["video_path"],
                                       result=entry["result"],
@@ -1249,8 +1273,8 @@ class Interface:
             self.cards_list[len(self.cards_list) - 1].canvas.pack(padx=10, pady=10)
 
         # Update the scroll region of the Canvas
-        self.frame.update_idletasks()
-        self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
+        self.history_frame.update_idletasks()
+        self.history_scroll_canvas.config(scrollregion=self.history_scroll_canvas.bbox("all"))
 
     def close_history_window(self):
         """

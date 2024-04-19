@@ -27,7 +27,6 @@ def calculate_avg_brightness(frame):
 
 def normalized_frame(frame, b_value):
     delta_brightness = b_value / calculate_avg_brightness(frame)
-    print(delta_brightness)
     new_frame = cv2.convertScaleAbs(frame, alpha=delta_brightness, beta=0)
     return new_frame
 
