@@ -48,6 +48,11 @@ DARK_ORANGE_BG = "#46211A"
 DARK_ORANGE_ACCENT = "#A43820"
 DARK_ORANGE_PB = DARK_ORANGE_BG
 
+u_t = user_theme_config.load_theme()
+USER_BG = u_t["bg"]
+USER_ACCENT = u_t["accent"]
+USER_FONT_COLOR = u_t["text"]
+
 BAR_BG_ACCENT = "#6AB187"
 BASIC_PB_COLOR = "#73ff7b"
 BGCOLOR = "#262626"
@@ -90,6 +95,9 @@ prev_video_path = None
 
 class Interface:
     def __init__(self):
+        self.color_picker_items_squares = None
+        self.color_picker_text_items = None
+        self.color_picker_items = None
         self.user_theme_button = None
         self.log_label = None
         self.log_option_menu = None
@@ -199,6 +207,7 @@ class Interface:
                                                            height=WIN_HEIGHT - 20,
                                                            radius=15,
                                                            fill=ACCENT,
+                                                           fg=FONT_COLOR,
                                                            bg=BGCOLOR)
         self.terminal_wrapper.canvas.place(x=800, y=10)
 
@@ -253,10 +262,8 @@ class Interface:
             "light": (LIGHT_BG, LIGHT_FONT_COLOR, LIGHT_ACCENT, BASIC_PB_COLOR),
             "palenight": (PALENIGHT_BG, DARK_FONT_COLOR, PALENIGHT_ACCENT, BASIC_PB_COLOR),
             "cherrywhite": (CHERRY_WHITE_BG, LIGHT_FONT_COLOR, CHERRY_WHITE_ACCENT, BASIC_PB_COLOR),
-            "brownorange": (DARK_ORANGE_BG, DARK_FONT_COLOR, DARK_ORANGE_ACCENT, BASIC_PB_COLOR)
-            # "palenight": (PALENIGHT_BG, DARK_FONT_COLOR, PALENIGHT_ACCENT, PALENIGHT_PB),
-            # "cherrywhite": (CHERRY_WHITE_BG, LIGHT_FONT_COLOR, CHERRY_WHITE_ACCENT, CHERRY_WHITE_PB),
-            # "brownorange": (DARK_ORANGE_BG, DARK_FONT_COLOR, DARK_ORANGE_ACCENT, DARK_ORANGE_PB)
+            "brownorange": (DARK_ORANGE_BG, DARK_FONT_COLOR, DARK_ORANGE_ACCENT, BASIC_PB_COLOR),
+            "usertheme": (USER_BG, USER_FONT_COLOR, USER_ACCENT, BASIC_PB_COLOR)
         }
 
         # Set global color variables based on the current theme
@@ -346,7 +353,7 @@ class Interface:
         # Create wrapper for settings and history buttons
         self.buttons_wrapper = custom_ui.CustomLabelFrame(self.win, text="",
                                                           fill=ACCENT,
-                                                          fg=WHITE,
+                                                          fg=FONT_COLOR,
                                                           bg=BGCOLOR,
                                                           width=150,
                                                           height=80,
@@ -380,7 +387,7 @@ class Interface:
         self.browse_wrapper = custom_ui.CustomLabelFrame(self.win,
                                                          text=self.lang["input_file"],
                                                          fill=ACCENT,
-                                                         fg=WHITE,
+                                                         fg=FONT_COLOR,
                                                          bg=BGCOLOR,
                                                          width=620,
                                                          height=80,
@@ -463,6 +470,7 @@ class Interface:
         self.frame_wrapper = custom_ui.CustomLabelFrame(self.win,
                                                         text=self.lang["video_data"],
                                                         fill=ACCENT,
+                                                        fg=FONT_COLOR,
                                                         bg=BGCOLOR,
                                                         radius=15,
                                                         width=780,
@@ -566,20 +574,6 @@ class Interface:
                                  y=self.frame_details_header.winfo_y() + self.frame_details_header.winfo_reqheight() + 20)
         debug.log("[Interface] [5/12] Labels to display video details created!\n", text_color="yellow")
 
-        # stab_checkbox_var = tkinter.BooleanVar
-        # self.stab_checkbox = tkinter.Checkbutton(self.frame_wrapper.canvas,
-        #                                          text="Stabilization",
-        #                                          variable=stab_checkbox_var,
-        #                                          fg=FONT_COLOR,
-        #                                          bg=ACCENT,
-        #                                          selectcolor=ACCENT,
-        #                                          highlightcolor=ACCENT)
-        # self.stab_checkbox.place(x=new_width + 30,
-        #                          y=250)
-
-        # checkbox = custom_ui.CustomCheckbutton(self.frame_wrapper.canvas, bg=BGCOLOR, dot_fill_color=FONT_COLOR)
-        # checkbox.place(x=new_width + 30, y=250)
-
         self.prepass_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
                                                                   text=self.lang["preprocessing"],
                                                                   width=60,
@@ -646,6 +640,7 @@ class Interface:
                                                        width=780,
                                                        height=70,
                                                        fill=ACCENT,
+                                                       fg=FONT_COLOR,
                                                        radius=15,
                                                        bg=BGCOLOR)
         self.prep_wrapper.canvas.place(x=10, y=430)
@@ -677,6 +672,7 @@ class Interface:
                                                                 width=780,
                                                                 height=70,
                                                                 fill=ACCENT,
+                                                                fg=FONT_COLOR,
                                                                 radius=15,
                                                                 bg=BGCOLOR)
         self.stab_progress_wrapper.canvas.place(x=10, y=510)
@@ -711,6 +707,7 @@ class Interface:
                                                                 width=780,
                                                                 height=70,
                                                                 fill=ACCENT,
+                                                                fg=FONT_COLOR,
                                                                 radius=15,
                                                                 bg=BGCOLOR)
         self.proc_progress_wrapper.canvas.place(x=10, y=590)
@@ -862,6 +859,7 @@ class Interface:
         self.settings_wrapper = custom_ui.CustomLabelFrame(self.settings_window,
                                                            width=SET_WIN_WIDTH - 20,
                                                            height=SET_WIN_HEIGHT - 20,
+                                                           fg=FONT_COLOR,
                                                            radius=15,
                                                            fill=ACCENT,
                                                            bg=BGCOLOR)
@@ -1042,6 +1040,9 @@ class Interface:
         else:
             self.user_theme_button.canvas.place(x=1000, y=1000)
 
+    def apply_user_theme(self):
+        self.update_colors()
+
     def show_color_configurer(self):
         def choose_color(lab, c_type):
             # Open the color picker dialog
@@ -1052,56 +1053,81 @@ class Interface:
                 lab.config(bg=color[1])
                 if c_type == "accent":
                     user_theme["accent"] = color[1]
+                    self.clf.switch_theme(new_fill=color[1])
+                    self.clf_button.config(bg=color[1])
                 elif c_type == "bg":
                     user_theme["bg"] = color[1]
+                    self.clf_canvas.config(bg=color[1])
+                    self.clf.switch_theme(new_bg=color[1])
                 elif c_type == "text":
                     user_theme["text"] = color[1]
+                    self.clf.switch_theme(new_text_color=color[1])
 
                 user_theme_config.save_theme(user_theme)
 
+        self.color_picker_items = []
+        self.color_picker_items_squares = []
+
         top = Toplevel()
-        top.geometry("430x165")
+        top.config(bg=ACCENT)
+        top.geometry("450x200")
         top.title("Color Configurer")
         top.focus_set()
+        self.color_picker_items.append(top)
 
         # Define a dictionary to store the user theme colors
-        user_theme = {
-            "bg": "white",
-            "accent": "gray",
-            "text": "black"
-        }
+        user_theme = user_theme_config.load_theme()
+
+        label_container = Canvas(top, width=200, height=150, bg=ACCENT, highlightthickness=0)
+        label_container.place(x=15, y=25)
+        self.color_picker_items.append(label_container)
 
         # Create labels for selecting colors
-        bg_label = Label(top, text=None, width=4, height=2, highlightthickness=2, highlightbackground="black",
+        bg_label = Label(label_container, text=None, width=4, height=2, highlightthickness=2,
+                         highlightbackground=FONT_COLOR,
                          bg=user_theme["bg"])
         bg_label.bind("<Button-1>", lambda event: choose_color(bg_label, "bg"))
-        bg_label.place(x=5, y=5)
-        bg_text = Label(top, text="Background", font=FONT)
-        bg_text.place(x=50, y=10)
+        bg_label.place(x=10, y=0)
+        bg_text = Label(label_container, text="Background", bg=ACCENT, fg=FONT_COLOR, font=FONT)
+        bg_text.place(x=65, y=5)
+        self.color_picker_items_squares.append(bg_label)
+        self.color_picker_items.append(bg_text)
 
-        accent_label = Label(top, text=None, width=4, height=2, highlightthickness=2, highlightbackground="black",
+        accent_label = Label(label_container, text=None, width=4, height=2, highlightthickness=2,
+                             highlightbackground=FONT_COLOR,
                              bg=user_theme["accent"])
         accent_label.bind("<Button-1>", lambda event: choose_color(accent_label, "accent"))
-        accent_label.place(x=5, y=bg_label.winfo_y() + accent_label.winfo_reqheight() + 10)
-        accent_text = Label(top, text="Foreground", font=FONT)
-        accent_text.place(x=50, y=55)
+        accent_label.place(x=0, y=bg_label.winfo_y() + accent_label.winfo_reqheight() - 5)
+        accent_text = Label(label_container, text="Foreground", bg=ACCENT, fg=FONT_COLOR, font=FONT)
+        accent_text.place(x=55, y=bg_label.winfo_y() + accent_label.winfo_reqheight())
+        self.color_picker_items_squares.append(accent_label)
+        self.color_picker_items.append(accent_text)
 
-        text_label = Label(top, text=None, width=4, height=2, highlightthickness=2, highlightbackground="black",
+        text_label = Label(label_container, text=None, width=4, height=2, highlightthickness=2,
+                           highlightbackground=FONT_COLOR,
                            bg=user_theme["text"])
         text_label.bind("<Button-1>", lambda event: choose_color(text_label, "text"))
-        text_label.place(x=5, y=accent_label.winfo_y() + text_label.winfo_reqheight() + 55)
-        text_text = Label(top, text="Text", font=FONT)
-        text_text.place(x=50, y=100)
+        text_label.place(x=10, y=accent_label.winfo_y() + text_label.winfo_reqheight() + 30)
+        text_text = Label(label_container, text="Text", bg=ACCENT, fg=FONT_COLOR, font=FONT)
+        text_text.place(x=65, y=accent_label.winfo_y() + text_label.winfo_reqheight() + 35)
+        self.color_picker_items_squares.append(text_label)
+        self.color_picker_items.append(text_text)
 
-        self.clf_canvas = Canvas(top, width=250, height=150, bg=BGCOLOR)
-        self.clf_canvas.place(x=170, y=5)
+        self.clf_canvas = Canvas(top, width=250, height=150, bg=user_theme["bg"], highlightthickness=2,
+                                 highlightcolor="white")
+        self.clf_canvas.place(x=185, y=25)
         self.clf = custom_ui.CustomLabelFrame(self.clf_canvas, width=200, height=100, text="Sample text",
-                                              bg=BGCOLOR,
-                                              fill=ACCENT,
-                                              fg=FONT_COLOR)
+                                              bg=user_theme["bg"],
+                                              fill=user_theme["accent"],
+                                              fg=user_theme["text"])
         self.clf.canvas.place(x=25, y=25)
-        self.clf_button = custom_button.CustomButton(self.clf.canvas, text="Button", bg=ACCENT)
+        self.clf_button = custom_button.CustomButton(self.clf.canvas, text="Button", bg=user_theme["accent"])
         self.clf_button.canvas.place(x=45, y=40)
+
+        self.apply_user_theme_button = custom_button.CustomButton(top, text="Apply", bg=ACCENT,
+                                                                  button_type=custom_button.button,
+                                                                  command=self.update_colors)
+        self.apply_user_theme_button.canvas.place(x=55, y=150)
 
     def close_settings_window(self):
         self.settings_window_opened = False
@@ -1346,12 +1372,18 @@ class Interface:
                 return key
         return None
 
+    def set_user_theme_colors(self):
+        global USER_BG, USER_ACCENT, USER_FONT_COLOR
+        utd = user_theme_config.load_theme()
+        USER_BG, USER_ACCENT, USER_FONT_COLOR = utd["bg"], utd["accent"], utd["text"]
+
     def update_colors(self):
         """
         Update the colors of the GUI elements to match the current theme settings.
         This method sets the background and foreground colors of various widgets.
         """
         global BGCOLOR, ACCENT, FONT_COLOR
+        self.set_user_theme_colors()
         self.set_color()
 
         if self.buttons_wrapper is not None:
@@ -1391,19 +1423,33 @@ class Interface:
 
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)
-            self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, buttons=[self.save_button],
+            self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
+                                               buttons=[self.save_button, self.user_theme_button],
                                                labels=[self.settings_label, self.lang_label, self.theme_label,
                                                        self.log_label])
             for option_menu in [self.theme_option_menu, self.lang_option_menu, self.log_option_menu]:
                 option_menu.config(anchor="center", bg=ACCENT, fg=FONT_COLOR, activebackground=ACCENT,
                                    activeforeground=FONT_COLOR, highlightbackground=BGCOLOR)
 
+            if self.color_picker_items is not None:
+                for item in self.color_picker_items:
+                    if item is not None:
+                        if isinstance(item, Toplevel) or isinstance(item, Canvas):
+                            item.config(bg=ACCENT)
+                        else:
+                            item.config(bg=ACCENT, fg=FONT_COLOR)
+                for item in self.color_picker_items_squares:
+                    if item is not None:
+                        item.config(highlightbackground=FONT_COLOR)
+
         if self.history_window is not None and self.history_window.winfo_exists():
             self.scroll_canvas.config(bg=BGCOLOR)
             self.frame.config(bg=BGCOLOR)
             for card in self.cards_list:
                 card.container.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
-                                            labels=[card.diff_text, card.diff_title, card.path_text, card.text],
+                                            labels=[card.diff_text, card.diff_title, card.path_text, card.text,
+                                                    card.norm_title, card.norm_text, card.norm_title, card.stab_text,
+                                                    card.stab_title, card.stab_title, card.stab_text],
                                             buttons=[card.process_button])
         else:
             if self.history_window is not None:

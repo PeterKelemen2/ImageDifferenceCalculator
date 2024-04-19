@@ -38,5 +38,22 @@
         "video_path": "C:/Users/Administrator/Downloads/sample.mp4",
         "result": "Aborted.",
         "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "Aborted.",
+        "first_frame_path": "history/sample.mp4.jpg"
+    },
+    {
+        "video_path": "C:/sample_processed.mp4",
+        "result": "0.0003712224467720224",
+        "first_frame_path": "history/sample_processed.mp4.jpg",
+        "normalize": true,
+        "stabilize": true
     }
 ]

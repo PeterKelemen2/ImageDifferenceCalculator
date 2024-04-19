@@ -67,12 +67,13 @@ class CardItem:
         self.container.canvas.place(x=0, y=0)
 
         self.photo = ImageTk.PhotoImage(self.create_photo(img_path))
-        self.photo_label = (tkinter.Label(self.container.canvas, image=self.photo, bg="#000000"))
+        self.photo_label = (tkinter.Label(self.container.canvas, image=self.photo, bg=interface.FONT_COLOR))
         self.photo_label.place(x=self.image_padding, y=self.image_padding)
 
         self.create_text(video_path, result)
 
-        self.process_button = custom_button.CustomButton(self.container.canvas, text=ui.lang["load_video"], bg=ACCENT,
+        self.process_button = custom_button.CustomButton(self.container.canvas, text=ui.lang["load_video"],
+                                                         bg=interface.ACCENT,
                                                          button_type=custom_button.wide_button, command=self.load_video)
         self.process_button.canvas.place(
             x=self.width - self.process_button.canvas.winfo_reqwidth() - self.container.get_radius() * 2,
@@ -105,7 +106,8 @@ class CardItem:
     def create_text(self, path=None, result=""):
         self.path_text, self.text, self.diff_text, self.diff_title = None, None, None, None
         title_x = self.photo.width() + self.image_padding * 2
-        self.path_text = tkinter.Label(self.container.canvas, text=ui.lang["path"], font=BOLD_FONT, fg=DARK_FONT_COLOR,
+        self.path_text = tkinter.Label(self.container.canvas, text=ui.lang["path"], font=BOLD_FONT,
+                                       fg=interface.FONT_COLOR,
                                        bg=interface.ACCENT)
         self.path_text.place(x=title_x, y=self.image_padding)
         text = ""
@@ -118,19 +120,19 @@ class CardItem:
                                   justify="left",
                                   font=FONT,
                                   wraplength=self.width - self.image_padding * 3 - self.photo.width() - self.path_text.winfo_reqwidth(),
-                                  fg=DARK_FONT_COLOR,
+                                  fg=interface.FONT_COLOR,
                                   bg=interface.ACCENT)
         text_x = self.photo.width() + self.image_padding * 2 + self.path_text.winfo_reqwidth()
         self.text.place(x=text_x, y=self.image_padding)
 
         self.diff_title = tkinter.Label(self.container.canvas, text=ui.lang["result"], font=BOLD_FONT,
-                                        fg=DARK_FONT_COLOR,
+                                        fg=interface.FONT_COLOR,
                                         bg=interface.ACCENT)
 
         # Binding y coordinate to self.text in case it becomes more lines than one
         self.diff_title.place(x=title_x, y=self.image_padding + self.text.winfo_reqheight())
         self.diff_text = tkinter.Label(self.container.canvas, text=result, font=FONT,
-                                       fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+                                       fg=interface.FONT_COLOR, bg=interface.ACCENT)
         self.diff_text.place(x=self.photo.width() + self.image_padding * 2 + self.diff_title.winfo_reqwidth(),
                              y=self.image_padding + self.text.winfo_reqheight())
 
@@ -141,9 +143,9 @@ class CardItem:
         else:
             norm_text_to_show = ui.lang["no_data"]
         self.norm_title = tkinter.Label(self.container.canvas, text=ui.lang["norm"], font=BOLD_FONT,
-                                        fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+                                        fg=interface.FONT_COLOR, bg=interface.ACCENT)
         self.norm_text = tkinter.Label(self.container.canvas, text=norm_text_to_show, font=FONT,
-                                       fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+                                       fg=interface.FONT_COLOR, bg=interface.ACCENT)
         self.norm_title.place(x=title_x, y=self.image_padding * 2 + self.text.winfo_reqheight())
         self.norm_text.place(x=self.photo.width() + self.image_padding * 2 + self.norm_title.winfo_reqwidth(),
                              y=self.image_padding * 2 + self.text.winfo_reqheight())
@@ -155,9 +157,9 @@ class CardItem:
         else:
             stab_text_to_show = ui.lang["no_data"]
         self.stab_title = tkinter.Label(self.container.canvas, text=ui.lang["stab"], font=BOLD_FONT,
-                                        fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+                                        fg=interface.FONT_COLOR, bg=interface.ACCENT)
         self.stab_text = tkinter.Label(self.container.canvas, text=stab_text_to_show, font=FONT,
-                                       fg=DARK_FONT_COLOR, bg=interface.ACCENT)
+                                       fg=interface.FONT_COLOR, bg=interface.ACCENT)
         self.stab_title.place(x=title_x, y=self.image_padding * 3 + self.text.winfo_reqheight())
         self.stab_text.place(x=self.photo.width() + self.image_padding * 2 + self.stab_title.winfo_reqwidth(),
                              y=self.image_padding * 3 + self.text.winfo_reqheight())
@@ -185,7 +187,7 @@ class CustomToggleButton:
         self.toggled_on_image = ImageTk.PhotoImage(self.t_on_im)
         self.toggled_off_image = ImageTk.PhotoImage(self.t_off_im)
 
-        self.text_item = tkinter.Label(self.canvas, text=self.text, height=0, anchor="center", fg=FONT_COLOR,
+        self.text_item = tkinter.Label(self.canvas, text=self.text, height=0, anchor="center", fg=interface.FONT_COLOR,
                                        font=FONT,
                                        bg=interface.ACCENT)
         self.canvas.config(width=self.width + self.text_item.winfo_reqwidth() + 20)
@@ -239,7 +241,7 @@ class CustomLabelFrame:
         self.width = width
         self.height = height
         self.fill = fill
-        self.fg = FONT_COLOR
+        self.fg = fg
         self.bg = bg
         self.text = text
         self.radius = radius
