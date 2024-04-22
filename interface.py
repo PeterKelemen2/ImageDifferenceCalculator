@@ -1268,23 +1268,23 @@ class Interface:
         self.cards_list = None
         self.cards_list = []
         self.history_entries = history_handler.load_entries()
-
-        for entry in self.history_entries:
-            if "normalize" not in entry: entry["normalize"] = self.lang["no_data"]
-            if "stabilize" not in entry: entry["stabilize"] = self.lang["no_data"]
-            if "img_path" not in entry: entry["img_path"] = self.lang["no_data"]
-            if "video_path" not in entry: entry["video_path"] = self.lang["no_data"]
-            if "result_path" not in entry: entry["result_path"] = self.lang["no_data"]
-            card = custom_ui.CardItem(self.history_frame, width=790 - self.history_scrollbar.winfo_reqwidth() * 2,
-                                      height=200, title="",
-                                      img_path=entry["first_frame_path"],
-                                      video_path=entry["video_path"],
-                                      result=entry["result"],
-                                      norm=entry["normalize"],
-                                      stab=entry["stabilize"],
-                                      bg=BGCOLOR)
-            self.cards_list.append(card)
-            self.cards_list[len(self.cards_list) - 1].canvas.pack(padx=10, pady=10)
+        if self.history_entries:
+            for entry in self.history_entries:
+                if "normalize" not in entry: entry["normalize"] = self.lang["no_data"]
+                if "stabilize" not in entry: entry["stabilize"] = self.lang["no_data"]
+                if "img_path" not in entry: entry["img_path"] = self.lang["no_data"]
+                if "video_path" not in entry: entry["video_path"] = self.lang["no_data"]
+                if "result_path" not in entry: entry["result_path"] = self.lang["no_data"]
+                card = custom_ui.CardItem(self.history_frame, width=790 - self.history_scrollbar.winfo_reqwidth() * 2,
+                                          height=200, title="",
+                                          img_path=entry["first_frame_path"],
+                                          video_path=entry["video_path"],
+                                          result=entry["result"],
+                                          norm=entry["normalize"],
+                                          stab=entry["stabilize"],
+                                          bg=BGCOLOR)
+                self.cards_list.append(card)
+                self.cards_list[len(self.cards_list) - 1].canvas.pack(padx=10, pady=10)
 
         # Update the scroll region of the Canvas
         self.history_frame.update_idletasks()

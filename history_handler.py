@@ -1,9 +1,10 @@
 import datetime
 import json
+import os
 
 import cv2
 
-from custom_ui import ui
+history_path = "history.json"
 
 
 class HistoryEntry:
@@ -35,7 +36,7 @@ class HistoryEntry:
 def save_entry(entry):
     # Read existing data from the JSON file, if any
     try:
-        with open("history.json", "r") as json_file:
+        with open(history_path, "r") as json_file:
             history_data = json.load(json_file)
     except FileNotFoundError:
         # If the file doesn't exist, initialize history_data as an empty list
@@ -48,14 +49,21 @@ def save_entry(entry):
     history_data.append(entry_dict)
 
     # Write the updated data back to the JSON file
-    with open("history.json", "w") as json_file:
+    with open(history_path, "w") as json_file:
         json.dump(history_data, json_file, indent=4)
 
 
 def load_entries():
-    try:
-        with open("history.json", "r") as json_file:
-            history_data = json.load(json_file)
-        return history_data
-    except FileNotFoundError:
-        return []
+    if os.path.exists(history_path):
+        try:
+            with open(history_path, "r") as json_file:
+                history_data = json.load(json_file)
+            return history_data
+        except FileNotFoundError:
+            return []
+    else:
+        try:
+            with open(history_path, "w") as json_file:
+                json_file.write("[\n]")
+        except FileNotFoundError:
+            return []
