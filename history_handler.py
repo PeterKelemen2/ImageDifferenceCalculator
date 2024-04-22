@@ -19,6 +19,8 @@ class HistoryEntry:
             self.video_path = str(video_path)
 
             if frame is not None:
+                if not os.path.exists("history"):
+                    os.mkdir("history")
                 img_path = f"history/{self.video_path.split("/")[-1].split(".")[0]}-{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.jpg"
                 self.first_frame_path = img_path
                 cv2.imwrite(img_path, frame)
@@ -35,6 +37,8 @@ class HistoryEntry:
 
 def save_entry(entry):
     # Read existing data from the JSON file, if any
+    if not os.path.exists("history"):
+        os.mkdir("history")
     try:
         with open(history_path, "r") as json_file:
             history_data = json.load(json_file)
