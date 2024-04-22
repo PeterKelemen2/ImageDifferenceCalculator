@@ -1055,7 +1055,7 @@ class Interface:
                 "Palenight": "palenight",
                 "Cherry White": "cherrywhite",
                 "Brown Orange": "brownorange",
-                "User Theme": "usertheme"
+                self.lang["user_theme"]: "usertheme"
             }
             chosen_theme_option = theme_options_mapping.get(chosen_theme_option, chosen_theme_option.lower())
 
@@ -1067,10 +1067,10 @@ class Interface:
                 self.curr_lang = chosen_lang_option
                 self.change_language()
 
-            if chosen_theme_option != self.curr_theme or chosen_theme_option == theme_options_mapping["User Theme"]:
+            if chosen_theme_option != self.curr_theme or chosen_theme_option == theme_options_mapping[self.lang["user_theme"]]:
                 self.curr_theme = chosen_theme_option
                 self.update_colors()
-                if chosen_theme_option == theme_options_mapping["User Theme"]:
+                if chosen_theme_option == theme_options_mapping[self.lang["user_theme"]]:
                     self.user_theme_button.canvas.place(x=360, y=self.lang_label.winfo_reqheight() * 4)
                 else:
                     self.user_theme_button.canvas.place(x=1000, y=1000)
