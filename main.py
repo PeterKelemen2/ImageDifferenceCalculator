@@ -4,7 +4,6 @@ import sys
 import debug
 import module_handler
 import threading
-import interface
 
 # pyinstaller --onefile --add-data "assets;assets" main.py
 
@@ -37,6 +36,7 @@ def get_interface():
 def main():
     initialize()
 
+    import interface
     global my_interface
     my_interface = interface.Interface()
     debug.log("[Main] Interface initialized!", text_color="cyan")

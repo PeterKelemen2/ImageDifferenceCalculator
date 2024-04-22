@@ -16,6 +16,7 @@ def check_if_modules_installed(installed_modules):
         debug.log(f"[Modules] Module(s) {mi_modules} could not be installed, please install manually",
                   text_color="red",
                   timestamp_color="red")
+        main.main()
         sys.exit(f"[Modules] Module(s) {mi_modules} could not be installed, please install manually")
 
 
@@ -57,7 +58,6 @@ def module_handler():
         subprocess.run(["py", "-m", "pip", "install", *missing_modules, "--quiet"],
                        check=True,
                        shell=True)
-
     check_if_modules_installed(installed_modules)
 
     debug.log("[Modules] All modules installed!", text_color="cyan")
