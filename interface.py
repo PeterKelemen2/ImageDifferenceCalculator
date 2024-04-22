@@ -211,6 +211,9 @@ class Interface:
         print(self)
         custom_ui.set_interface_instance(self)
 
+    def set_main_focus(self):
+        self.win.focus_set()
+
     def set_log_text(self):
         global manual_scroll
         new_text = ""
@@ -1231,6 +1234,13 @@ class Interface:
         self.history_window.geometry(f"{HIS_WIN_WIDTH}x{HIS_WIN_HEIGHT}")
         self.history_window.resizable(False, False)
         self.history_window.focus_set()
+        self.history_window.protocol("WM_DELETE_WINDOW", self.close_history_window)
+
+        self.cards_list = []
+        if self.history_scroll_canvas is not None:
+            if self.history_scroll_canvas.winfo_exists():
+                debug.log("[Interface] History canvas exists, destroying!")
+                self.history_scroll_canvas.destroy()
 
         # Create a Canvas widget inside the Toplevel window
         self.history_scroll_canvas = Canvas(self.history_window, bg=BGCOLOR, highlightthickness=0)
@@ -1254,6 +1264,7 @@ class Interface:
         self.history_scroll_canvas.bind("<MouseWheel>", on_mousewheel)
 
         # Add CardItem widgets to the Frame for each history entry
+        self.cards_list = None
         self.cards_list = []
         self.history_entries = history_handler.load_entries()
 
@@ -1288,10 +1299,18 @@ class Interface:
         destruction and logs the result.
         """
         if self.history_window is not None:  # Check if history window exists
-            self.history_content_list = None  # Clear content list
-            self.history_exit_button.destroy()  # Destroy exit button
+            # print(f"Size of history window: {sys.getsizeof(self.history_window)} bytes")
+            self.history_entries = None
+            # print(f"Size of cards: {sys.getsizeof(self.cards_list)} bytes")
+            # self.cards_list = []
+            for elem in self.cards_list:
+                elem.canvas.destroy()
+            # print(f"Size of cards: {sys.getsizeof(self.cards_list)} bytes")
+            self.history_scroll_canvas.destroy()
             self.history_window.destroy()  # Destroy history window
+            # print(f"Size of history window: {sys.getsizeof(self.history_window)} bytes")
             self.history_window_opened = False  # Set status flag to closed
+
             debug.log(f"[Interface] History window opened status: {self.history_window_opened}")
 
             # Check if the window still exists

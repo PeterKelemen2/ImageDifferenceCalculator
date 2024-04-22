@@ -61,5 +61,19 @@
         "first_frame_path": "history/sample-2024-04-22-12-55-30.jpg",
         "normalize": false,
         "stabilize": false
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.00567496475935651",
+        "first_frame_path": "history/sample-2024-04-22-13-05-10.jpg",
+        "normalize": false,
+        "stabilize": false
+    },
+    {
+        "video_path": "C:/sample.mp4",
+        "result": "0.0049277574055370255",
+        "first_frame_path": "history/sample-2024-04-22-13-26-45.jpg",
+        "normalize": false,
+        "stabilize": false
     }
 ]

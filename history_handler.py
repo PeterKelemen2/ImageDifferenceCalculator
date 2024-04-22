@@ -56,8 +56,6 @@ def load_entries():
     try:
         with open("history.json", "r") as json_file:
             history_data = json.load(json_file)
-            print(history_data)
         return history_data
     except FileNotFoundError:
-        print("Error: History file not found.")
         return []

@@ -18,6 +18,7 @@ circle = "assets/frame_circle.png"
 rect = "assets/frame_square.png"
 toggled_on = "assets/toggle_button/toggle_on.png"
 toggled_off = "assets/toggle_button/toggle_off.png"
+no_photo_path = "assets/no_photo_small.jpg"
 
 ACCENT = "#3a3a3a"
 BGCOLOR = "#3a3a3a"
@@ -85,10 +86,11 @@ class CardItem:
         global ui
         if ui is not None:
             ui.set_selected_file_path(self.video_path)
+            ui.set_main_focus()
 
     def create_photo(self, img_path=None):
         if img_path is None or not os.path.exists(img_path):
-            image = Image.open("assets/no_photo3.png")
+            image = Image.open(no_photo_path)
         else:
             image = Image.open(img_path)
         width, height = image.size
@@ -102,7 +104,6 @@ class CardItem:
         return image
 
     def create_text(self, path=None, result="", stab=None, norm=None):
-        print("stab", stab, "norm", norm)
         self.path_text, self.text, self.diff_text, self.diff_title = None, None, None, None
         title_x = self.photo.width() + self.image_padding * 2
         self.path_text = tkinter.Label(self.container.canvas, text=ui.lang["path"], font=BOLD_FONT,
