@@ -1,13 +1,8 @@
-import gc
-import sys
-
 import debug
 import module_handler
-import threading
+
 
 # pyinstaller --onefile --add-data "assets;assets" main.py
-
-my_interface = None
 
 
 def initialize():
@@ -29,16 +24,11 @@ def initialize():
     debug.log("[Main] Session started!", text_color="cyan")
 
 
-def get_interface():
-    return my_interface
-
-
 def main():
     initialize()
 
     import interface
-    global my_interface
-    my_interface = interface.Interface()
+    ui = interface.Interface()
     debug.log("[Main] Interface initialized!", text_color="cyan")
 
 
