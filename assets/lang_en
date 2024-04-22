@@ -33,6 +33,7 @@ exit=Exit
 None=None
 stabilization=Stabilization
 preprocessing=Preproccessing
+normalization=Normalization
 to_plot=Create plot
 progress=Processing
 load_video=Load Video

@@ -33,6 +33,7 @@ exit=Kilépés
 None=None
 stabilization=Stabilizáció
 preprocessing=Előfeldolgozás
+normalization=Normalizáció
 to_plot=Ábra készítése
 progress=Feldolgozás
 load_video=Betöltés

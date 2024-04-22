@@ -1,16 +1,13 @@
-import gc
 import os.path
 import sys
 import threading
-import time
 import tkinter
-from tkinter import Tk, Label, LabelFrame, StringVar, filedialog, Toplevel, OptionMenu, font, Button, Scrollbar, Canvas, \
-    Entry, Frame, LabelFrame
+from tkinter import Tk, Label, StringVar, filedialog, Toplevel, OptionMenu, Scrollbar, Canvas, \
+    Frame
 from tkcolorpicker import askcolor
 import cv2
 
 from PIL import Image, ImageTk
-from datetime import datetime
 
 import config
 import custom_ui
@@ -20,7 +17,6 @@ import debug
 import custom_button
 import history_handler
 import lang
-import main
 import prepass
 import user_theme_config
 import video_stabilization
@@ -78,7 +74,7 @@ BIG_FONT_BOLD = ("Ubuntu", BIG_FONT_SIZE, "bold")
 TIME_WRAPPER_WIDTH = 100
 TIME_WRAPPER_HEIGHT = 80
 WIN_WIDTH = 1300
-WIN_HEIGHT = 670
+WIN_HEIGHT = 590
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 500
@@ -92,9 +88,24 @@ call_nr = 0
 video_file_path = None
 prev_video_path = None
 
+manual_scroll = False
+scroll_threshold = 0.96
+
 
 class Interface:
     def __init__(self):
+        self.apply_user_theme_button = None
+        self.cards_list = None
+        self.history_entries = None
+        self.history_scroll_canvas = None
+        self.history_scrollbar = None
+        self.history_frame = None
+        self.log_label_text = None
+        self.log_canvas = None
+        self.log_scrollbar = None
+        self.log_frame = None
+        self.log_text = None
+        self.empty_label = None
         self.color_picker_items_squares = None
         self.color_picker_text_items = None
         self.color_picker_items = None
@@ -160,7 +171,7 @@ class Interface:
         self.finished_window = None
         self.settings_wrapper = None
         self.selected_file_path = None
-        self.win = None
+        self.win: tkinter.Tk
         self.time_label = None
         self.time_wrapper = None
         self.progress_bar = None
@@ -200,6 +211,33 @@ class Interface:
         print(self)
         custom_ui.set_interface_instance(self)
 
+    def set_log_text(self):
+        global manual_scroll
+        new_text = ""
+        curr_text = self.log_text.get()
+
+        with open(debug.log_file_path, 'r') as log_file:
+            for line in log_file:
+                new_text += line[32:]
+
+        if curr_text in new_text:
+            index = new_text.find(curr_text) + len(curr_text)
+            new_text = new_text[index:]
+        else:
+            new_text = new_text
+            print(new_text)
+
+        self.log_text.set(curr_text + new_text)
+
+        self.log_frame.update_idletasks()
+        self.log_canvas.config(scrollregion=self.log_canvas.bbox("all"))
+
+        if not manual_scroll:
+            self.log_canvas.yview_moveto(1.0)
+
+        if float(self.log_canvas.yview()[1]) >= scroll_threshold:
+            self.log_canvas.yview_moveto(1.0)
+
     def create_terminal(self):
         self.terminal_wrapper = custom_ui.CustomLabelFrame(self.win,
                                                            text="Log",
@@ -211,35 +249,50 @@ class Interface:
                                                            bg=BGCOLOR)
         self.terminal_wrapper.canvas.place(x=800, y=10)
 
-        self.terminal_text = Label(self.terminal_wrapper.canvas, justify="left", text="Image Difference", font=JET_FONT,
-                                   fg=FONT_COLOR,
-                                   bg=ACCENT)
-        self.terminal_text.place(x=15, y=30)
+        self.empty_label = Label(self.terminal_wrapper.canvas, width=1, height=1, bg=ACCENT, borderwidth=0)
+        self.empty_label.place(x=10, y=30)
 
-        self.update_terminal_text()
+        self.log_canvas = Canvas(self.empty_label, width=470, height=WIN_HEIGHT - 75, bg=ACCENT, highlightthickness=0)
 
-    def update_terminal_text(self):
-        content_list = []
-        chunk_size = 65
-        lines_to_display = 37
-        try:
-            with open(debug.log_file_path, 'r') as log_file:
-                for line in log_file:
-                    # Extract the portion of the line after the second ']'
-                    adjusted_line = line.split("]", 2)[-1].lstrip()
-                    # Split the adjusted line into chunks of chunk_size characters
-                    chunks = [adjusted_line[i:i + chunk_size] for i in range(0, len(adjusted_line), chunk_size)]
-                    # Join the chunks with newline characters and append to the content list
-                    content_list.extend("\n".join(chunks[i:i + 2]) for i in range(0, len(chunks), 2))
-                    # Limit the content list to store only the last 38 lines
-                    if len(content_list) > lines_to_display:
-                        content_list = content_list[-lines_to_display:]
+        self.log_scrollbar = Scrollbar(self.empty_label, orient="vertical", command=self.log_canvas.yview, width=5)
+        self.log_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.log_scrollbar.grid_forget()
 
-            content = "".join(content_list)
-        except FileNotFoundError:
-            debug.log("[Interface] Log file not found")
+        self.log_canvas.config(yscrollcommand=self.log_scrollbar.set)
+        self.log_canvas.grid(row=0, column=0, sticky="nsew")
 
-        self.terminal_text.config(text=content)
+        self.log_frame = Frame(self.log_canvas, bg=ACCENT)
+        self.log_canvas.create_window((0, 0), window=self.log_frame, anchor="nw")
+
+        self.log_text = StringVar()
+        self.log_label_text = Label(self.log_frame, textvariable=self.log_text, bg=ACCENT, fg=FONT_COLOR,
+                                    wraplength=468, justify="left",
+                                    font=JET_FONT)
+        self.log_label_text.pack()
+
+        self.log_scrollbar.bind("<MouseWheel>", self.on_mousewheel_log)
+        self.log_label_text.bind("<MouseWheel>", self.on_mousewheel_log)
+        self.log_canvas.bind("<MouseWheel>", self.on_mousewheel_log)
+
+        self.log_frame.update_idletasks()
+
+    def set_scroll_to_bottom(self):
+        self.log_canvas.yview_moveto(1.0)
+
+    def on_mousewheel_log(self, event):
+        print("on_mousewheel_log")
+        global manual_scroll
+        # Set manual_scroll to True when the user manually scrolls
+        manual_scroll = True
+        # Perform the default scrolling behavior
+        # self.log_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        if event.num == 5 or event.delta == -120:
+            if self.log_canvas.yview()[1] < 1.0:
+                self.log_canvas.yview_scroll(1, "units")
+        elif event.num == 4 or event.delta == 120:
+            if self.log_canvas.yview()[0] > 0.0:
+                self.log_canvas.yview_scroll(-1, "units")
 
     def set_color(self):
         """
@@ -300,7 +353,10 @@ class Interface:
         self.win.after(150, self.schedule_terminal_update)
 
     def schedule_terminal_update(self):
-        self.update_terminal_text()
+        # self.update_terminal_text()
+        self.set_log_text()
+        if float(self.log_canvas.yview()[1]) > scroll_threshold:
+            self.log_canvas.yview_moveto(1.0)
         self.win.after(150, self.schedule_terminal_update)
 
     def schedule_periodic_processing_execution(self):
@@ -344,6 +400,7 @@ class Interface:
         video_stabilization.stop_stabilization_thread()
         debug.log("[Interface] Stopped stabilization thread!", text_color="magenta")
 
+        processing.force_terminate = True
         processing.stop_processing_thread()
         debug.log("[Interface] Stopped threads")
         self.win.destroy()
@@ -573,9 +630,11 @@ class Interface:
         self.image_details.place(x=new_width + 30,
                                  y=self.frame_details_header.winfo_y() + self.frame_details_header.winfo_reqheight() + 20)
         debug.log("[Interface] [5/12] Labels to display video details created!\n", text_color="yellow")
+        if self.log_canvas is not None:
+            self.log_canvas.yview_moveto(1.0)
 
         self.prepass_toggle_button = custom_ui.CustomToggleButton(self.frame_wrapper.canvas,
-                                                                  text=self.lang["preprocessing"],
+                                                                  text=self.lang["normalization"],
                                                                   width=60,
                                                                   height=30,
                                                                   bg=ACCENT)
@@ -612,7 +671,7 @@ class Interface:
             self.plotting_toggle_button.disable()
 
             # Create and display a progress bar
-            self.create_preprocess_progress_bar()
+            # self.create_preprocess_progress_bar()
             self.create_stabilization_progress_bar()
             self.create_processing_progress_bar()
 
@@ -633,6 +692,7 @@ class Interface:
                                             self.stab_toggle_button.get_state(),
                                             self.plotting_toggle_button.get_state(),
                                             self.update_bar)
+            self.set_scroll_to_bottom()
 
     def create_preprocess_progress_bar(self):
         self.prep_wrapper = custom_ui.CustomLabelFrame(self.win,
@@ -668,14 +728,14 @@ class Interface:
 
     def create_stabilization_progress_bar(self):
         self.stab_progress_wrapper = custom_ui.CustomLabelFrame(self.win,
-                                                                text=self.lang["stabilization"],
+                                                                text=self.lang["preprocessing"],
                                                                 width=780,
                                                                 height=70,
                                                                 fill=ACCENT,
                                                                 fg=FONT_COLOR,
                                                                 radius=15,
                                                                 bg=BGCOLOR)
-        self.stab_progress_wrapper.canvas.place(x=10, y=510)
+        self.stab_progress_wrapper.canvas.place(x=10, y=430)
 
         self.stab_progress_bar = custom_ui.CustomProgressBar(self.stab_progress_wrapper.canvas,
                                                              width=705,
@@ -710,7 +770,7 @@ class Interface:
                                                                 fg=FONT_COLOR,
                                                                 radius=15,
                                                                 bg=BGCOLOR)
-        self.proc_progress_wrapper.canvas.place(x=10, y=590)
+        self.proc_progress_wrapper.canvas.place(x=10, y=510)
         debug.log("[Interface] [6/2] Progress wrapper created!", text_color="magenta")
 
         # Create the custom progress bar
@@ -731,6 +791,8 @@ class Interface:
                                          font=BOLD_FONT)
         self.proc_progress_label.place(x=720, y=30)
         debug.log("[Interface] [6/6] Progress label created!\n", text_color="magenta")
+        if self.log_canvas is not None:
+            self.log_canvas.yview_moveto(1.0)
 
         # Create an overlay frame for the progress bar to hide flickering bug
         self.proc_pbar_overlay = custom_ui.CustomLabelFrame(self.proc_progress_wrapper.canvas, width=690, height=30,
@@ -895,8 +957,8 @@ class Interface:
                                      bg=ACCENT,
                                      fg=FONT_COLOR,
                                      activebackground=ACCENT,
-                                     activeforeground=FONT_COLOR,
-                                     highlightbackground=BGCOLOR)
+                                     # activeforeground=FONT_COLOR,
+                                     highlightbackground=ACCENT)
         self.lang_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                     y=self.lang_label.winfo_reqheight() * 2)
 
@@ -936,7 +998,7 @@ class Interface:
                                       fg=FONT_COLOR,
                                       activebackground=ACCENT,
                                       activeforeground=FONT_COLOR,
-                                      highlightbackground=BGCOLOR)
+                                      highlightbackground=ACCENT)
         self.theme_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                      y=self.lang_label.winfo_reqheight() * 4)
 
@@ -961,7 +1023,7 @@ class Interface:
                                     fg=FONT_COLOR,
                                     activebackground=ACCENT,
                                     activeforeground=FONT_COLOR,
-                                    highlightbackground=BGCOLOR)
+                                    highlightbackground=ACCENT)
         self.log_option_menu.place(x=(self.settings_wrapper.get_width() - self.lang_label.winfo_reqwidth()) // 2 + 40,
                                    y=self.lang_label.winfo_reqheight() * 6)
 
@@ -1031,7 +1093,7 @@ class Interface:
                                                       button_type=custom_button.button,
                                                       bg=ACCENT)
 
-        self.save_button.canvas.place(x=HIS_WIN_WIDTH // 2 - self.save_button.winfo_reqwidth() // 2,
+        self.save_button.canvas.place(x=SET_WIN_WIDTH // 2 - self.save_button.winfo_reqwidth() // 2 - 10,
                                       y=200)
         self.user_theme_button = custom_button.CustomButton(self.settings_wrapper.canvas, text="Configure", bg=ACCENT,
                                                             command=self.show_color_configurer)
@@ -1145,11 +1207,11 @@ class Interface:
 
         def on_mousewheel(event):
             if event.num == 5 or event.delta == -120:
-                if self.scroll_canvas.yview()[1] < 1.0:
-                    self.scroll_canvas.yview_scroll(1, "units")
+                if self.history_scroll_canvas.yview()[1] < 1.0:
+                    self.history_scroll_canvas.yview_scroll(1, "units")
             elif event.num == 4 or event.delta == 120:
-                if self.scroll_canvas.yview()[0] > 0.0:
-                    self.scroll_canvas.yview_scroll(-1, "units")
+                if self.history_scroll_canvas.yview()[0] > 0.0:
+                    self.history_scroll_canvas.yview_scroll(-1, "units")
 
         if self.history_window is not None:  # Check if history window already exists
             if self.history_window.winfo_exists():  # Check if the window is open
@@ -1171,22 +1233,25 @@ class Interface:
         self.history_window.focus_set()
 
         # Create a Canvas widget inside the Toplevel window
-        self.scroll_canvas = Canvas(self.history_window, bg=BGCOLOR, highlightthickness=0)
-        self.scroll_canvas.pack(side="left", fill="both", expand=True)
+        self.history_scroll_canvas = Canvas(self.history_window, bg=BGCOLOR, highlightthickness=0)
+        self.history_scroll_canvas.pack(side="left", fill="both", expand=True)
 
         # Create a scrollbar for the Canvas
-        self.scrollbar = Scrollbar(self.history_window, orient="vertical", command=self.scroll_canvas.yview, bg=BGCOLOR)
-        self.scrollbar.pack(side="right", fill="y")
+        self.history_scrollbar = Scrollbar(self.history_window, orient="vertical",
+                                           command=self.history_scroll_canvas.yview, bg=BGCOLOR)
+        self.history_scrollbar.pack(side="right", fill="y")
 
         # Configure the Canvas to use the scrollbar
-        self.scroll_canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.history_scroll_canvas.configure(yscrollcommand=self.history_scrollbar.set)
 
         # Create a Frame widget inside the Canvas to contain the scrollable content
-        self.frame = Frame(self.history_window, bg=BGCOLOR)
-        self.scroll_canvas.create_window((0, 0), window=self.frame, anchor="nw")
+        self.history_frame = Frame(self.history_window, bg=BGCOLOR)
+        self.history_scroll_canvas.create_window((0, 0), window=self.history_frame, anchor="nw")
 
-        # Bind mouse wheel scrolling to the Canvas
-        self.scroll_canvas.bind_all("<MouseWheel>", on_mousewheel)
+        # Bind mouse wheel scrolling to the window
+        self.history_scrollbar.bind("<MouseWheel>", on_mousewheel)
+        self.history_window.bind("<MouseWheel>", on_mousewheel)
+        self.history_scroll_canvas.bind("<MouseWheel>", on_mousewheel)
 
         # Add CardItem widgets to the Frame for each history entry
         self.cards_list = []
@@ -1196,9 +1261,10 @@ class Interface:
             if "normalize" not in entry: entry["normalize"] = self.lang["no_data"]
             if "stabilize" not in entry: entry["stabilize"] = self.lang["no_data"]
             if "img_path" not in entry: entry["img_path"] = self.lang["no_data"]
-            if "video_path" not in entry: entry["img_path"] = self.lang["no_data"]
-            if "result_path" not in entry: entry["img_path"] = self.lang["no_data"]
-            card = custom_ui.CardItem(self.frame, width=790 - self.scrollbar.winfo_reqwidth() * 2, height=200, title="",
+            if "video_path" not in entry: entry["video_path"] = self.lang["no_data"]
+            if "result_path" not in entry: entry["result_path"] = self.lang["no_data"]
+            card = custom_ui.CardItem(self.history_frame, width=790 - self.history_scrollbar.winfo_reqwidth() * 2,
+                                      height=200, title="",
                                       img_path=entry["first_frame_path"],
                                       video_path=entry["video_path"],
                                       result=entry["result"],
@@ -1209,8 +1275,8 @@ class Interface:
             self.cards_list[len(self.cards_list) - 1].canvas.pack(padx=10, pady=10)
 
         # Update the scroll region of the Canvas
-        self.frame.update_idletasks()
-        self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
+        self.history_frame.update_idletasks()
+        self.history_scroll_canvas.config(scrollregion=self.history_scroll_canvas.bbox("all"))
 
     def close_history_window(self):
         """
@@ -1245,7 +1311,7 @@ class Interface:
         if self.browse_wrapper is not None: self.browse_wrapper.set_label_text(self.lang["input_file"])
         if self.frame_wrapper is not None:
             self.frame_wrapper.set_label_text(self.lang["video_data"])
-            self.prepass_toggle_button.config(text=self.lang["preprocessing"])
+            self.prepass_toggle_button.config(text=self.lang["normalization"])
             self.stab_toggle_button.config(text=self.lang["stabilization"])
             self.plotting_toggle_button.config(text=self.lang["to_plot"])
         if self.proc_progress_wrapper is not None: self.proc_progress_wrapper.set_label_text(self.lang["progress"])
@@ -1404,7 +1470,9 @@ class Interface:
             self.plotting_toggle_button.config(fg=FONT_COLOR, bg=ACCENT)
 
         if self.terminal_wrapper is not None:
-            self.terminal_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.terminal_text])
+            self.terminal_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR)
+            self.log_label_text.config(bg=ACCENT, fg=FONT_COLOR)
+            self.log_canvas.config(bg=ACCENT)
 
         if self.proc_progress_wrapper is not None:
             self.proc_progress_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR, labels=[self.proc_progress_label])
@@ -1429,22 +1497,27 @@ class Interface:
                                                        self.log_label])
             for option_menu in [self.theme_option_menu, self.lang_option_menu, self.log_option_menu]:
                 option_menu.config(anchor="center", bg=ACCENT, fg=FONT_COLOR, activebackground=ACCENT,
-                                   activeforeground=FONT_COLOR, highlightbackground=BGCOLOR)
+                                   activeforeground=FONT_COLOR, highlightbackground=ACCENT)
 
             if self.color_picker_items is not None:
                 for item in self.color_picker_items:
                     if item is not None:
-                        if isinstance(item, Toplevel) or isinstance(item, Canvas):
-                            item.config(bg=ACCENT)
-                        else:
-                            item.config(bg=ACCENT, fg=FONT_COLOR)
+                        if item.winfo_exists():
+                            if isinstance(item, Toplevel) or isinstance(item, Canvas):
+                                item.config(bg=ACCENT)
+                            else:
+                                item.config(bg=ACCENT, fg=FONT_COLOR)
                 for item in self.color_picker_items_squares:
                     if item is not None:
-                        item.config(highlightbackground=FONT_COLOR)
+                        if item.winfo_exists():
+                            item.config(highlightbackground=FONT_COLOR)
+            if self.apply_user_theme_button is not None:
+                if self.apply_user_theme_button.canvas.winfo_exists():
+                    self.apply_user_theme_button.config(bg=ACCENT)
 
         if self.history_window is not None and self.history_window.winfo_exists():
-            self.scroll_canvas.config(bg=BGCOLOR)
-            self.frame.config(bg=BGCOLOR)
+            self.history_scroll_canvas.config(bg=BGCOLOR)
+            self.history_frame.config(bg=BGCOLOR)
             for card in self.cards_list:
                 card.container.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
                                             labels=[card.diff_text, card.diff_title, card.path_text, card.text,
