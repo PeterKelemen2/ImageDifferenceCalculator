@@ -1067,7 +1067,8 @@ class Interface:
                 self.curr_lang = chosen_lang_option
                 self.change_language()
 
-            if chosen_theme_option != self.curr_theme or chosen_theme_option == theme_options_mapping[self.lang["user_theme"]]:
+            if chosen_theme_option != self.curr_theme or chosen_theme_option == theme_options_mapping[
+                self.lang["user_theme"]]:
                 self.curr_theme = chosen_theme_option
                 self.update_colors()
                 if chosen_theme_option == theme_options_mapping[self.lang["user_theme"]]:
@@ -1098,7 +1099,7 @@ class Interface:
 
         self.save_button.canvas.place(x=SET_WIN_WIDTH // 2 - self.save_button.winfo_reqwidth() // 2 - 10,
                                       y=200)
-        self.user_theme_button = custom_button.CustomButton(self.settings_wrapper.canvas, text="Configure", bg=ACCENT,
+        self.user_theme_button = custom_button.CustomButton(self.settings_wrapper.canvas, text=self.lang["configure"], bg=ACCENT,
                                                             command=self.show_color_configurer)
         if self.curr_theme == "usertheme":
             self.user_theme_button.canvas.place(x=360, y=self.lang_label.winfo_reqheight() * 4)
@@ -1398,6 +1399,7 @@ class Interface:
         # Update settings window
         if self.settings_window is not None:
             self.settings_window.title(self.lang["settings"])
+            self.user_theme_button.config(text=self.lang["configure"])
         if self.settings_label is not None:
             self.settings_label.place(
                 x=self.settings_wrapper.get_width() // 2 - self.settings_label.winfo_reqwidth() // 2,
