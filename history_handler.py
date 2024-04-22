@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import cv2
@@ -6,7 +7,7 @@ from custom_ui import ui
 
 
 class HistoryEntry:
-    def __init__(self, video_path=None, result=None, normalize=None, stabilize=None):
+    def __init__(self, video_path=None, frame=None, result=None, normalize=None, stabilize=None):
         self.video_path = video_path
         if result is None:
             self.result = "Aborted."
@@ -14,13 +15,12 @@ class HistoryEntry:
             self.result = str(result)
 
         if self.video_path:
-            video = cv2.VideoCapture(self.video_path)
-            ret, first_frame = video.read()
-            if ret:
-                width, height = first_frame.shape[:2]
-                frame_to_write = cv2.resize(first_frame, (height // 4, width // 4))
-                cv2.imwrite("history/" + self.video_path.split("/")[-1] + ".jpg", frame_to_write)
-                self.first_frame_path = "history/" + self.video_path.split("/")[-1] + ".jpg"
+            self.video_path = str(video_path)
+
+            if frame is not None:
+                img_path = f"history/{self.video_path.split("/")[-1].split(".")[0]}-{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.jpg"
+                self.first_frame_path = img_path
+                cv2.imwrite(img_path, frame)
 
         if normalize is True or normalize is False:
             self.normalize = normalize

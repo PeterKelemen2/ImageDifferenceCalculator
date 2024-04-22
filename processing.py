@@ -34,6 +34,14 @@ def set_progress_callback(callback):
     progress_callback = callback
 
 
+def create_highlighted_frame(frame, roi):
+    ratio = 6
+    n_h, n_w = frame.shape[0] // ratio, frame.shape[1] // ratio
+    s_roi = (roi[0] // ratio, roi[1] // ratio, roi[2] // ratio, roi[3] // ratio)
+    frame = cv2.resize(frame, (n_w, n_h))
+    return cv2.rectangle(frame, (s_roi[0], s_roi[1]), (s_roi[0] + s_roi[2], s_roi[1] + s_roi[3]), (0, 255, 0), 2)
+
+
 def process_video(path, preprocess, stabilize, to_plot, p_callback):
     global is_finished, total_difference, progress_percentage, stop_thread_event, initialized
 
@@ -45,18 +53,6 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         start_time = time.time()
 
         new_path = path
-        # if preprocess:
-        #     prep_start_time = time.time()
-        #     prepass.set_progress_callback(p_callback)
-        #     prepass.preprocess_video_thread(path, to_plot)
-        #     debug.log("[Processing] Started preprocessing thread!")
-        #     while not prepass.is_finished:
-        #         time.sleep(0.02)
-        #     prepass.thread.join()
-        #     debug.log(f"[Processing] Preprocessing!")
-        #     new_path = new_path[:-4] + "_prepass.mp4"
-
-        print(preprocess, stabilize)
 
         if stabilize or preprocess:
             video_stabilization.set_progress_callback(p_callback)
@@ -75,12 +71,12 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
 
             cap = cv2.VideoCapture(new_path)
             ret, prev_frame = cap.read()
+            first_frame = prev_frame
             if not ret:
                 debug.log(f"[Processing] Unable to read the video file.")
 
             if force_terminate is False:
                 new_roi = cv2.selectROI("Select ROI", prev_frame)
-            # new_roi = (387, 491, 271, 256)
             cv2.destroyWindow("Select ROI")
             proc_time = time.time()
             debug.log(f"[Processing] ROI: {new_roi}")
@@ -90,6 +86,8 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             cropped_output_path = new_path[:-4] + "_processed.mp4"
             codec = cv2.VideoWriter_fourcc('F', 'F', 'V', '1')
             video_writer = cv2.VideoWriter(cropped_output_path, codec, 95, (w, h))
+
+            history_frame = create_highlighted_frame(first_frame, new_roi)
 
             prev_gray_cropped = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)[y:y + h, x:x + w]
 
@@ -123,12 +121,13 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
 
             is_finished = True
             if total_difference > 0:
-                # write_to_history(path, total_difference)
                 history_handler.save_entry(
-                    history_handler.HistoryEntry(video_path=path, result=total_difference, normalize=preprocess,
+                    history_handler.HistoryEntry(video_path=path,
+                                                 frame=history_frame,
+                                                 result=total_difference,
+                                                 normalize=preprocess,
                                                  stabilize=stabilize))
             else:
-                # write_to_history(path, "Aborted.")
                 history_handler.save_entry(history_handler.HistoryEntry(video_path=path, result="Aborted."))
             debug.log(
                 f"[Processing] Image difference calculation finished in {"{:.2f}s".format(time.time() - proc_time)}",
