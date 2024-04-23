@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 
 import debug
+import interface
 import plotting
 import prepass
 import processing
@@ -43,7 +44,8 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
         # Read video input
         cap = cv2.VideoCapture(video_path)
         cv2.setNumThreads(16)
-        output = video_path[:-4] + "_stabilized.mp4"
+        output = f"{processing.processed_path}/{video_path.split("/")[-1]}"
+        # output = processing.processed_path
 
         # Read the first frame
         ret, first_frame = cap.read()
