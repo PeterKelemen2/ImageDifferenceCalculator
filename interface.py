@@ -78,7 +78,7 @@ WIN_HEIGHT = 590
 FIN_WIN_WIDTH = 300
 FIN_WIN_HEIGHT = 180
 SET_WIN_WIDTH = 500
-SET_WIN_HEIGHT = 300
+SET_WIN_HEIGHT = 500
 HIS_WIN_WIDTH = 800
 HIS_WIN_HEIGHT = 800
 
@@ -1100,6 +1100,23 @@ class Interface:
         self.user_theme_button = custom_button.CustomButton(self.settings_wrapper.canvas, text=self.lang["configure"],
                                                             bg=ACCENT,
                                                             command=self.show_color_configurer)
+
+        self.clear_history_button = custom_button.CustomButton(self.settings_wrapper.canvas,
+                                                               text=self.lang["clear_history"],
+                                                               bg=ACCENT,
+                                                               command=history_handler.clear_history)
+        self.clear_history_button.canvas.place(
+            x=SET_WIN_WIDTH // 2 - self.clear_history_button.winfo_reqwidth() // 2 - 10,
+            y=280)
+
+        self.clear_video_button = custom_button.CustomButton(self.settings_wrapper.canvas,
+                                                             text=self.lang["clear_video"],
+                                                             bg=ACCENT,
+                                                             command=processing.clear_processed_videos)
+        self.clear_video_button.canvas.place(
+            x=SET_WIN_WIDTH // 2 - self.clear_video_button.winfo_reqwidth() // 2 - 10,
+            y=320)
+
         if self.curr_theme == "usertheme":
             self.user_theme_button.canvas.place(x=360, y=self.lang_label.winfo_reqheight() * 4)
         else:
@@ -1275,7 +1292,7 @@ class Interface:
                 if "img_path" not in entry: entry["img_path"] = self.lang["no_data"]
                 if "video_path" not in entry: entry["video_path"] = self.lang["no_data"]
                 if "result_path" not in entry: entry["result_path"] = self.lang["no_data"]
-                card = custom_ui.CardItem(self.history_frame, width=790 - self.history_scrollbar.winfo_reqwidth() * 2,
+                card = custom_ui.CardItem(self.history_frame, width=795 - self.history_scrollbar.winfo_reqwidth() * 2,
                                           height=200, title="",
                                           img_path=entry["first_frame_path"],
                                           video_path=entry["video_path"],
@@ -1400,6 +1417,8 @@ class Interface:
         if self.settings_window is not None:
             self.settings_window.title(self.lang["settings"])
             self.user_theme_button.config(text=self.lang["configure"])
+            self.clear_history_button.config(text=self.lang["clear_history"])
+            self.clear_video_button.config(text=self.lang["clear_video"])
         if self.settings_label is not None:
             self.settings_label.place(
                 x=self.settings_wrapper.get_width() // 2 - self.settings_label.winfo_reqwidth() // 2,

@@ -1,8 +1,11 @@
 import datetime
 import json
 import os
+import shutil
 
 import cv2
+
+import debug
 
 history_path = "history.json"
 
@@ -71,3 +74,13 @@ def load_entries():
                 json_file.write("[\n]")
         except FileNotFoundError:
             return []
+
+
+def clear_history():
+    debug.log("[History] Clearing history")
+    if os.path.exists(history_path):
+        os.remove(history_path)
+    if os.path.exists("history"):
+        shutil.rmtree("history")
+    else:
+        debug.log("[History] No history found")

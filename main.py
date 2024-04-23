@@ -19,7 +19,6 @@ def initialize():
     font_handler.install_font("Ubuntu-Bold.ttf")
     font_handler.install_font("JetBrainsMono-Regular.ttf")
     config.init_settings()
-    processing.init_history()
 
     debug.log("[Main] Session started!", text_color="cyan")
 

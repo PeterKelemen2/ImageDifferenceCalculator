@@ -1,5 +1,6 @@
 import datetime
 import os
+import shutil
 from queue import Queue
 import sys
 import threading
@@ -20,7 +21,6 @@ total_difference = None
 is_finished = False
 initialized = False
 thread: threading.Thread = None
-HISTORY_PATH = "processing_history.txt"
 stop_thread_event: threading.Event = None
 callback_queue: Queue = Queue()
 force_terminate = False
@@ -195,10 +195,11 @@ def process_video_thread(path, prepass, stabilize, to_plot, callback):
     thread.start()
 
 
-def init_history():
-    if not os.path.exists(HISTORY_PATH):
-        try:
-            with open(HISTORY_PATH, "w"):
-                debug.log("[Processing] History file created", text_color="blue")
-        except Exception as e:
-            debug.log(str(e), text_color="red")
+def clear_processed_videos():
+    debug.log("[Processing] Removing previously processed videos...")
+    if os.path.exists(processing_folder):
+        shutil.rmtree(processing_folder)
+    else:
+        debug.log("[Processing] No previous video processing folder found!")
+        return
+    debug.log("[Processing] Removal successful!")
