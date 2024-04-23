@@ -71,7 +71,6 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
         b_list, prepass_b_list = [], []
         if normalize:
             brightness_value = prepass.calculate_avg_brightness(first_frame)
-            # print(brightness_value)
 
         curr_frame_index = 1
         movement_data = []
@@ -99,6 +98,7 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
                     normalized_frame = frame
                 # Creating a half sized frame to use for the template matching
                 resized_frame = cv2.resize(normalized_frame, (resized_frame_width, resized_frame_height))
+
             else:
                 break
 

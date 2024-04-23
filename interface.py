@@ -283,12 +283,9 @@ class Interface:
         self.log_canvas.yview_moveto(1.0)
 
     def on_mousewheel_log(self, event):
-        print("on_mousewheel_log")
         global manual_scroll
         # Set manual_scroll to True when the user manually scrolls
         manual_scroll = True
-        # Perform the default scrolling behavior
-        # self.log_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
         if event.num == 5 or event.delta == -120:
             if self.log_canvas.yview()[1] < 1.0:
@@ -370,6 +367,7 @@ class Interface:
         if processing.is_finished:
             processing.execute_callbacks()
             self.stop_periodic_progress_update()
+            processing.video_writer.release()
             processing.thread.join()
             self.create_finished_window()
 
@@ -1099,7 +1097,8 @@ class Interface:
 
         self.save_button.canvas.place(x=SET_WIN_WIDTH // 2 - self.save_button.winfo_reqwidth() // 2 - 10,
                                       y=200)
-        self.user_theme_button = custom_button.CustomButton(self.settings_wrapper.canvas, text=self.lang["configure"], bg=ACCENT,
+        self.user_theme_button = custom_button.CustomButton(self.settings_wrapper.canvas, text=self.lang["configure"],
+                                                            bg=ACCENT,
                                                             command=self.show_color_configurer)
         if self.curr_theme == "usertheme":
             self.user_theme_button.canvas.place(x=360, y=self.lang_label.winfo_reqheight() * 4)
@@ -1270,6 +1269,7 @@ class Interface:
         self.history_entries = history_handler.load_entries()
         if self.history_entries:
             for entry in self.history_entries:
+                print(entry)
                 if "normalize" not in entry: entry["normalize"] = self.lang["no_data"]
                 if "stabilize" not in entry: entry["stabilize"] = self.lang["no_data"]
                 if "img_path" not in entry: entry["img_path"] = self.lang["no_data"]
