@@ -65,7 +65,7 @@ def stabilize_video(video_path, to_plot, stabilize, normalize, p_callback=None):
         template = resized_first_frame[roi_y:roi_y + roi_height, roi_x:roi_x + roi_width]
 
         # Define the output video codec and create a VideoWriter object
-        codec = cv2.VideoWriter_fourcc(*'H264')
+        codec = cv2.VideoWriter_fourcc(*'FFV1')
         out = cv2.VideoWriter(output, codec, int(cap.get(cv2.CAP_PROP_FPS)), (frame_width, frame_height))
 
         b_list, prepass_b_list = [], []

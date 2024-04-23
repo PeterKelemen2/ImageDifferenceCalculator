@@ -94,7 +94,7 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         x, y, w, h = new_roi
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         cropped_output_path = new_path[:-4] + "_processed.mp4"
-        codec = cv2.VideoWriter_fourcc(*'H264')
+        codec = cv2.VideoWriter_fourcc(*'FFV1')
         video_writer = cv2.VideoWriter(cropped_output_path, codec, int(cap.get(cv2.CAP_PROP_FPS)), (w, h))
 
         history_frame = create_highlighted_frame(first_frame, new_roi)
@@ -114,20 +114,11 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
             diff_rgb = cv2.cvtColor(diff, cv2.COLOR_GRAY2BGR)
             video_writer.write(diff_rgb)
 
-            cv2.imshow('Frame', gray_cropped)
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                break
-
             # Calculate Mean Squared Error (MSE)
             total_mean += np.mean((diff / 255.0) ** 2)
 
             if current_frame_index % 2 == 0:
                 callback_queue.put(lambda: p_callback("processing", (current_frame_index * 100) // total_frames))
-            print(current_frame_index, total_frames)
-            if current_frame_index == total_frames - 10:
-                cap.release
-                video_writer.release()
-                break
 
         cap.release()
         video_writer.release()
