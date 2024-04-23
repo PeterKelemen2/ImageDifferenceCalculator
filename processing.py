@@ -59,7 +59,7 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         if preprocess or stabilize:
             date = f"{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}"
             global processed_path
-            processed_path = f"{processing_folder}/{date}-{path.split("/")[-1].split(".")[0]}"
+            processed_path = f"{processing_folder}/{path.split("/")[-1].split(".")[0]}-{date}"
             os.mkdir(processed_path)
 
         if stabilize or preprocess:
@@ -94,7 +94,7 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         x, y, w, h = new_roi
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         cropped_output_path = new_path[:-4] + "_processed.mp4"
-        codec = cv2.VideoWriter_fourcc(*'FFV1')
+        codec = cv2.VideoWriter_fourcc(*'x264')
         video_writer = cv2.VideoWriter(cropped_output_path, codec, int(cap.get(cv2.CAP_PROP_FPS)), (w, h))
 
         history_frame = create_highlighted_frame(first_frame, new_roi)
