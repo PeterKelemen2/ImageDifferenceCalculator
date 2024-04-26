@@ -210,7 +210,6 @@ class Interface:
         self.win.mainloop()
 
     def set_interface(self):
-        print(self)
         custom_ui.set_interface_instance(self)
 
     def set_main_focus(self):

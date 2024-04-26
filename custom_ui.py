@@ -86,6 +86,8 @@ class CardItem:
         global ui
         if ui is not None:
             ui.set_selected_file_path(self.video_path)
+            ui.create_stabilization_progress_bar()
+            ui.create_processing_progress_bar()
             ui.set_main_focus()
 
     def create_photo(self, img_path=None):
