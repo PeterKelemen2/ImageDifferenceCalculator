@@ -59,6 +59,8 @@ def process_video(path, preprocess, stabilize, to_plot, p_callback):
         if preprocess or stabilize:
             date = f"{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}"
             global processed_path
+            if not os.path.exists(processing_folder):
+                os.mkdir(processing_folder)
             processed_path = f"{processing_folder}/{path.split("/")[-1].split(".")[0]}-{date}"
             os.mkdir(processed_path)
 
