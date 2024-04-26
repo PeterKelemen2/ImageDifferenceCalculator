@@ -94,6 +94,8 @@ scroll_threshold = 0.96
 
 class Interface:
     def __init__(self):
+        self.clear_history_button = None
+        self.clear_video_button = None
         self.apply_user_theme_button = None
         self.cards_list = None
         self.history_entries = None
@@ -1532,7 +1534,8 @@ class Interface:
         if self.settings_wrapper is not None:
             self.settings_window.configure(bg=BGCOLOR)
             self.settings_wrapper.switch_theme(ACCENT, FONT_COLOR, BGCOLOR,
-                                               buttons=[self.save_button, self.user_theme_button],
+                                               buttons=[self.save_button, self.user_theme_button,
+                                                        self.clear_video_button, self.clear_history_button],
                                                labels=[self.settings_label, self.lang_label, self.theme_label,
                                                        self.log_label])
             for option_menu in [self.theme_option_menu, self.lang_option_menu, self.log_option_menu]:
